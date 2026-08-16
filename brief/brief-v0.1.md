@@ -1,37 +1,36 @@
-
 # BRIEF V0.1 - PROYECTO: PETCONNECT
 
+**Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
 
 ### 1. PROBLEMA (¿Qué dificultad queremos comprender?)
 
-Actualmente existe una gran fragmentación, desorganización y sobrecarga de información sobre mascotas perdidas y en adopción. Las personas recurren a múltiples grupos de Facebook, WhatsApp o carteles físicos, lo que hace que la información se pierda rápidamente. Esta falta de un canal centralizado reduce drásticamente las probabilidades de encontrar a una mascota perdida a tiempo y hace que el proceso de adopción sea confuso y poco confiable.
+El proceso de búsqueda y oferta de alquileres genera una enorme pérdida de tiempo y frustración por la falta de transparencia y filtros. Por un lado, los inquilinos pierden tardes enteras visitando físicamente departamentos que no cumplen lo prometido en el anuncio (fotos desactualizadas, precios distintos o reglas ocultas como "no se aceptan mascotas"). Por otro lado, los propietarios publican en redes sociales (como grupos de Facebook) y reciben decenas de mensajes de WhatsApp sin filtro, perdiendo tiempo respondiendo a personas que no leyeron el anuncio o no califican.
 
 ### 2. USUARIO (¿Quién vive esa dificultad?)
 
-El sistema abarca tres perfiles principales:
+El sistema se enfoca en dos perfiles con necesidades complementarias:
 
-* **Dueños de mascotas:** Personas angustiadas que han perdido a su animal de compañía y necesitan difundir la información urgentemente.
-* **Adoptantes:** Personas o familias que buscan integrar una mascota a su hogar de manera responsable y segura.
-* **Rescatistas / Personas solidarias:** Quienes han encontrado a un animal en la calle y buscan a su dueño original o le buscan un nuevo hogar temporal/permanente.
+* **El Inquilino (Ej. Estudiante o Joven Profesional):** Personas (como estudiantes de la UAGRM) que tienen un presupuesto ajustado, necesitan saber distancias exactas (si es caminable) y condiciones claras antes de movilizarse a ver un lugar.
+* **El Propietario / Arrendador:** Dueños de inmuebles o habitaciones que buscan inquilinos serios y quieren evitar el "spam" de mensajes irrelevantes o visitas inútiles de personas que no cumplen sus requisitos.
 
 ### 3. CONTEXTO (¿Dónde y cuándo ocurre?)
 
-Ocurre principalmente en entornos urbanos y digitales. La necesidad surge en situaciones de alta tensión emocional (el momento exacto en que una mascota se extravía y las horas críticas posteriores) o durante la búsqueda activa y planificada de una familia que desea adoptar. Actualmente, los usuarios intentan resolver esto navegando horas en redes sociales sin herramientas de búsqueda o filtrado eficientes.
+Ocurre al final de contratos de alquiler o al inicio de semestres universitarios, cuando hay urgencia por mudarse o conseguir inquilino. Físicamente, el problema se materializa en el tráfico y el tiempo perdido en traslados para ver inmuebles engañosos. Digitalmente, ocurre al navegar por grupos de Facebook caóticos o portales donde la información está incompleta, desactualizada o no permite saber con quién se compartiría el espacio.
 
 ### 4. TAREA (¿Qué intenta hacer el usuario?)
 
-* **En caso de pérdida:** El usuario intenta publicar una alerta rápida con la foto, características y última ubicación conocida de su mascota para que la comunidad ayude a buscarla.
-* **En caso de adopción:** El usuario intenta explorar un catálogo de mascotas disponibles, ver sus detalles (edad, raza, comportamiento) y contactar al rescatista de forma directa.
+* **El Inquilino:** Intenta encontrar un lugar que se ajuste exactamente a sus reglas (ej. acepta mascotas), presupuesto y ubicación (distancia caminable a su universidad/trabajo), asegurándose de que la información sea real antes de agendar una visita.
+* **El Propietario:** Intenta publicar su inmueble y lograr que solo lo contacten prospectos pre-filtrados que ya aceptaron sus condiciones y precio, para agendar visitas solo con personas realmente viables.
 
 ### 5. IDEA INICIAL (¿Qué solución imaginamos por ahora?)
 
-Desarrollar **PetConnect**, una aplicación móvil centralizada (con una interfaz intuitiva similar a una red social o plataforma de clasificados) dedicada exclusivamente al bienestar animal. La app permitirá centralizar alertas de pérdida con geolocalización y ofrecer un feed ordenado ("Explorar") donde se puedan filtrar las mascotas en adopción por especie, raza y cercanía (como se observa en el diseño de la interfaz propuesta).
+Crear una plataforma de "Match Inmobiliario" que actúe como un filtro estricto entre ambas partes. A diferencia de un portal tradicional, la plataforma exigirá a los propietarios llenar campos estandarizados (política de mascotas, distancia a puntos clave como universidades, fotos verificadas) y ocultará el número de teléfono directo. El inquilino deberá establecer sus filtros y solo podrá enviar una "Solicitud de Visita" si cumple con los requisitos del propietario, eliminando el spam y las visitas engañosas.
 
 ### 6. ALCANCE (¿Qué parte pequeña abordaremos primero?)
 
 Para el Producto Mínimo Viable (MVP), nos enfocaremos en:
 
-1. **Gestión de Usuarios:** Registro e inicio de sesión básico.
-2. **Publicación:** Creación de fichas de mascotas (subir foto, nombre, raza, edad, ubicación y estado: perdido o en adopción).
-3. **Exploración:** Un feed principal donde los usuarios puedan visualizar las tarjetas de las mascotas publicadas y aplicar filtros básicos (ej. Perros, Gatos, Todos) para agilizar la búsqueda.
-
+1. **Registro y Perfiles:** Creación de cuentas diferenciadas para Propietarios e Inquilinos.
+2. **Publicación Estructurada:** Un formulario de publicación para propietarios que exija reglas claras (mascotas, servicios incluidos) y geolocalización exacta.
+3. **Búsqueda con Filtros Clave:** Un buscador para inquilinos que permita filtrar no solo por precio, sino por reglas específicas (ej. "Acepta mascotas") y ver la distancia a puntos de interés.
+4. **Sistema de Solicitud:** Un botón de "Solicitar Visita" (en lugar de mostrar el WhatsApp libremente) para que el propietario apruebe el contacto inicial.
