@@ -1,6 +1,9 @@
-# BRIEF V0.1 - PROYECTO: PETCONNECT
+# BRIEF V0.1 - PROYECTO: ALQUILAMATCH
 
+**Materia:** Interacción Hombre Computador ELC106-SA
+**Tipo de Proyecto:** Aplicación móvil
 **Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
+**Fecha:** 16/08/2026
 
 ### 1. PROBLEMA (¿Qué dificultad queremos comprender?)
 
@@ -24,7 +27,7 @@ Ocurre al final de contratos de alquiler o al inicio de semestres universitarios
 
 ### 5. IDEA INICIAL (¿Qué solución imaginamos por ahora?)
 
-Crear una plataforma de "Match Inmobiliario" que actúe como un filtro estricto entre ambas partes. A diferencia de un portal tradicional, la plataforma exigirá a los propietarios llenar campos estandarizados (política de mascotas, distancia a puntos clave como universidades, fotos verificadas) y ocultará el número de teléfono directo. El inquilino deberá establecer sus filtros y solo podrá enviar una "Solicitud de Visita" si cumple con los requisitos del propietario, eliminando el spam y las visitas engañosas.
+Crear una **aplicación móvil** de "Match Inmobiliario" que actúe como un filtro estricto entre ambas partes. A diferencia de un portal web tradicional, la app exigirá a los propietarios llenar campos estandarizados (política de mascotas, distancia a puntos clave como universidades, fotos verificadas) y ocultará el número de teléfono directo. El inquilino deberá establecer sus filtros y solo podrá enviar una "Solicitud de Visita" si cumple con los requisitos del propietario, eliminando el spam y las visitas engañosas.
 
 ### 6. ALCANCE (¿Qué parte pequeña abordaremos primero?)
 
