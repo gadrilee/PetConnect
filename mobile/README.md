@@ -50,48 +50,71 @@ Organización *feature-first*: cada carpeta de `features/` es autocontenida y co
 
 ## Emulador
 
-Arrancalo siempre con el script, no con el boton de Android Studio:
+**La ventana del emulador abre fuera del area visible de la pantalla.** Aparece
+como `device` en `adb devices` y en `flutter devices`, pero no se ve nada: queda
+en Y = -1000, mil pixeles por encima del borde superior.
+
+### La causa
+
+`window.scale = -1` (automatico) en `emulator-user.ini`. El emulador calcula la
+posicion de la ventana con el tamano **sin escalar** del dispositivo (1440x3200)
+y despues escala solo el tamano, no la posicion. Centrar 3200 px en una pantalla
+de 800 da aproximadamente -1000.
+
+Fijar una escala explicita lo arregla... hasta que cerras el emulador: **borra y
+recrea `emulator-user.ini`, reseteando la escala a -1**. Marcar el archivo como
+solo-lectura tampoco sirve, porque al recrearlo limpia el atributo. Comprobado.
+
+### La solucion: instalarla una vez
 
 ```powershell
 cd mobile
-.\scripts\emulador.ps1
+.\scripts\emulador-watcher.ps1 -Install
 ```
 
-### Por que un script y no el boton
+Queda como tarea programada al iniciar sesion y funciona **sin importar como
+arranques el emulador** — boton de Android Studio, linea de comandos o el script
+de abajo. Trabaja en dos capas:
 
-El emulador **abre su ventana fuera del area visible de la pantalla**. Aparece
-como `device` en `adb devices` y en `flutter devices`, pero no se ve nada: la
-ventana queda en Y = -1000, mil pixeles por encima del borde superior. Guarda
-una posicion en `emulator-user.ini` pero la ignora — comprobado dos veces
-seguidas, arranca en la misma posicion invalida aunque el `.ini` diga otra cosa.
+1. **Al cerrarse el emulador**, reescribe `emulator-user.ini` con una escala
+   explicita calculada desde el alto real de tu monitor. Asi el proximo arranque
+   ya abre bien por si solo.
+2. **Si aun asi abre fuera**, detecta la ventana y la reubica, recortandola
+   contra los limites del monitor.
 
-El script espera a que termine de bootear y despues reubica la ventana,
-recortandola contra los limites del monitor real. Si el AVD no entra en la
-pantalla, la achica en vez de dejarla a medias afuera.
+Actua **una sola vez por sesion** de emulador: si despues moves la ventana a
+mano, no te la vuelve a correr.
 
 ```powershell
-.\scripts\emulador.ps1 -Avd Pixel_10_Pro_Fold   # elegir otro AVD
-.\scripts\emulador.ps1 -ColdBoot                # arranque en frio
+.\scripts\emulador-watcher.ps1 -Uninstall   # quitarla
+```
+
+### Arranque manual (opcional)
+
+```powershell
+.\scripts\emulador.ps1                      # arranca y reubica
+.\scripts\emulador.ps1 -Avd Pixel_10_Pro_Fold
+.\scripts\emulador.ps1 -ColdBoot            # tras cambiar RAM o nucleos
 ```
 
 ### Config del AVD (fuera del repo)
 
-Estos cambios estan en `%USERPROFILE%\.android\avd\<avd>.avd\config.ini`,
-que no se versiona. Si armas el entorno en otra maquina, replicalos:
+Estos cambios estan en `%USERPROFILE%\.android\avd\<avd>.avd\config.ini`, que no
+se versiona. Si armas el entorno en otra maquina, replicalos:
 
 | Clave | Valor | Por que |
 |---|---|---|
-| `emulator.dev.xr.glasses_display` | **eliminada** | Estaba en `monocular_right`: renderizaba como pantalla de gafas XR, por eso la ventana salia apaisada (975x469) pese a `hw.initialOrientation=portrait`. Sin esta linea vuelve a ser vertical (447x800) |
-| `hw.ramSize` | 5120 → 2048 | Mas RAM de la que queda libre en la maquina |
-| `vm.heapSize` | 4096 → 512 | Desproporcionado para una app de este tamano |
-| `hw.cpu.ncore` | 8 → 4 | La mitad de los nucleos dedicados al emulador |
+| `emulator.dev.xr.glasses_display` | **eliminada** | Estaba en `monocular_right`: renderizaba como pantalla de gafas XR, por eso la ventana salia apaisada (975x469) pese a `hw.initialOrientation=portrait` |
+| `hw.ramSize` | 5120 -> 2048 | Mas RAM de la que queda libre en la maquina |
+| `vm.heapSize` | 4096 -> 512 | Desproporcionado para una app de este tamano |
+| `hw.cpu.ncore` | 8 -> 4 | La mitad de los nucleos dedicados al emulador |
 
 Con eso la CPU en reposo bajo de **73% a 6%**, que era la causa del ruido del
 ventilador. Hay un respaldo en `config.ini.bak` junto al original.
 
 > **Los cambios de RAM, heap y nucleos no se aplican con el arranque normal**,
-> porque restaura un snapshot que trae la configuracion vieja. Hay que arrancar
-> una vez con `-ColdBoot`.
+> porque restaura un snapshot con la configuracion vieja. Hay que arrancar una
+> vez con `-ColdBoot`.
 
 > **Para esta app conviene un telefono real por USB.** El GPS y la camara con
 > fecha de captura son el corazon del producto y no se prueban bien en un
