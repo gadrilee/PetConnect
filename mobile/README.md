@@ -76,7 +76,7 @@ pantalla, la achica en vez de dejarla a medias afuera.
 
 ### Config del AVD (fuera del repo)
 
-Estos cambios estan en `%USERPROFILE%\.androidvd\<avd>.avd\config.ini`,
+Estos cambios estan en `%USERPROFILE%\.android\avd\<avd>.avd\config.ini`,
 que no se versiona. Si armas el entorno en otra maquina, replicalos:
 
 | Clave | Valor | Por que |
