@@ -31,22 +31,50 @@ Si clonás el repo de cero, antes: `flutter pub get`.
 | Cámara | Fotos selladas con fecha de captura | 2. Publicar anuncio |
 | Notificaciones push | Avisar la respuesta a la solicitud | 3. Gestionar solicitudes |
 
-## Estructura prevista
-
-Hoy `lib/` sólo tiene el `main.dart` que genera Flutter. La organización a medida que se implemente:
+## Estructura
 
 ```
 mobile/lib/
-├── main.dart
-├── core/                # cliente HTTP, tema, constantes
+├── main.dart                    # providers + qué pantalla se ve según la sesión
+├── core/
+│   ├── config.dart              # baseUrl de la API
+│   ├── api_client.dart          # HTTP con JWT, renueva el token al vencer
+│   └── theme.dart               # colores y medidas, en un solo lugar
 ├── features/
-│   ├── auth/            # registro, login, elegir rol
-│   ├── anuncios/        # publicar, mis anuncios, estado
-│   └── solicitudes/     # bandeja, aprobar / rechazar
-└── shared/              # widgets transversales
+│   ├── auth/                    # login, registro, estado de sesión
+│   └── home/                    # bifurcación por rol
+└── shared/widgets/              # widgets transversales
 ```
 
-Organización *feature-first*: cada carpeta de `features/` es autocontenida y corresponde a un módulo del `appmap/appmap-v0.1.md`, igual que las apps del backend.
+Organización *feature-first*: cada carpeta de `features/` es autocontenida y
+corresponde a un módulo del `appmap/appmap-v0.1.md`, igual que las apps del
+backend. Faltan `anuncios/` y `solicitudes/`.
+
+## Autenticación
+
+Ya funciona contra la API real:
+
+- `POST /api/auth/token/` devuelve access y refresh, que se guardan con
+  **flutter_secure_storage** (Keystore en Android), no en texto plano.
+- Cada pedido lleva el `Authorization: Bearer`. Si el access venció, el
+  `ApiClient` lo renueva y **reintenta el pedido una sola vez**.
+- Al abrir la app, `restaurarSesion()` usa el token guardado: verificado que
+  entra al home sin volver a pedir credenciales.
+- Los errores de DRF se traducen a mensajes legibles, y los que vienen por
+  campo (`{"whatsapp": [...]}`) se pintan debajo del input correspondiente.
+
+### Dos decisiones de build que conviene conocer
+
+**`flutter_secure_storage` está fijado en 10.3.1, no en la última.** La 11.0.0
+exige compilar contra Android SDK 37. Flutter instala esa plataforma solo, pero
+la deja como `android-37.0` mientras Gradle busca `android-37`, y la build
+falla. La 10.3.1 compila contra SDK 36 y evita el problema en cualquier máquina.
+
+**HTTP en claro habilitado sólo en debug.** Android lo bloquea desde API 28 y el
+backend de desarrollo no tiene TLS. La excepción vive en
+`android/app/src/debug/res/xml/network_security_config.xml` y se limita a
+`10.0.2.2`, `localhost` y `127.0.0.1`. Al estar en `src/debug/` **no forma parte
+de la build de release**.
 
 ## Emulador
 
