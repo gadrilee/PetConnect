@@ -1,6 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Ubicacion: el propietario marca el inmueble con el GPS estando parado
+         ahi. De esa coordenada sale el calculo de minutos caminando a la UAGRM,
+         que es lo que reemplaza al "cerca de la U" de los anuncios de hoy. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!-- Las fotos NO necesitan el permiso CAMERA: image_picker abre la camara
+         del sistema por intent. Declararlo obligaria a pedirlo en tiempo de
+         ejecucion sin ganar nada. -->
+
     <application
-        android:label="alquilamatch"
+        android:label="AlquilaMatch"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

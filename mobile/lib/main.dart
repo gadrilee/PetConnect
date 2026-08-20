@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'core/api_client.dart';
 import 'core/theme.dart';
+import 'features/anuncios/data/anuncios_repository.dart';
+import 'features/anuncios/providers/mis_anuncios_provider.dart';
 import 'features/auth/data/auth_repository.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/providers/auth_provider.dart';
@@ -10,14 +12,17 @@ import 'features/home/presentation/home_screen.dart';
 
 void main() {
   final api = ApiClient();
+  final anuncios = AnunciosRepository(api);
 
   runApp(
     MultiProvider(
       providers: [
         Provider<ApiClient>.value(value: api),
+        Provider<AnunciosRepository>.value(value: anuncios),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(AuthRepository(api))..restaurarSesion(),
         ),
+        ChangeNotifierProvider(create: (_) => MisAnunciosProvider(anuncios)),
       ],
       child: const AlquilaMatchApp(),
     ),
