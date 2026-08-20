@@ -1,0 +1,58 @@
+# ─── Secretos ────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ─── Python / Django (backend/) ──────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+*.sqlite3
+db.sqlite3
+/backend/media/
+/backend/staticfiles/
+.pytest_cache/
+.mypy_cache/
+
+# ─── Flutter / Dart (mobile/) ────────────────────────────────
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.pub-cache/
+.pub/
+*.iml
+*.ipr
+*.iws
+
+# Android
+/mobile/android/.gradle/
+/mobile/android/local.properties
+/mobile/android/key.properties
+/mobile/android/app/*.jks
+*.keystore
+
+# iOS / macOS
+/mobile/ios/Pods/
+/mobile/ios/.symlinks/
+/mobile/ios/Flutter/Flutter.framework
+/mobile/ios/Flutter/Flutter.podspec
+/mobile/ios/Flutter/Generated.xcconfig
+/mobile/ios/Flutter/flutter_export_environment.sh
+
+# ─── Editores ────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+
+# ─── Sistema operativo ───────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
