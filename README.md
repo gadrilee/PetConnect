@@ -34,6 +34,7 @@ Se documenta primero el **lado de la oferta**: hasta que no haya anuncios cargad
 ```
 /
 ├── README.md
+├── .gitignore
 ├── brief/
 │   ├── brief-v0.1.md
 │   └── brief-v0.2.0.md
@@ -44,8 +45,10 @@ Se documenta primero el **lado de la oferta**: hasta que no haya anuncios cargad
 │   └── persona-v0.1.md          # Marta, la propietaria
 ├── appmap/
 │   └── appmap-v0.1.md           # lado propietario
-└── flujo/
-    └── flujo-v0.1.md            # publicar un inmueble
+├── flujo/
+│   └── flujo-v0.1.md            # publicar un inmueble
+├── mobile/                      # app Flutter
+└── backend/                     # API Django + DRF
 ```
 
 ## Estado
@@ -58,7 +61,18 @@ Se documenta primero el **lado de la oferta**: hasta que no haya anuncios cargad
 
 1. **v0.2** — persona, app map y flujo de la inquilina que busca, y mapa completo de los dos lados.
 2. **Entrevistas con usuarios reales** (ambos lados) para reemplazar la evidencia simulada.
-3. **Implementación** — app móvil en Flutter con backend en Django.
+3. **Implementación** — ver `mobile/README.md` y `backend/README.md`.
+
+## Stack técnico
+
+| Capa | Elección |
+|---|---|
+| App móvil | Flutter — ver [`mobile/`](mobile/README.md) |
+| API | Django 6 + Django REST Framework — ver [`backend/`](backend/README.md) |
+| Base de datos | PostgreSQL |
+| Auth | JWT (`djangorestframework-simplejwt`) |
+
+**Por qué móvil:** las tres acciones críticas dependen del teléfono — el propietario marca la ubicación parado en el inmueble y fotografía el estado actual en ese momento; la inquilina busca en la calle, entre clases (Brief v0.2.0 §6).
 
 ---
 
