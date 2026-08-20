@@ -148,6 +148,6 @@ Son exactamente las cuatro condiciones de descarte. **El filtro de precio corre 
 python manage.py test
 ```
 
-**39 pruebas** sobre las reglas de negocio y la API — no sobre el ORM de Django. Recorren los dos flujos documentados de punta a punta: Marta publica, Andrea filtra y solicita, Marta aprueba y el contacto recien ahi aparece.
+**46 pruebas** sobre las reglas de negocio y la API — no sobre el ORM de Django. Recorren los dos flujos documentados de punta a punta: Marta publica, Andrea filtra y solicita, Marta aprueba y el contacto recien ahi aparece.
 
 Las que mas importan son las que intentan **romper** la regla central: que el WhatsApp no aparezca en el listado ni en el detalle, que una solicitud pendiente o rechazada no lo devuelva, que el inquilino no pueda autoaprobarse y que un tercero no pueda aprobar una solicitud ajena.

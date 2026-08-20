@@ -42,13 +42,14 @@ mobile/lib/
 │   └── theme.dart               # colores y medidas, en un solo lugar
 ├── features/
 │   ├── auth/                    # login, registro, estado de sesión
+│   ├── anuncios/                # publicar y gestionar anuncios
 │   └── home/                    # bifurcación por rol
 └── shared/widgets/              # widgets transversales
 ```
 
 Organización *feature-first*: cada carpeta de `features/` es autocontenida y
 corresponde a un módulo del `appmap/appmap-v0.1.md`, igual que las apps del
-backend. Faltan `anuncios/` y `solicitudes/`.
+backend. Falta `solicitudes/`.
 
 ## Autenticación
 
@@ -75,6 +76,36 @@ backend de desarrollo no tiene TLS. La excepción vive en
 `android/app/src/debug/res/xml/network_security_config.xml` y se limita a
 `10.0.2.2`, `localhost` y `127.0.0.1`. Al estar en `src/debug/` **no forma parte
 de la build de release**.
+
+## Publicar un anuncio
+
+El flujo v0.1 completo, verificado de punta a punta contra el backend real.
+
+| Paso del flujo | En la app |
+|---|---|
+| 1. Tipo de espacio | Botón segmentado: habitación / departamento / casa |
+| 2. Precio final | Alquiler + qué servicios incluye. Si alguno queda afuera aparece el campo de costo aparte, y el **precio final se recalcula en vivo** mientras escribe |
+| 3. Reglas | Mascotas como interruptor filtrable, no texto libre |
+| 4. Ubicación | GPS con `geolocator`, pidiendo el permiso en el momento |
+| 5. Fotos | Cámara con `image_picker`; la fecha de captura es **el momento de la toma** |
+| 6-7. Publicar | Crea el anuncio y después sube cada foto por `multipart` |
+
+**Mis anuncios** lista los propios en cualquier estado y permite marcar
+*Ya alquilado* en un toque. Verificado: al marcarlo, el anuncio desaparece de
+la búsqueda pero sigue visible para su dueño.
+
+### Permisos de Android
+
+`ACCESS_FINE_LOCATION` y `ACCESS_COARSE_LOCATION` están declarados en el
+manifest principal. **No se declara `CAMERA`**: `image_picker` abre la cámara
+del sistema por intent, y declararlo obligaría a pedirlo en tiempo de ejecución
+sin ganar nada.
+
+Para probar el GPS en el emulador hay que fijarle una posición:
+
+```bash
+adb emu geo fix -63.1980 -17.7757
+```
 
 ## Emulador
 

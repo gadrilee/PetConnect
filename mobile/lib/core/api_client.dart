@@ -63,6 +63,33 @@ class ApiClient {
     return _enviar('PATCH', ruta, cuerpo: cuerpo);
   }
 
+  /// Sube un archivo con `multipart/form-data`.
+  ///
+  /// Lo usa la carga de fotos del anuncio, que ademas manda la fecha de
+  /// captura: lo que importa es cuando se saco la foto, no cuando se subio.
+  Future<dynamic> postArchivo(
+    String ruta, {
+    required String campo,
+    required String rutaArchivo,
+    Map<String, String> campos = const {},
+  }) async {
+    final uri = Uri.parse('${Config.baseUrl}$ruta');
+    final peticion = http.MultipartRequest('POST', uri)
+      ..fields.addAll(campos)
+      ..files.add(await http.MultipartFile.fromPath(campo, rutaArchivo));
+
+    final token = await accessToken;
+    if (token != null) peticion.headers['Authorization'] = 'Bearer $token';
+
+    final http.Response respuesta;
+    try {
+      respuesta = await http.Response.fromStream(await _http.send(peticion));
+    } catch (_) {
+      throw ApiException('No se pudo subir la foto. Revisá tu conexión.');
+    }
+    return _interpretar(respuesta);
+  }
+
   Future<dynamic> _enviar(
     String metodo,
     String ruta, {
