@@ -115,10 +115,39 @@ Las cuatro condiciones de descarte del Brief v0.2.0 son **campos obligatorios** 
 
 El campo *"con quién se comparte"* para habitaciones (Ev. 6) **no está**. El Brief v0.2.0 §8 lo tiene como pregunta abierta, no como requisito, y se decide después de las entrevistas reales.
 
+## API
+
+Todos los endpoints exigen JWT salvo el registro. Se obtiene con `POST /api/auth/token/`.
+
+| Metodo | Ruta | Quien | Que hace |
+|---|---|---|---|
+| POST | `/api/usuarios/registro/` | publico | Crear cuenta eligiendo rol |
+| GET | `/api/usuarios/yo/` | autenticado | Mi perfil |
+| POST | `/api/auth/token/` | publico | Login (access + refresh) |
+| POST | `/api/anuncios/` | propietario | Publicar |
+| GET | `/api/anuncios/` | autenticado | Buscar — **solo DISPONIBLES** |
+| GET | `/api/anuncios/{id}/` | autenticado | Ver anuncio (**sin contacto**) |
+| PATCH | `/api/anuncios/{id}/` | dueño | Editar |
+| GET | `/api/anuncios/mios/` | propietario | Mis anuncios, en cualquier estado |
+| POST | `/api/anuncios/{id}/marcar_alquilado/` | dueño | Apagar el anuncio |
+| POST | `/api/anuncios/{id}/fotos/` | dueño | Subir foto con `fecha_captura` |
+| POST | `/api/solicitudes/` | inquilino | Solicitar visita |
+| GET | `/api/solicitudes/` | autenticado | Enviadas o recibidas, segun el rol |
+| POST | `/api/solicitudes/{id}/aprobar/` | dueño del anuncio | **Libera el contacto** |
+| POST | `/api/solicitudes/{id}/rechazar/` | dueño del anuncio | Rechazar |
+
+### Filtros de busqueda
+
+`?precio_max=` `?precio_min=` `?minutos_max=` `?acepta_mascotas=` `?tipo_espacio=`
+
+Son exactamente las cuatro condiciones de descarte. **El filtro de precio corre sobre el precio final**, no sobre el alquiler pelado: filtrar por el alquiler seria repetir el problema de la evidencia 1. Se resuelve anotando el queryset, porque `precio_final` es una propiedad y no una columna.
+
 ## Pruebas
 
 ```powershell
 python manage.py test
 ```
 
-14 pruebas sobre las reglas de negocio — no sobre el ORM de Django.
+**39 pruebas** sobre las reglas de negocio y la API — no sobre el ORM de Django. Recorren los dos flujos documentados de punta a punta: Marta publica, Andrea filtra y solicita, Marta aprueba y el contacto recien ahi aparece.
+
+Las que mas importan son las que intentan **romper** la regla central: que el WhatsApp no aparezca en el listado ni en el detalle, que una solicitud pendiente o rechazada no lo devuelva, que el inquilino no pueda autoaprobarse y que un tercero no pueda aprobar una solicitud ajena.
