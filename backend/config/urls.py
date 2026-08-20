@@ -13,10 +13,10 @@ urlpatterns = [
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # Modulos del appmap v0.1 — se habilitan al crear cada urls.py
-    # path('api/usuarios/', include('usuarios.urls')),
-    # path('api/anuncios/', include('anuncios.urls')),
-    # path('api/solicitudes/', include('solicitudes.urls')),
+    # Modulos del appmap v0.1
+    path('api/usuarios/', include('usuarios.urls')),
+    path('api/anuncios/', include('anuncios.urls')),
+    path('api/solicitudes/', include('solicitudes.urls')),
 ]
 
 if settings.DEBUG:
