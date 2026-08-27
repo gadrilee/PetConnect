@@ -345,7 +345,7 @@ class _TarjetaAnuncio extends StatelessWidget {
                     width: 64,
                     height: 64,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, e) => _placeholder(esquema),
+                    errorBuilder: (_, _, e) => _placeholder(esquema),
                   )
                 : _placeholder(esquema),
           ),

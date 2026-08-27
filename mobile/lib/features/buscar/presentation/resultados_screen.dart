@@ -175,7 +175,7 @@ class _FotoMiniatura extends StatelessWidget {
       width: 88,
       height: 88,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, e) => Container(
+      errorBuilder: (_, _, e) => Container(
         width: 88,
         height: 88,
         color: esquema.surfaceContainerHighest,

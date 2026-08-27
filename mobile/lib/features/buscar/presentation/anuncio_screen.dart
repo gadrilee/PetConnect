@@ -117,7 +117,7 @@ class _AnuncioBody extends StatelessWidget {
                     Image.network(
                       foto.imagen,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, e) => Container(
+                      errorBuilder: (_, _, e) => Container(
                         color: esquema.surfaceContainerHighest,
                         child: const Icon(Icons.broken_image_outlined, size: 48),
                       ),
