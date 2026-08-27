@@ -13,14 +13,14 @@ from config import settings
 User = get_user_model()
 # Asegurarse de que el usuario exista
 try:
-    user = User.objects.get(username='gadri')
+    user = User.objects.get(username='gadrilee')
 except User.DoesNotExist:
-    user = User.objects.create_user(username='gadri', password='Admin123')
-    print("Usuario gadri creado.")
+    user = User.objects.create_user(username='gadrilee', password='Admin123')
+    print("Usuario gadrilee creado.")
 
 perfil, created = Perfil.objects.get_or_create(
     usuario=user,
-    defaults={'rol': Perfil.Rol.PROPIETARIO, 'whatsapp': '70011122'}
+    defaults={'rol': Perfil.Rol.PROPIETARIO, 'whatsapp': '79409208'}
 )
 if perfil.rol != Perfil.Rol.PROPIETARIO:
     perfil.rol = Perfil.Rol.PROPIETARIO
