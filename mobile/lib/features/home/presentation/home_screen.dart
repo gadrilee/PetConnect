@@ -6,6 +6,7 @@ import '../../anuncios/presentation/publicar_screen.dart';
 import '../../anuncios/providers/mis_anuncios_provider.dart';
 import '../../anuncios/providers/publicar_provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../buscar/presentation/buscar_screen.dart';
 
 /// Pantalla de entrada despues del login. Es el punto donde se bifurcan los dos
 /// flujos documentados: cada modulo del `appmap/appmap-v0.1.md` cuelga de aca.
@@ -60,22 +61,14 @@ class HomeScreen extends StatelessWidget {
               icono: Icons.mark_email_unread_outlined,
             ),
           ]
-        : const <_Modulo>[
+        : <_Modulo>[
             _Modulo(
               titulo: 'Buscar',
               detalle: 'Filtrar por precio final, mascotas, tipo y minutos '
-                  'caminando a la UAGRM.',
+                  'caminando a la UAGRM. Solicitar visita y recibir el '
+                  'contacto cuando el propietario aprueba.',
               icono: Icons.search,
-            ),
-            _Modulo(
-              titulo: 'Ver anuncio',
-              detalle: 'Los cuatro datos para descartar sin viajar.',
-              icono: Icons.article_outlined,
-            ),
-            _Modulo(
-              titulo: 'Solicitar visita',
-              detalle: 'Aceptás las condiciones y pedís el contacto.',
-              icono: Icons.event_available_outlined,
+              alTocar: () => _abrir(context, const BuscarScreen()),
             ),
           ];
 
