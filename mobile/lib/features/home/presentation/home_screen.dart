@@ -7,7 +7,10 @@ import '../../anuncios/providers/mis_anuncios_provider.dart';
 import '../../anuncios/providers/publicar_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../buscar/presentation/buscar_screen.dart';
-
+import '../../buscar/presentation/mis_solicitudes_screen.dart';
+import '../../buscar/providers/mis_solicitudes_provider.dart';
+import '../../solicitudes_recibidas/presentation/solicitudes_recibidas_screen.dart';
+import '../../solicitudes_recibidas/providers/solicitudes_recibidas_provider.dart';
 /// Pantalla de entrada despues del login. Es el punto donde se bifurcan los dos
 /// flujos documentados: cada modulo del `appmap/appmap-v0.1.md` cuelga de aca.
 class HomeScreen extends StatelessWidget {
@@ -55,10 +58,16 @@ class HomeScreen extends StatelessWidget {
               icono: Icons.list_alt_outlined,
               alTocar: () => _abrir(context, const MisAnunciosScreen()),
             ),
-            const _Modulo(
+            _Modulo(
               titulo: 'Gestionar solicitudes',
               detalle: 'Aprobar libera tu contacto, y sólo a esa persona.',
               icono: Icons.mark_email_unread_outlined,
+              alTocar: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => ChangeNotifierProvider(
+                  create: (ctx) => SolicitudesRecibidasProvider(ctx.read()),
+                  child: const SolicitudesRecibidasScreen(),
+                ),
+              )),
             ),
           ]
         : <_Modulo>[
@@ -69,6 +78,17 @@ class HomeScreen extends StatelessWidget {
                   'contacto cuando el propietario aprueba.',
               icono: Icons.search,
               alTocar: () => _abrir(context, const BuscarScreen()),
+            ),
+            _Modulo(
+              titulo: 'Estado de Solicitudes',
+              detalle: 'Revisa si los dueños aceptaron tus visitas y contactalos.',
+              icono: Icons.mark_email_read_outlined,
+              alTocar: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => ChangeNotifierProvider(
+                  create: (ctx) => MisSolicitudesProvider(ctx.read()),
+                  child: const MisSolicitudesScreen(),
+                ),
+              )),
             ),
           ];
 
