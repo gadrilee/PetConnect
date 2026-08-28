@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/theme.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/solicitud_provider.dart';
@@ -70,8 +71,8 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
               : _AnuncioBody(anuncio: _anuncio!),
       bottomNavigationBar: _anuncio != null
           ? Padding(
-              padding: EdgeInsets.fromLTRB(
-                  20, 8, 20, MediaQuery.of(context).padding.bottom + 16),
+              padding: EdgeInsets.fromLTRB(Espacio.lg, Espacio.sm, Espacio.lg,
+                  MediaQuery.of(context).padding.bottom + Espacio.md),
               child: FilledButton(
                 onPressed: _irASolicitar,
                 child: const Text('SOLICITAR VISITA'),
@@ -169,51 +170,92 @@ class _AnuncioBody extends StatelessWidget {
           ),
 
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          padding: const EdgeInsets.fromLTRB(
+              Espacio.lg, Espacio.lg, Espacio.lg, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Título
+              // ═══ 1. ORIENTAR — que estoy viendo ═══
               if (anuncio.titulo.isNotEmpty)
                 Text(anuncio.titulo,
                     style: texto.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
 
-              const SizedBox(height: 16),
+              // Espacio de GRUPO: separa orientar de informar.
+              const SizedBox(height: Espacio.lg),
 
-              // ---- Las 4 condiciones de descarte ----
-              _FilaCondicion(
-                icono: Icons.attach_money,
-                texto: '${anuncio.precioFinal} Bs / mes · todo incluido',
-                esquema: Theme.of(context).colorScheme,
-              ),
-              const SizedBox(height: 10),
-              _FilaCondicion(
-                icono: Icons.directions_walk,
-                texto: '${anuncio.minutosCaminando} min caminando a la UAGRM',
-                esquema: Theme.of(context).colorScheme,
-              ),
-              const SizedBox(height: 10),
-              _FilaCondicion(
-                icono: anuncio.aceptaMascotas ? Icons.pets : Icons.pets_outlined,
-                texto: anuncio.aceptaMascotas ? 'Acepta mascotas' : 'No acepta mascotas',
-                esquema: Theme.of(context).colorScheme,
-              ),
-              const SizedBox(height: 10),
-              _FilaCondicion(
-                icono: Icons.home_outlined,
-                texto: '${anuncio.tipoEspacio.etiqueta}'
-                    '${anuncio.restricciones.isNotEmpty ? " · ${anuncio.restricciones}" : ""}',
-                esquema: Theme.of(context).colorScheme,
+              // ═══ 2. INFORMAR — las cuatro condiciones de descarte ═══
+              //
+              // Van juntas dentro de un mismo contenedor porque se leen como
+              // una sola decision: "¿me sirve o lo descarto?". Antes estaban
+              // sueltas y la separacion entre ellas era casi la misma que con
+              // el titulo, asi que no se veia que formaran un grupo.
+              Container(
+                padding: const EdgeInsets.all(Espacio.md),
+                decoration: BoxDecoration(
+                  color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // El precio final es el criterio de descarte n.º 1 del
+                    // brief, asi que se lee primero y con mas peso. Antes
+                    // tenia exactamente el mismo tamano que los otros tres.
+                    Text('Precio final',
+                        style: texto.labelSmall
+                            ?.copyWith(color: esquema.onSurfaceVariant)),
+                    const SizedBox(height: Espacio.xs),
+                    Text('${anuncio.precioFinal} Bs / mes',
+                        style: texto.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    Text(
+                      servicios.length == 3
+                          ? 'todo incluido'
+                          : servicios.isEmpty
+                              ? 'sin servicios incluidos'
+                              : 'incluye ${servicios.join(', ').toLowerCase()}',
+                      style: texto.bodySmall
+                          ?.copyWith(color: esquema.onSurfaceVariant),
+                    ),
+
+                    const SizedBox(height: Espacio.md),
+                    Divider(
+                        height: 1,
+                        color: esquema.outline.withValues(alpha: 0.3)),
+                    const SizedBox(height: Espacio.md),
+
+                    // Los otros tres datos comparten peso entre si.
+                    _FilaCondicion(
+                      icono: Icons.directions_walk,
+                      texto:
+                          '${anuncio.minutosCaminando} min caminando a la UAGRM',
+                      esquema: esquema,
+                    ),
+                    const SizedBox(height: Espacio.sm),
+                    _FilaCondicion(
+                      icono:
+                          anuncio.aceptaMascotas ? Icons.pets : Icons.pets_outlined,
+                      texto: anuncio.aceptaMascotas
+                          ? 'Acepta mascotas'
+                          : 'No acepta mascotas',
+                      esquema: esquema,
+                    ),
+                    const SizedBox(height: Espacio.sm),
+                    _FilaCondicion(
+                      icono: Icons.home_outlined,
+                      texto: '${anuncio.tipoEspacio.etiqueta}'
+                          '${anuncio.restricciones.isNotEmpty ? " · ${anuncio.restricciones}" : ""}',
+                      esquema: esquema,
+                    ),
+                  ],
+                ),
               ),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Divider(),
-              ),
+              const SizedBox(height: Espacio.md),
 
               // ---- Contacto protegido ----
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(Espacio.md),
                 decoration: BoxDecoration(
                   color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(10),
@@ -222,7 +264,7 @@ class _AnuncioBody extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(Icons.lock_outline, size: 18, color: esquema.onSurfaceVariant),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: Espacio.sm),
                     Expanded(
                       child: Text(
                         'El contacto del propietario está protegido. '
@@ -236,13 +278,13 @@ class _AnuncioBody extends StatelessWidget {
 
               // ---- Servicios incluidos ----
               if (servicios.isNotEmpty) ...[
-                const SizedBox(height: 20),
+                const SizedBox(height: Espacio.lg),
                 Text('Servicios incluidos',
                     style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant)),
-                const SizedBox(height: 8),
+                const SizedBox(height: Espacio.sm),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: Espacio.sm,
+                  runSpacing: Espacio.sm,
                   children: servicios
                       .map((s) => Chip(
                             label: Text(s, style: const TextStyle(fontSize: 12)),
@@ -255,10 +297,10 @@ class _AnuncioBody extends StatelessWidget {
               ],
 
               // ---- Ubicación aproximada ----
-              const SizedBox(height: 20),
+              const SizedBox(height: Espacio.lg),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(Espacio.md),
                 decoration: BoxDecoration(
                   color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(10),
@@ -273,7 +315,7 @@ class _AnuncioBody extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: Espacio.md),
             ],
           ),
         ),
@@ -306,7 +348,7 @@ class _FilaCondicion extends StatelessWidget {
           ),
           child: Icon(icono, size: 18, color: esquema.primary),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: Espacio.sm),
         Expanded(
           child: Text(
             texto,
