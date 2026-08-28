@@ -149,44 +149,61 @@ del mismo contenedor gris, y una sola acción oscura abajo.
 
 ## DESPUÉS
 
-> ⚠️ **Esta sección hay que completarla probando con una persona real.**
-> No se puede inventar: la clase pide observar, no suponer.
+**Prueba realizada:** 27/08/2026, con una persona que no conocía el proyecto
+(hermana de un integrante). Se le mostró la pantalla `03 Anuncio` sin explicarle
+nada y se le pidió que dijera si el cuarto le servía o no.
 
-**Cómo hacerlo** (10 minutos): mostrale la pantalla a alguien que no conozca el
-proyecto y pedile que complete la tarea **sin explicarle nada**:
+### Lo que hizo
 
-> *"Estás buscando cuarto. Mirá esta pantalla y decime si este te sirve o no,
-> y por qué."*
+| Observación | Qué revela |
+|---|---|
+| **Miró primero la foto**, no el precio | La jerarquía que diseñamos empieza en el título, pero la foto ocupa 176 px arriba de todo y gana la atención primero |
+| **Preguntó: _"¿cuánto es con luz?"_** | Vio el precio destacado y **aun así tuvo que preguntar qué cubre** |
 
-Observá y anotá, sin intervenir:
+### Lo que esto significa
 
-- [ ] ¿Qué dato miró primero?
-- [ ] ¿Reconoció el precio final, o preguntó cuánto costaba?
-- [ ] ¿Entendió que el contacto aparece después de solicitar?
-- [ ] ¿Distinguió la acción principal?
-- [ ] ¿Buscó algo en un lugar donde no estaba?
+**La segunda observación contradice nuestra hipótesis.** Habíamos supuesto que
+destacar el precio final resolvía el criterio de descarte n.º 1. No lo resolvió:
+ella leyó "1.000 Bs / mes" en 24 px negrita y **igual preguntó por la luz**.
 
-**Observación registrada:**
+El problema es que **el número solo no significa nada**. "1.000 Bs" es ambiguo
+hasta saber qué cubre. Le dimos toda la jerarquía a la cifra y dejamos el dato
+que la vuelve interpretable —`incluye agua, luz`— como texto chico y gris
+debajo. Subordinamos justamente la mitad que responde su pregunta.
 
-```
-(Ejemplo del formato que pide la clase:
- "Buscó la fecha debajo de la lista de cuidados.")
+Es exactamente la evidencia 1 del brief reapareciendo en otra forma: no basta
+con mostrar un precio, hay que hacer inseparable el precio de lo que incluye.
 
-→ Escribir acá lo que hizo la persona, no lo que opinó.
-```
+**La primera observación** es más leve pero real: el orden de lectura que
+diseñamos (título → datos → acción) no coincide con el orden en que la pantalla
+se mira. La foto domina y no forma parte del modelo de prioridades.
 
 ---
 
 ## SIGUIENTE
 
-**Qué conservamos:** la agrupación de las cuatro condiciones y la escala de
-espaciado. La escala ya está en el tema, así que aplicarla al resto de las
-pantallas es reemplazar números por constantes.
+**Qué conservamos.** La agrupación de las cuatro condiciones en un contenedor
+y la escala de espaciado. Ninguna de las dos fue cuestionada por la prueba, y
+la escala ya está en el tema, así que aplicarla al resto es reemplazar números
+por constantes.
 
-**Qué corregimos:** el resto de las pantallas del flujo todavía usa valores
-sueltos. `buscar_screen.dart`, `resultados_screen.dart` y
-`solicitar_visita_screen.dart` son las siguientes.
+**Qué corregimos** — sale directamente de lo que preguntó:
 
-**Qué investigamos:** si el precio destacado cambia el comportamiento. La
-hipótesis es que la persona decide más rápido, pero **es una hipótesis hasta
-que la prueba con usuarios la confirme o la desmienta**.
+*Unir el precio con lo que incluye, en una sola línea inseparable.* En vez de
+la cifra grande arriba y el detalle chico debajo, que el bloque se lea como una
+sola unidad: **`1.000 Bs / mes · agua y luz incluidas`**, y que lo que NO está
+incluido aparezca con el mismo peso, no ausente. Si el internet no entra, hay
+que decirlo ahí, no callarlo.
+
+La prueba mostró que separar esos dos datos obliga a preguntar. Y preguntar es
+precisamente lo que el producto viene a evitar.
+
+**Qué investigamos.** Si la foto debe seguir arriba. Ella la miró primero, pero
+no sabemos si eso la ayudó a decidir o sólo la distrajo del dato que necesitaba.
+Antes de mover la foto hace falta una segunda prueba: es un dato de una sola
+persona y no alcanza para reordenar la pantalla.
+
+**Lo que aprendimos del método.** La mejora se veía correcta en Figma y en el
+código, y las métricas daban bien —13 valores fuera de escala pasaron a 0—.
+Nada de eso anticipó la pregunta. Hizo falta una persona real haciendo una
+pregunta concreta para descubrir que el problema seguía ahí.
