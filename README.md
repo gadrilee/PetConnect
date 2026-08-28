@@ -17,38 +17,62 @@ El proceso de búsqueda y oferta de alquileres genera una enorme pérdida de tie
 
 ## Índice de documentos
 
-| Documento | Versión | Actor / alcance |
-|---|---|---|
-| [Brief inicial](brief/brief-v0.1.md) | v0.1 | Planteamiento original |
-| [**Brief revisado**](brief/brief-v0.2.0.md) | **v0.2.0** | Hipótesis actual, alcance y preguntas abiertas |
-| [Evidencias](research/evidencias.md) | — | 11 evidencias (A: inquilino · B: propietario) + patrones y contra-evidencia |
-| [Guía de entrevistas](research/guia-entrevistas.md) | — | Instrumento para la validación con usuarios reales |
-| [Persona — Marta](persona/persona-v0.1.md) | v0.1 | 🟦 Propietaria que publica |
-| [App map](appmap/appmap-v0.1.md) | v0.1 | 🟦 Lado propietario |
-| [Flujo — publicar un inmueble](flujo/flujo-v0.1.md) | v0.1 | 🟦 Marta publica y deja de repetirse |
+### Investigación y definición
 
-Se documenta primero el **lado de la oferta**: hasta que no haya anuncios cargados no hay nada que buscar. El lado de la inquilina que busca es la v0.2.
+| Documento | Contenido |
+|---|---|
+| [Brief inicial](brief/brief-v0.1.md) | Planteamiento original |
+| [**Brief revisado**](brief/brief-v0.2.0.md) | Hipótesis actual, alcance y preguntas abiertas |
+| [Evidencias](research/evidencias.md) | 11 evidencias (A: inquilino · B: propietario), patrones y contra-evidencia |
+| [Guía de entrevistas](research/guia-entrevistas.md) | Instrumento para la validación con usuarios reales |
+
+### Flujo v0.1 — El propietario que publica 🟦
+
+| Documento | Contenido |
+|---|---|
+| [Persona — Marta](persona/persona-v0.1.md) | Propietaria de 4 habitaciones cerca de la UAGRM |
+| [App map](appmap/appmap-v0.1.md) | Módulos del lado propietario |
+| [Flujo](flujo/flujo-v0.1.md) | Publicar un inmueble + ciclo de vida del anuncio |
+
+### Flujo v0.2 — La inquilina que busca 🟩
+
+| Documento | Contenido |
+|---|---|
+| [Persona — Andrea](persona/persona-v0.2.md) | Estudiante de provincia, con un gato |
+| [App map](appmap/appmap-v0.2.md) | Mapa completo: los dos lados y dónde se enganchan |
+| [Flujo](flujo/flujo-v0.2.md) | Buscar, ver anuncio y solicitar visita |
+| [**Wireframes**](wireframes/flujo-v0.2-inquilina/flujo-completo.png) | Las 6 pantallas en una lámina — se ven sin abrir Figma |
+
+### Diseño
+
+| Documento | Contenido |
+|---|---|
+| [Lenguaje visual](wireframes/_lenguaje-visual.md) | Reglas que siguen todos los wireframes |
+| [Wireframes del flujo v0.2](wireframes/flujo-v0.2-inquilina/README.md) | Los 6 SVG, importables a Figma con capas editables |
+| [**Decisión de diseño**](docs/decision-clase-05.md) | Jerarquía, layout y espaciado: antes, cambio, prueba con usuaria y siguiente paso |
+
+### Implementación
+
+| Documento | Contenido |
+|---|---|
+| [**Arquitectura**](docs/ARQUITECTURA.md) | Cómo se comunican app y backend, y qué botón dispara qué endpoint |
+| [Mobile](mobile/README.md) | Flutter: estructura, autenticación y emulador |
+| [Backend](backend/README.md) | Django + DRF: modelo de datos, API y pruebas |
 
 ## Estructura del repositorio
 
 ```
 /
 ├── README.md
-├── .gitignore
-├── brief/
-│   ├── brief-v0.1.md
-│   └── brief-v0.2.0.md
-├── research/
-│   ├── evidencias.md
-│   └── guia-entrevistas.md
-├── persona/
-│   └── persona-v0.1.md          # Marta, la propietaria
-├── appmap/
-│   └── appmap-v0.1.md           # lado propietario
-├── flujo/
-│   └── flujo-v0.1.md            # publicar un inmueble
-├── mobile/                      # app Flutter
-└── backend/                     # API Django + DRF
+├── brief/            # el planteamiento y su revisión
+├── research/         # evidencias y guía de entrevistas
+├── persona/          # v0.1 propietario · v0.2 inquilina
+├── appmap/           # v0.1 un lado · v0.2 los dos
+├── flujo/            # v0.1 publicar · v0.2 buscar y solicitar
+├── wireframes/       # SVG importables a Figma + lámina del flujo
+├── docs/             # arquitectura y decisiones de diseño
+├── mobile/           # app Flutter
+└── backend/          # API Django + DRF
 ```
 
 ## Estado
