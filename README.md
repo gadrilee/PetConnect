@@ -55,7 +55,6 @@ El proceso de búsqueda y oferta de alquileres genera una enorme pérdida de tie
 
 | Documento | Contenido |
 |---|---|
-| [**Arquitectura**](docs/ARQUITECTURA.md) | Cómo se comunican app y backend, y qué botón dispara qué endpoint |
 | [Mobile](mobile/README.md) | Flutter: estructura, autenticación y emulador |
 | [Backend](backend/README.md) | Django + DRF: modelo de datos, API y pruebas |
 
