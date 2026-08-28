@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/theme.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/buscar_provider.dart';
@@ -76,7 +77,7 @@ class _BuscarScreenState extends State<BuscarScreen> {
         leading: const BackButton(),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(Espacio.lg),
         children: [
           // ---- Precio máximo ----
           Text('Precio máximo por mes (Bs)',
@@ -176,7 +177,7 @@ class _SelectorTipo extends StatelessWidget {
               onTap: () => alCambiar(activo ? null : tipo),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: Espacio.md),
                 decoration: BoxDecoration(
                   color: activo ? esquema.primaryContainer : esquema.surfaceContainerHighest.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(10),

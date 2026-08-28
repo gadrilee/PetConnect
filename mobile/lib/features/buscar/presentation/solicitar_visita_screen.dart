@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/theme.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../providers/solicitud_provider.dart';
 import 'solicitud_estado_screen.dart';
@@ -79,7 +80,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
             style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: Espacio.lg),
 
           // ---- Condiciones del anuncio ----
           Container(
@@ -151,7 +152,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
 
           // ---- Aviso del contacto ----
           Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(Espacio.md),
             decoration: BoxDecoration(
               color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(10),
@@ -160,7 +161,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
             child: Row(
               children: [
                 Icon(Icons.lock_clock_outlined, size: 18, color: esquema.onSurfaceVariant),
-                const SizedBox(width: 10),
+                const SizedBox(width: Espacio.sm),
                 Expanded(
                   child: Text(
                     'Cuando el propietario apruebe tu solicitud, '
@@ -215,7 +216,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
                     )
                   : const Text('ENVIAR SOLICITUD'),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: Espacio.md),
             OutlinedButton(
               onPressed: provider.cargando ? null : () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
@@ -254,7 +255,7 @@ class _FilaCondicion extends StatelessWidget {
             ),
             child: Icon(icono, size: 16, color: esquema.primary),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: Espacio.sm),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 4),

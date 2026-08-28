@@ -261,8 +261,20 @@ Que el mismo defecto apareciera en dos pantallas distintas sugiere que no era
 un descuido de una pantalla, sino que **nunca tratamos el precio y su cobertura
 como un solo dato**.
 
-**Qué queda.** `buscar_screen.dart` y `solicitar_visita_screen.dart` todavía
-usan valores de espaciado sueltos.
+**Qué queda — la escala ya cubre el flujo de la tarea.** Las cuatro pantallas
+del recorrido documentado están en **0 valores fuera de escala**:
+
+| Pantalla | Estado |
+|---|---|
+| `buscar_screen.dart` | ✔ |
+| `resultados_screen.dart` | ✔ |
+| `anuncio_screen.dart` | ✔ |
+| `solicitar_visita_screen.dart` | ✔ |
+
+Auditando encontramos que faltan dos pantallas más del mismo módulo:
+`mis_solicitudes_screen.dart` (1 valor) y `solicitud_estado_screen.dart`
+(15 valores). No forman parte del recorrido que se probó, así que quedan
+anotadas para la siguiente vuelta.
 
 **Qué investigamos.**
 

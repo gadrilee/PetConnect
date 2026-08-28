@@ -119,10 +119,11 @@ class _AnuncioBody extends StatelessWidget {
                     ),
                     // Fecha de captura (evidencia 4)
                     Positioned(
-                      left: 12,
-                      bottom: 12,
+                      left: Espacio.md,
+                      bottom: Espacio.md,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: Espacio.sm, vertical: Espacio.xs),
                         decoration: BoxDecoration(
                           color: Colors.black54,
                           borderRadius: BorderRadius.circular(6),
@@ -137,8 +138,8 @@ class _AnuncioBody extends StatelessWidget {
                     ),
                     if (anuncio.fotos.length > 1)
                       Positioned(
-                        right: 12,
-                        bottom: 12,
+                        right: Espacio.md,
+                        bottom: Espacio.md,
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
