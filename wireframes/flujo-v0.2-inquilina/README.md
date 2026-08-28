@@ -3,15 +3,15 @@
 **Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
 **Flujo:** [`flujo/flujo-v0.2.md`](../../flujo/flujo-v0.2.md) · **Reglas de dibujo:** [`_lenguaje-visual.md`](../_lenguaje-visual.md)
 
-Siete pantallas, 360 × 800, escala de grises. Exportadas desde Figma, así que
+Seis pantallas, 360 × 800, escala de grises. Exportadas desde Figma, así que
 cada `.svg` entra al archivo con capas, formas reales y nombres — no como
 imagen plana.
 
 ## El flujo completo de un vistazo
 
-![Las siete pantallas del flujo v0.2](flujo-completo.png)
+![Las seis pantallas del flujo v0.2](flujo-completo.png)
 
-Las siete pantallas lado a lado, en el orden del flujo. Sirve para revisar el
+Las seis pantallas lado a lado, en el orden del flujo. Sirve para revisar el
 recorrido entero sin abrir Figma ni los SVG uno por uno.
 
 ## Por qué casi no hay texto
@@ -37,7 +37,6 @@ principal. El título se conserva porque orienta — es el paso 1 de la jerarqu�
 | 04 | [`04-solicitar-visita.svg`](04-solicitar-visita.svg) | Acepta las condiciones y pide la visita |
 | 05 | [`05-solicitud-enviada.svg`](05-solicitud-enviada.svg) | Queda a la espera de la respuesta |
 | 06 | [`06-contacto-liberado.svg`](06-contacto-liberado.svg) | El propietario aprobó: aparece el contacto |
-| 07 | [`07-informacion.svg`](07-informacion.svg) | Consulta y ajusta sus datos |
 
 ## Cómo leer la 03
 
