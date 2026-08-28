@@ -160,3 +160,17 @@ class FlujoBuscarTest(BaseAPITest):
         r = self.client.get('/api/anuncios/')
         minutos = [a['minutos_caminando'] for a in r.data['results']]
         self.assertEqual(minutos, sorted(minutos))
+
+    def test_el_listado_dice_que_servicios_incluye(self):
+        # Sin este dato el precio final es ambiguo. Lo detecto una prueba con
+        # una usuaria: leyo el precio destacado y igual pregunto "¿cuanto es
+        # con luz?". El listado es donde primero se descarta, asi que tiene
+        # que poder responder esa pregunta sin abrir el anuncio.
+        r = self.client.get('/api/anuncios/')
+        tarjeta = r.data['results'][0]
+
+        self.assertIn('servicios_incluidos', tarjeta)
+        self.assertEqual(
+            tarjeta['servicios_incluidos'],
+            {'agua': True, 'luz': True, 'internet': True},
+        )

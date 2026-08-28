@@ -9,24 +9,43 @@ from rest_framework import serializers
 from .models import Anuncio, FotoAnuncio
 
 
+class ServiciosIncluidosMixin:
+    """Agrupa los tres booleanos de servicios en un solo objeto.
+
+    En la base son tres columnas sueltas porque asi se puede filtrar por cada
+    una, pero la app las consume juntas. Vive en un mixin para que el listado
+    y el detalle devuelvan exactamente la misma forma.
+    """
+
+    def get_servicios_incluidos(self, obj):
+        return {
+            'agua': obj.incluye_agua,
+            'luz': obj.incluye_luz,
+            'internet': obj.incluye_internet,
+        }
+
+
 class FotoAnuncioSerializer(serializers.ModelSerializer):
     class Meta:
         model = FotoAnuncio
         fields = ('id', 'imagen', 'fecha_captura', 'orden')
 
 
-class AnuncioListSerializer(serializers.ModelSerializer):
+class AnuncioListSerializer(ServiciosIncluidosMixin, serializers.ModelSerializer):
     """La tarjeta del listado: lo justo para descartar sin abrir el anuncio."""
 
     precio_final = serializers.DecimalField(max_digits=8, decimal_places=2, read_only=True)
     tipo_espacio_display = serializers.CharField(source='get_tipo_espacio_display', read_only=True)
     foto_principal = serializers.SerializerMethodField()
+    # Sin esto el precio final es ambiguo: 1.000 Bs no significa nada
+    # hasta saber que cubre. Y el listado es donde primero se descarta.
+    servicios_incluidos = serializers.SerializerMethodField()
 
     class Meta:
         model = Anuncio
         fields = ('id', 'titulo', 'tipo_espacio', 'tipo_espacio_display',
-                  'precio_final', 'acepta_mascotas', 'minutos_caminando',
-                  'estado', 'foto_principal')
+                  'precio_final', 'servicios_incluidos', 'acepta_mascotas',
+                  'minutos_caminando', 'estado', 'foto_principal')
 
     def get_foto_principal(self, obj):
         foto = obj.fotos.first()
@@ -40,7 +59,7 @@ class AnuncioListSerializer(serializers.ModelSerializer):
         }
 
 
-class AnuncioDetailSerializer(serializers.ModelSerializer):
+class AnuncioDetailSerializer(ServiciosIncluidosMixin, serializers.ModelSerializer):
     """El anuncio completo. Es el momento en que el inquilino decide si descarta."""
 
     precio_final = serializers.DecimalField(max_digits=8, decimal_places=2, read_only=True)
@@ -57,13 +76,6 @@ class AnuncioDetailSerializer(serializers.ModelSerializer):
             'lat', 'lng', 'direccion_referencia', 'minutos_caminando',
             'estado', 'publicado_en', 'fotos',
         )
-
-    def get_servicios_incluidos(self, obj):
-        return {
-            'agua': obj.incluye_agua,
-            'luz': obj.incluye_luz,
-            'internet': obj.incluye_internet,
-        }
 
 
 class AnuncioWriteSerializer(serializers.ModelSerializer):

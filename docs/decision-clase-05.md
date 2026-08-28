@@ -245,10 +245,24 @@ espaciado: ninguna fue cuestionada por la prueba. La escala ya está en el tema,
 así que aplicarla al resto de las pantallas es reemplazar números por
 constantes.
 
-**Qué corregimos.** El resto del flujo todavía usa valores sueltos:
-`buscar_screen.dart`, `resultados_screen.dart` y `solicitar_visita_screen.dart`
-son las siguientes. Y la tarjeta de resultados repite el mismo error que
-acabamos de corregir — muestra el precio sin decir qué incluye.
+**Qué corregimos — ya hecho.** La tarjeta de resultados repetía el mismo error.
+Al arreglarla apareció la causa de fondo: **el backend no mandaba ese dato en
+el listado**. `AnuncioListSerializer` devolvía `precio_final` pero no
+`servicios_incluidos`, así que la tarjeta no lo había olvidado — no lo tenía.
+
+- Se extrajo `ServiciosIncluidosMixin` para que listado y detalle devuelvan la
+  misma forma, en vez de dos copias que se despegan.
+- El listado ahora manda `servicios_incluidos`, con una prueba que lo fija
+  (`test_el_listado_dice_que_servicios_incluye`).
+- La tarjeta muestra la cobertura en una línea: `incluye agua y luz · internet
+  no`. Nombra lo que falta, no sólo lo que está.
+
+Que el mismo defecto apareciera en dos pantallas distintas sugiere que no era
+un descuido de una pantalla, sino que **nunca tratamos el precio y su cobertura
+como un solo dato**.
+
+**Qué queda.** `buscar_screen.dart` y `solicitar_visita_screen.dart` todavía
+usan valores de espaciado sueltos.
 
 **Qué investigamos.**
 
