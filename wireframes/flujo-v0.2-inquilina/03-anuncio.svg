@@ -1,70 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="360" height="800" viewBox="0 0 360 800" font-family="Inter, Arial, sans-serif">
-  <!-- 03 Anuncio — CONTENIDO. El momento clave del flujo v0.2: aca Andrea
-       decide si sigue o descarta. Los cuatro datos de descarte van con texto
-       real porque son el producto. Ningun contacto visible. -->
-
-  <rect x="0.5" y="0.5" width="359" height="799" fill="#FFFFFF" stroke="#D0D0D0"/>
-
-  <!-- barra de estado -->
-  <rect x="0" y="0" width="360" height="28" fill="#F0F0F0"/>
-  <rect x="16" y="10" width="26" height="8" rx="4" fill="#C9C9C9"/>
-  <rect x="306" y="10" width="12" height="8" rx="2" fill="#C9C9C9"/>
-  <rect x="322" y="10" width="10" height="8" rx="2" fill="#C9C9C9"/>
-  <rect x="336" y="10" width="8" height="8" rx="2" fill="#C9C9C9"/>
-
-  <!-- barra de titulo -->
-  <polyline points="28,52 21,59 28,66" fill="none" stroke="#3A3A3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <line x1="21" y1="59" x2="34" y2="59" stroke="#3A3A3A" stroke-width="1.5" stroke-linecap="round"/>
-  <text x="48" y="64" font-size="15" fill="#3A3A3A">Anuncio</text>
-
-  <!-- foto con fecha de captura (Ev. 4) -->
-  <rect x="20" y="92" width="320" height="180" rx="8" fill="#E8E8E8" stroke="#BDBDBD"/>
-  <line x1="20" y1="92" x2="340" y2="272" stroke="#D5D5D5"/>
-  <line x1="340" y1="92" x2="20" y2="272" stroke="#D5D5D5"/>
-  <rect x="30" y="238" width="96" height="24" rx="4" fill="#FFFFFF" stroke="#BDBDBD"/>
-  <text x="38" y="254" font-size="11" fill="#3A3A3A">12/08/2026</text>
-
-  <!-- titulo del anuncio (relleno) -->
-  <rect x="20" y="290" width="220" height="10" rx="5" fill="#9A9A9A"/>
-
-  <!-- LOS CUATRO DATOS DE DESCARTE, con texto real -->
-  <rect x="20" y="318" width="16" height="16" rx="3" fill="#9A9A9A"/>
-  <text x="46" y="331" font-size="13" fill="#3A3A3A">1.000 Bs / mes · todo incluido</text>
-
-  <rect x="20" y="348" width="16" height="16" rx="3" fill="#9A9A9A"/>
-  <text x="46" y="361" font-size="13" fill="#3A3A3A">9 min caminando a la UAGRM</text>
-
-  <rect x="20" y="378" width="16" height="16" rx="3" fill="#9A9A9A"/>
-  <text x="46" y="391" font-size="13" fill="#3A3A3A">Acepta mascotas</text>
-
-  <rect x="20" y="408" width="16" height="16" rx="3" fill="#9A9A9A"/>
-  <text x="46" y="421" font-size="13" fill="#3A3A3A">Habitación · baño privado</text>
-
-  <line x1="20" y1="444" x2="340" y2="444" stroke="#E0E0E0"/>
-
-  <!-- descripcion (relleno) -->
-  <rect x="20" y="462" width="320" height="8" rx="4" fill="#C9C9C9"/>
-  <rect x="20" y="478" width="300" height="8" rx="4" fill="#C9C9C9"/>
-  <rect x="20" y="494" width="240" height="8" rx="4" fill="#C9C9C9"/>
-
-  <!-- el contacto NO esta: se explica por que -->
-  <rect x="20" y="524" width="320" height="52" rx="8" fill="none" stroke="#BDBDBD"/>
-  <rect x="34" y="540" width="16" height="16" rx="3" fill="#9A9A9A"/>
-  <text x="60" y="546" font-size="11" fill="#3A3A3A">El contacto del propietario se libera</text>
-  <text x="60" y="562" font-size="11" fill="#3A3A3A">cuando aprueba tu solicitud.</text>
-
-  <!-- servicios incluidos -->
-  <text x="20" y="600" font-size="11" fill="#8A8A8A">Servicios incluidos</text>
-  <rect x="20" y="610" width="72" height="28" rx="14" fill="none" stroke="#BDBDBD"/>
-  <text x="56" y="628" font-size="11" fill="#3A3A3A" text-anchor="middle">Agua</text>
-  <rect x="100" y="610" width="72" height="28" rx="14" fill="none" stroke="#BDBDBD"/>
-  <text x="136" y="628" font-size="11" fill="#3A3A3A" text-anchor="middle">Luz</text>
-
-  <!-- ubicacion -->
-  <rect x="20" y="652" width="320" height="40" rx="8" fill="#E8E8E8" stroke="#BDBDBD"/>
-  <text x="180" y="677" font-size="11" fill="#8A8A8A" text-anchor="middle">Ubicación aproximada</text>
-
-  <!-- ACCION PRINCIPAL — la unica forma rellena de oscuro -->
-  <rect x="20" y="706" width="320" height="44" rx="8" fill="#4A4A4A"/>
-  <text x="180" y="733" font-size="12" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">SOLICITAR VISITA</text>
+<svg width="360" height="800" viewBox="0 0 360 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="03 Anuncio">
+<rect x="0.5" y="0.5" width="359" height="799" fill="white"/>
+<rect x="0.5" y="0.5" width="359" height="799" stroke="#D0D0D0"/>
+<rect id="relleno" width="360" height="28" fill="#F0F0F0"/>
+<rect id="relleno_2" x="16" y="10" width="26" height="8" rx="4" fill="#C9C9C9"/>
+<rect id="relleno_3" x="320" y="10" width="24" height="8" rx="4" fill="#C9C9C9"/>
+<path id="Volver" d="M32 66L24 59L32 52M24 59H38" stroke="#3A3A3A" stroke-width="1.5"/>
+<path id="Anuncio" d="M50.4769 66H48.3675L52.2081 55.0909H54.6477L58.4936 66H56.3842L53.4705 57.3281H53.3853L50.4769 66ZM50.5462 61.7227H56.299V63.31H50.5462V61.7227ZM61.7735 61.206V66H59.8453V57.8182H61.6883V59.2085H61.7842C61.9724 58.7504 62.2725 58.3864 62.6844 58.1165C63.0999 57.8466 63.613 57.7116 64.2238 57.7116C64.7884 57.7116 65.2803 57.8324 65.6993 58.0739C66.1219 58.3153 66.4486 58.6651 66.6794 59.1232C66.9138 59.5813 67.0292 60.1371 67.0257 60.7905V66H65.0974V61.0888C65.0974 60.5419 64.9553 60.114 64.6713 59.805C64.3907 59.4961 64.0019 59.3416 63.5047 59.3416C63.1673 59.3416 62.8673 59.4162 62.6045 59.5653C62.3453 59.7109 62.1411 59.9222 61.9919 60.1992C61.8463 60.4762 61.7735 60.8118 61.7735 61.206ZM74.2007 62.5589V57.8182H76.129V66H74.2593V64.5458H74.1741C73.9894 65.0039 73.6858 65.3786 73.2632 65.6697C72.8442 65.9609 72.3275 66.1065 71.7132 66.1065C71.1769 66.1065 70.7029 65.9876 70.2909 65.7496C69.8825 65.5082 69.5629 65.1584 69.3321 64.7003C69.1013 64.2386 68.9859 63.6811 68.9859 63.0277V57.8182H70.9142V62.7294C70.9142 63.2479 71.0562 63.6598 71.3403 63.9652C71.6244 64.2706 71.9972 64.4233 72.4589 64.4233C72.743 64.4233 73.0182 64.354 73.2845 64.2156C73.5509 64.0771 73.7693 63.8711 73.9397 63.5977C74.1137 63.3207 74.2007 62.9744 74.2007 62.5589ZM80.0401 61.206V66H78.1119V57.8182H79.9549V59.2085H80.0508C80.239 58.7504 80.5391 58.3864 80.951 58.1165C81.3665 57.8466 81.8796 57.7116 82.4904 57.7116C83.055 57.7116 83.5469 57.8324 83.9659 58.0739C84.3885 58.3153 84.7152 58.6651 84.946 59.1232C85.1804 59.5813 85.2958 60.1371 85.2923 60.7905V66H83.364V61.0888C83.364 60.5419 83.2219 60.114 82.9379 59.805C82.6573 59.4961 82.2685 59.3416 81.7713 59.3416C81.4339 59.3416 81.1339 59.4162 80.8711 59.5653C80.6119 59.7109 80.4077 59.9222 80.2585 60.1992C80.1129 60.4762 80.0401 60.8118 80.0401 61.206ZM90.8214 66.1598C90.0046 66.1598 89.3033 65.9805 88.7173 65.6218C88.1349 65.2631 87.6857 64.7678 87.3697 64.1357C87.0572 63.5 86.9009 62.7685 86.9009 61.9411C86.9009 61.1101 87.0607 60.3768 87.3803 59.7411C87.6999 59.1019 88.1509 58.6048 88.7333 58.2496C89.3192 57.891 90.0117 57.7116 90.8107 57.7116C91.4748 57.7116 92.0625 57.8342 92.5739 58.0792C93.0888 58.3207 93.4989 58.6634 93.8043 59.1072C94.1097 59.5476 94.2837 60.0625 94.3263 60.652H92.4833C92.4087 60.2578 92.2312 59.9293 91.9506 59.6665C91.6737 59.4002 91.3026 59.267 90.8374 59.267C90.4432 59.267 90.0969 59.3736 89.7987 59.5866C89.5004 59.7962 89.2678 60.098 89.1009 60.4922C88.9375 60.8864 88.8558 61.3587 88.8558 61.9091C88.8558 62.4666 88.9375 62.946 89.1009 63.3473C89.2642 63.745 89.4933 64.0522 89.788 64.2688C90.0863 64.4819 90.4361 64.5884 90.8374 64.5884C91.1214 64.5884 91.3754 64.5352 91.5991 64.4286C91.8263 64.3185 92.0163 64.1605 92.169 63.9545C92.3217 63.7486 92.4265 63.4982 92.4833 63.2035H94.3263C94.2802 63.7823 94.1097 64.2955 93.815 64.7429C93.5202 65.1868 93.119 65.5348 92.6112 65.7869C92.1033 66.0355 91.5067 66.1598 90.8214 66.1598ZM95.9097 66V57.8182H97.838V66H95.9097ZM96.8792 56.657C96.5738 56.657 96.311 56.5558 96.0908 56.3533C95.8706 56.1474 95.7606 55.9006 95.7606 55.6129C95.7606 55.3217 95.8706 55.0749 96.0908 54.8725C96.311 54.6665 96.5738 54.5636 96.8792 54.5636C97.1881 54.5636 97.4509 54.6665 97.6675 54.8725C97.8877 55.0749 97.9978 55.3217 97.9978 55.6129C97.9978 55.9006 97.8877 56.1474 97.6675 56.3533C97.4509 56.5558 97.1881 56.657 96.8792 56.657ZM103.39 66.1598C102.591 66.1598 101.898 65.984 101.312 65.6325C100.726 65.2809 100.272 64.7891 99.9487 64.157C99.6291 63.5249 99.4693 62.7862 99.4693 61.9411C99.4693 61.0959 99.6291 60.3555 99.9487 59.7198C100.272 59.0842 100.726 58.5906 101.312 58.239C101.898 57.8874 102.591 57.7116 103.39 57.7116C104.189 57.7116 104.881 57.8874 105.467 58.239C106.053 58.5906 106.506 59.0842 106.825 59.7198C107.149 60.3555 107.31 61.0959 107.31 61.9411C107.31 62.7862 107.149 63.5249 106.825 64.157C106.506 64.7891 106.053 65.2809 105.467 65.6325C104.881 65.984 104.189 66.1598 103.39 66.1598ZM103.4 64.6151C103.834 64.6151 104.196 64.4961 104.487 64.2582C104.778 64.0167 104.995 63.6935 105.137 63.2887C105.282 62.8839 105.355 62.4329 105.355 61.9357C105.355 61.435 105.282 60.9822 105.137 60.5774C104.995 60.169 104.778 59.8441 104.487 59.6026C104.196 59.3612 103.834 59.2404 103.4 59.2404C102.956 59.2404 102.587 59.3612 102.292 59.6026C102.001 59.8441 101.783 60.169 101.637 60.5774C101.495 60.9822 101.424 61.435 101.424 61.9357C101.424 62.4329 101.495 62.8839 101.637 63.2887C101.783 63.6935 102.001 64.0167 102.292 64.2582C102.587 64.4961 102.956 64.6151 103.4 64.6151Z" fill="#3A3A3A"/>
+<rect id="Foto del inmueble" x="24.5" y="92.5" width="311" height="175" rx="7.5" fill="#E8E8E8" stroke="#BDBDBD"/>
+<rect id="Fecha de captura" x="32.5" y="236.5" width="103" height="23" rx="3.5" fill="white" stroke="#BDBDBD"/>
+<rect id="fecha" x="40" y="245" width="80" height="6" rx="3" fill="#3A3A3A"/>
+<rect id="titulo" x="24" y="292" width="220" height="10" rx="5" fill="#9A9A9A"/>
+<rect id="Condiciones de descarte" x="24.5" y="326.5" width="311" height="195" rx="11.5" fill="#F5F5F5" stroke="#BDBDBD"/>
+<rect id="etiqueta precio final" x="40" y="344" width="70" height="6" rx="3" fill="#8A8A8A"/>
+<rect id="PRECIO FINAL destacado" x="40" y="360" width="150" height="20" rx="8" fill="#3A3A3A"/>
+<circle id="incluido" cx="45" cy="399" r="5" fill="#4A4A4A"/>
+<rect id="servicio" x="56" y="396" width="34" height="6" rx="3" fill="#3A3A3A"/>
+<circle id="incluido_2" cx="123" cy="399" r="5" fill="#4A4A4A"/>
+<rect id="servicio_2" x="134" y="396" width="34" height="6" rx="3" fill="#3A3A3A"/>
+<circle id="no incluido" cx="201" cy="399" r="4.5" stroke="#BDBDBD"/>
+<rect id="servicio_3" x="212" y="396" width="52" height="6" rx="3" fill="#8A8A8A"/>
+<rect id="divisor" x="40" y="424" width="280" height="1" fill="#DDDDDD"/>
+<rect id="icono" x="40" y="440" width="16" height="16" rx="3" fill="#9A9A9A"/>
+<rect id="dato" x="64" y="445" width="181" height="7" rx="3.5" fill="#3A3A3A"/>
+<rect id="icono_2" x="40" y="464" width="16" height="16" rx="3" fill="#9A9A9A"/>
+<rect id="dato_2" x="64" y="469" width="107" height="7" rx="3.5" fill="#3A3A3A"/>
+<rect id="icono_3" x="40" y="488" width="16" height="16" rx="3" fill="#9A9A9A"/>
+<rect id="dato_3" x="64" y="493" width="158" height="7" rx="3.5" fill="#3A3A3A"/>
+<rect id="Contacto protegido" x="24.5" y="536.5" width="311" height="55" rx="7.5" stroke="#BDBDBD"/>
+<rect id="icono_4" x="40" y="552" width="16" height="16" rx="3" fill="#9A9A9A"/>
+<rect id="aviso" x="64" y="550" width="250" height="6" rx="3" fill="#3A3A3A"/>
+<rect id="aviso_2" x="64" y="562" width="180" height="6" rx="3" fill="#3A3A3A"/>
+<rect id="Accion principal" x="24" y="706" width="312" height="44" rx="8" fill="#4A4A4A"/>
+<rect id="SOLICITAR VISITA" x="75" y="725" width="210" height="7" rx="3.5" fill="white"/>
+</g>
 </svg>
