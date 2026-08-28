@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/theme.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../providers/buscar_provider.dart';
 import 'anuncio_screen.dart';
@@ -115,7 +116,7 @@ class _TarjetaAnuncio extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: Espacio.sm),
                     // Precio
                     Text(
                       '${anuncio.precioFinal} Bs / mes',
@@ -123,14 +124,28 @@ class _TarjetaAnuncio extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           color: esquema.onSurface),
                     ),
-                    const SizedBox(height: 4),
+                    // Que cubre ese precio, pegado a la cifra.
+                    //
+                    // La tarjeta repetia el mismo problema que encontro la
+                    // prueba con usuaria en el detalle: mostraba el monto sin
+                    // decir que incluye, y asi "1.000 Bs" no significa nada.
+                    // El listado es donde primero se descarta, asi que tiene
+                    // que responderlo sin abrir el anuncio.
+                    Text(
+                      _cobertura(anuncio),
+                      style: texto.bodySmall
+                          ?.copyWith(color: esquema.onSurfaceVariant),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: Espacio.xs),
                     // Minutos
                     Text(
                       '${anuncio.minutosCaminando} min caminando',
                       style: texto.bodySmall
                           ?.copyWith(color: esquema.onSurfaceVariant),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: Espacio.xs),
                     // Mascotas + tipo
                     Text(
                       '${anuncio.aceptaMascotas ? "Acepta mascotas" : "Sin mascotas"} · ${anuncio.tipoEspacio.etiqueta}',
@@ -237,4 +252,23 @@ class _SinResultados extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Que cubre el precio final, en una sola linea.
+///
+/// Nombra tambien lo que NO esta incluido: omitirlo impide distinguir "no
+/// entra en el precio" de "no lo dijeron", y es justo lo que obligo a una
+/// usuaria a preguntar "¿cuanto es con luz?" durante la prueba.
+String _cobertura(Anuncio anuncio) {
+  const nombres = {'agua': 'agua', 'luz': 'luz', 'internet': 'internet'};
+
+  final incluidos = <String>[];
+  final faltan = <String>[];
+  nombres.forEach((clave, nombre) {
+    (anuncio.serviciosIncluidos[clave] == true ? incluidos : faltan).add(nombre);
+  });
+
+  if (faltan.isEmpty) return 'todo incluido';
+  if (incluidos.isEmpty) return 'servicios no incluidos';
+  return 'incluye ${incluidos.join(" y ")} · ${faltan.join(" y ")} no';
 }
