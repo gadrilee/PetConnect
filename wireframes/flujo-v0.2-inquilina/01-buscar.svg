@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="800" viewBox="0 0 360 800" font-family="Inter, Arial, sans-serif">
+  <!-- 01 Buscar — CONTENIDO. Andrea declara sus cuatro condiciones antes de
+       ver nada. Los mismos cuatro campos que el formulario de Marta exigio
+       en el flujo v0.1. Ningun contacto visible. -->
+
+  <rect x="0.5" y="0.5" width="359" height="799" fill="#FFFFFF" stroke="#D0D0D0"/>
+
+  <!-- barra de estado -->
+  <rect x="0" y="0" width="360" height="28" fill="#F0F0F0"/>
+  <rect x="16" y="10" width="26" height="8" rx="4" fill="#C9C9C9"/>
+  <rect x="306" y="10" width="12" height="8" rx="2" fill="#C9C9C9"/>
+  <rect x="322" y="10" width="10" height="8" rx="2" fill="#C9C9C9"/>
+  <rect x="336" y="10" width="8" height="8" rx="2" fill="#C9C9C9"/>
+
+  <!-- barra de titulo -->
+  <text x="20" y="64" font-size="15" fill="#3A3A3A">Buscar</text>
+
+  <!-- 1. PRECIO MAXIMO -->
+  <text x="20" y="106" font-size="11" fill="#8A8A8A">Precio máximo mensual</text>
+  <rect x="20" y="116" width="320" height="48" rx="8" fill="none" stroke="#BDBDBD"/>
+  <text x="36" y="146" font-size="15" fill="#3A3A3A">800</text>
+  <text x="322" y="146" font-size="13" fill="#8A8A8A" text-anchor="end">Bs</text>
+  <text x="20" y="180" font-size="11" fill="#8A8A8A">Se compara contra el precio final, con servicios incluidos</text>
+
+  <!-- 2. TIPO DE ESPACIO -->
+  <text x="20" y="216" font-size="11" fill="#8A8A8A">Tipo de espacio</text>
+  <rect x="20" y="226" width="101" height="40" rx="8" fill="#EFEFEF" stroke="#8A8A8A"/>
+  <text x="70" y="251" font-size="13" fill="#3A3A3A" text-anchor="middle">Habitación</text>
+  <rect x="129" y="226" width="101" height="40" rx="8" fill="none" stroke="#BDBDBD"/>
+  <text x="179" y="251" font-size="13" fill="#8A8A8A" text-anchor="middle">Depto.</text>
+  <rect x="238" y="226" width="102" height="40" rx="8" fill="none" stroke="#BDBDBD"/>
+  <text x="289" y="251" font-size="13" fill="#8A8A8A" text-anchor="middle">Casa</text>
+
+  <line x1="20" y1="294" x2="340" y2="294" stroke="#E0E0E0"/>
+
+  <!-- 3. MASCOTAS -->
+  <rect x="20" y="316" width="16" height="16" rx="3" fill="#9A9A9A"/>
+  <text x="46" y="329" font-size="13" fill="#3A3A3A">Acepta mascotas</text>
+  <rect x="296" y="312" width="44" height="24" rx="12" fill="#4A4A4A"/>
+  <circle cx="328" cy="324" r="9" fill="#FFFFFF"/>
+  <text x="20" y="352" font-size="11" fill="#8A8A8A">Andrea tiene un gato: sin esto, el resultado no sirve</text>
+
+  <line x1="20" y1="378" x2="340" y2="378" stroke="#E0E0E0"/>
+
+  <!-- 4. MINUTOS CAMINANDO -->
+  <text x="20" y="404" font-size="11" fill="#8A8A8A">Máximo de minutos caminando a la UAGRM</text>
+  <text x="20" y="432" font-size="18" fill="#3A3A3A">15 min</text>
+  <line x1="20" y1="460" x2="340" y2="460" stroke="#D5D5D5" stroke-width="4" stroke-linecap="round"/>
+  <line x1="20" y1="460" x2="180" y2="460" stroke="#4A4A4A" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="180" cy="460" r="10" fill="#FFFFFF" stroke="#4A4A4A" stroke-width="2"/>
+  <text x="20" y="484" font-size="11" fill="#8A8A8A">5</text>
+  <text x="340" y="484" font-size="11" fill="#8A8A8A" text-anchor="end">30</text>
+
+  <line x1="20" y1="512" x2="340" y2="512" stroke="#E0E0E0"/>
+
+  <!-- resumen de lo que se va a buscar (relleno) -->
+  <text x="20" y="538" font-size="11" fill="#8A8A8A">Tus condiciones</text>
+  <rect x="20" y="550" width="320" height="76" rx="8" fill="none" stroke="#BDBDBD"/>
+  <rect x="34" y="566" width="12" height="12" rx="3" fill="#9A9A9A"/>
+  <text x="56" y="576" font-size="11" fill="#3A3A3A">Hasta 800 Bs / mes, todo incluido</text>
+  <rect x="34" y="586" width="12" height="12" rx="3" fill="#9A9A9A"/>
+  <text x="56" y="596" font-size="11" fill="#3A3A3A">Habitación · acepta mascotas</text>
+  <rect x="34" y="606" width="12" height="12" rx="3" fill="#9A9A9A"/>
+  <text x="56" y="616" font-size="11" fill="#3A3A3A">Máximo 15 min caminando a la UAGRM</text>
+
+  <!-- nota: el contacto no se pide ni se muestra -->
+  <text x="20" y="660" font-size="11" fill="#8A8A8A">Ningún anuncio muestra teléfono hasta que el</text>
+  <text x="20" y="676" font-size="11" fill="#8A8A8A">propietario apruebe tu solicitud.</text>
+
+  <!-- ACCION PRINCIPAL — la unica forma rellena de oscuro -->
+  <rect x="20" y="706" width="320" height="44" rx="8" fill="#4A4A4A"/>
+  <text x="180" y="733" font-size="12" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">VER RESULTADOS</text>
+</svg>
