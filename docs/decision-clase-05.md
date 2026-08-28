@@ -180,30 +180,85 @@ se mira. La foto domina y no forma parte del modelo de prioridades.
 
 ---
 
+## SEGUNDA ITERACIÓN — la corrección que salió de la prueba
+
+Implementada el 27/08, después de la observación. **Todavía no fue probada con
+usuarios:** es la respuesta a lo que preguntó, no una mejora verificada.
+
+### Qué cambió
+
+**Los servicios se mudaron al lado del precio.** Antes vivían en una sección
+aparte, más abajo en la pantalla, bajo el título "Servicios incluidos". Esa
+distancia era el problema: el dato que respondía su pregunta existía, pero
+estaba lejos de la cifra que la generaba.
+
+**Lo que NO está incluido ahora aparece.** Antes se omitía. Si el internet no
+entraba en el precio, simplemente no se mencionaba — y omitirlo es lo que
+obliga a preguntar, porque no se distingue "no está incluido" de "no lo
+dijeron".
+
+```dart
+// ─── Corregido tras la prueba con usuaria (27/08) ───
+//
+// Ella leyo el precio destacado y IGUAL pregunto "¿cuanto es con luz?".
+// El numero solo es ambiguo: no significa nada hasta saber que cubre.
+Wrap(
+  spacing: Espacio.sm,
+  runSpacing: Espacio.xs,
+  children: [
+    _Servicio(nombre: 'Agua',     incluido: anuncio.serviciosIncluidos['agua'] == true),
+    _Servicio(nombre: 'Luz',      incluido: anuncio.serviciosIncluidos['luz'] == true),
+    _Servicio(nombre: 'Internet', incluido: anuncio.serviciosIncluidos['internet'] == true),
+  ],
+),
+```
+
+El widget `_Servicio` marca cada uno con un ícono lleno o vacío, y el texto
+cambia de `Internet` a `Internet no`. Los tres se ven siempre.
+
+### Cómo se lee ahora
+
+```
+PRECIO FINAL
+1.000 Bs / mes
+● Agua   ● Luz   ○ Internet no
+```
+
+La pregunta *"¿cuánto es con luz?"* queda respondida sin que haya que hacerla.
+
+El frame `03 Anuncio` en Figma se actualizó igual, así que wireframe y código
+siguen representando la misma pantalla.
+
+### Lo que falta
+
+**Volver a probar.** No sabemos si esto funciona: sabemos que responde la
+pregunta que apareció. Puede que la próxima persona pregunte otra cosa, o que
+tres indicadores juntos agreguen ruido al bloque del precio. Es una hipótesis
+nueva, no una conclusión.
+
+---
+
 ## SIGUIENTE
 
-**Qué conservamos.** La agrupación de las cuatro condiciones en un contenedor
-y la escala de espaciado. Ninguna de las dos fue cuestionada por la prueba, y
-la escala ya está en el tema, así que aplicarla al resto es reemplazar números
-por constantes.
+**Qué conservamos.** La agrupación de las cuatro condiciones y la escala de
+espaciado: ninguna fue cuestionada por la prueba. La escala ya está en el tema,
+así que aplicarla al resto de las pantallas es reemplazar números por
+constantes.
 
-**Qué corregimos** — sale directamente de lo que preguntó:
+**Qué corregimos.** El resto del flujo todavía usa valores sueltos:
+`buscar_screen.dart`, `resultados_screen.dart` y `solicitar_visita_screen.dart`
+son las siguientes. Y la tarjeta de resultados repite el mismo error que
+acabamos de corregir — muestra el precio sin decir qué incluye.
 
-*Unir el precio con lo que incluye, en una sola línea inseparable.* En vez de
-la cifra grande arriba y el detalle chico debajo, que el bloque se lea como una
-sola unidad: **`1.000 Bs / mes · agua y luz incluidas`**, y que lo que NO está
-incluido aparezca con el mismo peso, no ausente. Si el internet no entra, hay
-que decirlo ahí, no callarlo.
+**Qué investigamos.**
 
-La prueba mostró que separar esos dos datos obliga a preguntar. Y preguntar es
-precisamente lo que el producto viene a evitar.
+1. *Si la corrección funciona.* Segunda prueba con otra persona, mirando si
+   pregunta por el precio o pasa directo a decidir.
+2. *Si la foto debe seguir arriba.* Ella la miró primero, pero no sabemos si
+   eso la ayudó o la distrajo. Un dato de una sola persona no alcanza para
+   reordenar la pantalla.
 
-**Qué investigamos.** Si la foto debe seguir arriba. Ella la miró primero, pero
-no sabemos si eso la ayudó a decidir o sólo la distrajo del dato que necesitaba.
-Antes de mover la foto hace falta una segunda prueba: es un dato de una sola
-persona y no alcanza para reordenar la pantalla.
-
-**Lo que aprendimos del método.** La mejora se veía correcta en Figma y en el
-código, y las métricas daban bien —13 valores fuera de escala pasaron a 0—.
-Nada de eso anticipó la pregunta. Hizo falta una persona real haciendo una
-pregunta concreta para descubrir que el problema seguía ahí.
+**Lo que aprendimos del método.** Las métricas daban bien —13 valores fuera de
+escala pasaron a 0—, el wireframe y el código coincidían, y aun así el problema
+seguía ahí. Hizo falta una persona real haciendo una pregunta concreta para
+descubrirlo. Ninguna revisión entre nosotros lo habría encontrado.
