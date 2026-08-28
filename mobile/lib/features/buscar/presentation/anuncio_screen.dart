@@ -95,12 +95,6 @@ class _AnuncioBody extends StatelessWidget {
     final esquema = Theme.of(context).colorScheme;
     final texto = Theme.of(context).textTheme;
 
-    // Servicios incluidos como texto
-    final servicios = <String>[];
-    if (anuncio.serviciosIncluidos['agua'] == true) servicios.add('Agua');
-    if (anuncio.serviciosIncluidos['luz'] == true) servicios.add('Luz');
-    if (anuncio.serviciosIncluidos['internet'] == true) servicios.add('Internet');
-
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
@@ -199,8 +193,7 @@ class _AnuncioBody extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // El precio final es el criterio de descarte n.º 1 del
-                    // brief, asi que se lee primero y con mas peso. Antes
-                    // tenia exactamente el mismo tamano que los otros tres.
+                    // brief, asi que se lee primero y con mas peso.
                     Text('Precio final',
                         style: texto.labelSmall
                             ?.copyWith(color: esquema.onSurfaceVariant)),
@@ -208,14 +201,34 @@ class _AnuncioBody extends StatelessWidget {
                     Text('${anuncio.precioFinal} Bs / mes',
                         style: texto.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.bold)),
-                    Text(
-                      servicios.length == 3
-                          ? 'todo incluido'
-                          : servicios.isEmpty
-                              ? 'sin servicios incluidos'
-                              : 'incluye ${servicios.join(', ').toLowerCase()}',
-                      style: texto.bodySmall
-                          ?.copyWith(color: esquema.onSurfaceVariant),
+
+                    // ─── Corregido tras la prueba con usuaria (27/08) ───
+                    //
+                    // Ella leyo el precio destacado y IGUAL pregunto
+                    // "¿cuanto es con luz?". El numero solo es ambiguo: no
+                    // significa nada hasta saber que cubre.
+                    //
+                    // Antes esto era una linea de texto chico y gris, y los
+                    // servicios vivian en OTRA seccion mas abajo de la
+                    // pantalla. Ahora van pegados a la cifra y, sobre todo,
+                    // lo que NO esta incluido aparece explicito en vez de
+                    // omitirse: callarlo es lo que obliga a preguntar.
+                    const SizedBox(height: Espacio.sm),
+                    Wrap(
+                      spacing: Espacio.sm,
+                      runSpacing: Espacio.xs,
+                      children: [
+                        _Servicio(
+                            nombre: 'Agua',
+                            incluido: anuncio.serviciosIncluidos['agua'] == true),
+                        _Servicio(
+                            nombre: 'Luz',
+                            incluido: anuncio.serviciosIncluidos['luz'] == true),
+                        _Servicio(
+                            nombre: 'Internet',
+                            incluido:
+                                anuncio.serviciosIncluidos['internet'] == true),
+                      ],
                     ),
 
                     const SizedBox(height: Espacio.md),
@@ -276,25 +289,6 @@ class _AnuncioBody extends StatelessWidget {
                 ),
               ),
 
-              // ---- Servicios incluidos ----
-              if (servicios.isNotEmpty) ...[
-                const SizedBox(height: Espacio.lg),
-                Text('Servicios incluidos',
-                    style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant)),
-                const SizedBox(height: Espacio.sm),
-                Wrap(
-                  spacing: Espacio.sm,
-                  runSpacing: Espacio.sm,
-                  children: servicios
-                      .map((s) => Chip(
-                            label: Text(s, style: const TextStyle(fontSize: 12)),
-                            visualDensity: VisualDensity.compact,
-                            side: BorderSide(color: esquema.outline.withValues(alpha: 0.5)),
-                            backgroundColor: Colors.transparent,
-                          ))
-                      .toList(),
-                ),
-              ],
 
               // ---- Ubicación aproximada ----
               const SizedBox(height: Espacio.lg),
@@ -382,6 +376,40 @@ class _ErrorBody extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Un servicio del precio final, tal como se lee junto a la cifra.
+///
+/// Muestra tanto los incluidos como los que NO lo estan. Omitir los que
+/// faltan fue lo que hizo que la usuaria de la prueba tuviera que preguntar
+/// "¿cuanto es con luz?": si no aparece, no se sabe si esta o no esta.
+class _Servicio extends StatelessWidget {
+  const _Servicio({required this.nombre, required this.incluido});
+
+  final String nombre;
+  final bool incluido;
+
+  @override
+  Widget build(BuildContext context) {
+    final esquema = Theme.of(context).colorScheme;
+    final color = incluido ? esquema.onSurface : esquema.onSurfaceVariant;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(incluido ? Icons.check_circle : Icons.cancel_outlined,
+            size: 15, color: incluido ? esquema.primary : esquema.outline),
+        const SizedBox(width: Espacio.xs),
+        Text(
+          incluido ? nombre : '$nombre no',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: color,
+                fontWeight: incluido ? FontWeight.w600 : FontWeight.normal,
+              ),
+        ),
+      ],
     );
   }
 }
