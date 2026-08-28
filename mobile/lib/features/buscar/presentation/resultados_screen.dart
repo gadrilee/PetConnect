@@ -43,7 +43,7 @@ class ResultadosScreen extends StatelessWidget {
                       child: ListView.separated(
                         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                         itemCount: provider.resultados.length,
-                        separatorBuilder: (_, i) => const SizedBox(height: 12),
+                        separatorBuilder: (_, i) => const SizedBox(height: Espacio.md),
                         itemBuilder: (ctx, i) {
                           final anuncio = provider.resultados[i];
                           return _TarjetaAnuncio(
@@ -81,7 +81,7 @@ class _TarjetaAnuncio extends StatelessWidget {
       child: InkWell(
         onTap: alTocar,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(Espacio.md),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -92,7 +92,7 @@ class _TarjetaAnuncio extends StatelessWidget {
                   foto: anuncio.fotos.isNotEmpty ? anuncio.fotos.first : null,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: Espacio.md),
               // Info
               Expanded(
                 child: Column(
