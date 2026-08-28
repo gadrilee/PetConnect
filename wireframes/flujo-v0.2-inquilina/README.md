@@ -7,6 +7,13 @@ Seis pantallas, 360 × 800, escala de grises. Cada `.svg` es un frame de Figma:
 se arrastra al archivo y entra con capas, textos editables y formas reales, no
 como imagen.
 
+## El flujo completo de un vistazo
+
+![Las seis pantallas del flujo v0.2](flujo-completo.png)
+
+Las seis pantallas lado a lado, en el orden del flujo. Sirve para
+revisar el recorrido entero sin abrir Figma ni los SVG uno por uno.
+
 ## Las pantallas
 
 | Frame en Figma | Archivo | Rol en la clase | Paso del flujo |
