@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="800" viewBox="0 0 360 800" font-family="Inter, Arial, sans-serif">
+  <!-- 02 Resultados — CONTENIDO. Solo aparecen los anuncios en estado
+       Disponible (flujo v0.1, paso 7), ordenados por cercania. Los cuatro
+       datos de descarte van con texto real en cada tarjeta: sirven para
+       descartar sin abrir. Ninguna tarjeta muestra telefono ni boton de
+       llamar; la accion es abrir el anuncio, por eso no hay boton oscuro. -->
+
+  <rect x="0.5" y="0.5" width="359" height="799" fill="#FFFFFF" stroke="#D0D0D0"/>
+
+  <!-- barra de estado -->
+  <rect x="0" y="0" width="360" height="28" fill="#F0F0F0"/>
+  <rect x="16" y="10" width="26" height="8" rx="4" fill="#C9C9C9"/>
+  <rect x="306" y="10" width="12" height="8" rx="2" fill="#C9C9C9"/>
+  <rect x="322" y="10" width="10" height="8" rx="2" fill="#C9C9C9"/>
+  <rect x="336" y="10" width="8" height="8" rx="2" fill="#C9C9C9"/>
+
+  <!-- barra de titulo -->
+  <polyline points="28,52 21,59 28,66" fill="none" stroke="#3A3A3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="21" y1="59" x2="34" y2="59" stroke="#3A3A3A" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="48" y="64" font-size="15" fill="#3A3A3A">Resultados</text>
+
+  <!-- filtros activos, tocables -->
+  <rect x="20" y="88" width="66" height="28" rx="14" fill="#EFEFEF" stroke="#8A8A8A"/>
+  <text x="53" y="106" font-size="11" fill="#3A3A3A" text-anchor="middle">800 Bs</text>
+  <rect x="94" y="88" width="80" height="28" rx="14" fill="#EFEFEF" stroke="#8A8A8A"/>
+  <text x="134" y="106" font-size="11" fill="#3A3A3A" text-anchor="middle">Habitación</text>
+  <rect x="182" y="88" width="76" height="28" rx="14" fill="#EFEFEF" stroke="#8A8A8A"/>
+  <text x="220" y="106" font-size="11" fill="#3A3A3A" text-anchor="middle">Mascotas</text>
+  <rect x="266" y="88" width="74" height="28" rx="14" fill="#EFEFEF" stroke="#8A8A8A"/>
+  <text x="303" y="106" font-size="11" fill="#3A3A3A" text-anchor="middle">15 min</text>
+
+  <text x="20" y="140" font-size="11" fill="#8A8A8A">4 cuartos · ordenados por cercanía a la UAGRM</text>
+
+  <!-- ============ TARJETA 1 ============ -->
+  <rect x="20" y="152" width="320" height="112" rx="8" fill="none" stroke="#BDBDBD"/>
+  <rect x="32" y="164" width="88" height="88" rx="6" fill="#E8E8E8" stroke="#BDBDBD"/>
+  <line x1="32" y1="164" x2="120" y2="252" stroke="#D5D5D5"/>
+  <line x1="120" y1="164" x2="32" y2="252" stroke="#D5D5D5"/>
+  <rect x="132" y="170" width="150" height="10" rx="5" fill="#9A9A9A"/>
+  <text x="132" y="206" font-size="11" fill="#3A3A3A">780 Bs / mes · todo incluido</text>
+  <text x="132" y="224" font-size="11" fill="#3A3A3A">7 min caminando · Acepta mascotas</text>
+  <text x="132" y="242" font-size="11" fill="#8A8A8A">Habitación · baño privado</text>
+  <polyline points="326,202 332,208 326,214" fill="none" stroke="#8A8A8A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ============ TARJETA 2 ============ -->
+  <rect x="20" y="276" width="320" height="112" rx="8" fill="none" stroke="#BDBDBD"/>
+  <rect x="32" y="288" width="88" height="88" rx="6" fill="#E8E8E8" stroke="#BDBDBD"/>
+  <line x1="32" y1="288" x2="120" y2="376" stroke="#D5D5D5"/>
+  <line x1="120" y1="288" x2="32" y2="376" stroke="#D5D5D5"/>
+  <rect x="132" y="294" width="128" height="10" rx="5" fill="#9A9A9A"/>
+  <text x="132" y="330" font-size="11" fill="#3A3A3A">800 Bs / mes · todo incluido</text>
+  <text x="132" y="348" font-size="11" fill="#3A3A3A">9 min caminando · Acepta mascotas</text>
+  <text x="132" y="366" font-size="11" fill="#8A8A8A">Habitación · baño privado</text>
+  <polyline points="326,326 332,332 326,338" fill="none" stroke="#8A8A8A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ============ TARJETA 3 ============ -->
+  <rect x="20" y="400" width="320" height="112" rx="8" fill="none" stroke="#BDBDBD"/>
+  <rect x="32" y="412" width="88" height="88" rx="6" fill="#E8E8E8" stroke="#BDBDBD"/>
+  <line x1="32" y1="412" x2="120" y2="500" stroke="#D5D5D5"/>
+  <line x1="120" y1="412" x2="32" y2="500" stroke="#D5D5D5"/>
+  <rect x="132" y="418" width="160" height="10" rx="5" fill="#9A9A9A"/>
+  <text x="132" y="454" font-size="11" fill="#3A3A3A">700 Bs / mes · todo incluido</text>
+  <text x="132" y="472" font-size="11" fill="#3A3A3A">12 min caminando · Acepta mascotas</text>
+  <text x="132" y="490" font-size="11" fill="#8A8A8A">Habitación · baño compartido</text>
+  <polyline points="326,450 332,456 326,462" fill="none" stroke="#8A8A8A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ============ TARJETA 4 ============ -->
+  <rect x="20" y="524" width="320" height="112" rx="8" fill="none" stroke="#BDBDBD"/>
+  <rect x="32" y="536" width="88" height="88" rx="6" fill="#E8E8E8" stroke="#BDBDBD"/>
+  <line x1="32" y1="536" x2="120" y2="624" stroke="#D5D5D5"/>
+  <line x1="120" y1="536" x2="32" y2="624" stroke="#D5D5D5"/>
+  <rect x="132" y="542" width="140" height="10" rx="5" fill="#9A9A9A"/>
+  <text x="132" y="578" font-size="11" fill="#3A3A3A">750 Bs / mes · todo incluido</text>
+  <text x="132" y="596" font-size="11" fill="#3A3A3A">14 min caminando · Acepta mascotas</text>
+  <text x="132" y="614" font-size="11" fill="#8A8A8A">Habitación · baño privado</text>
+  <polyline points="326,574 332,580 326,586" fill="none" stroke="#8A8A8A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- accion secundaria: sin relleno, trazo claro -->
+  <rect x="20" y="660" width="320" height="44" rx="8" fill="none" stroke="#8A8A8A"/>
+  <text x="180" y="687" font-size="12" fill="#4A4A4A" text-anchor="middle">Ajustar filtros</text>
+
+  <text x="180" y="732" font-size="11" fill="#8A8A8A" text-anchor="middle">Tocá una tarjeta para ver el anuncio completo.</text>
+  <text x="180" y="748" font-size="11" fill="#8A8A8A" text-anchor="middle">Ningún resultado muestra el contacto.</text>
+</svg>
