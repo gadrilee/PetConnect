@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/widgets/boton_principal.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/buscar_provider.dart';
@@ -27,9 +28,29 @@ class _BuscarScreenState extends State<BuscarScreen> {
   bool _cargando = false;
 
   @override
+  void initState() {
+    super.initState();
+    // El estado del boton depende de lo que hay escrito, asi que hay que
+    // reaccionar a cada tecla y no recien al tocarlo.
+    _precioCtrl.addListener(_revisarPrecio);
+  }
+
+  @override
   void dispose() {
+    _precioCtrl.removeListener(_revisarPrecio);
     _precioCtrl.dispose();
     super.dispose();
+  }
+
+  void _revisarPrecio() => setState(() {});
+
+  /// El campo vacio es valido: significa "sin limite de precio".
+  /// Lo invalido es haber escrito algo que no es un monto.
+  bool get _precioEsValido {
+    final texto = _precioCtrl.text.trim();
+    if (texto.isEmpty) return true;
+    final n = double.tryParse(texto.replaceAll(',', '.'));
+    return n != null && n > 0;
   }
 
   Future<void> _buscar() async {
@@ -138,17 +159,16 @@ class _BuscarScreenState extends State<BuscarScreen> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.fromLTRB(
-            20, 8, 20, MediaQuery.of(context).padding.bottom + 16),
-        child: FilledButton(
-          onPressed: _cargando ? null : _buscar,
-          child: _cargando
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                )
-              : const Text('BUSCAR'),
+        padding: EdgeInsets.fromLTRB(Espacio.lg, Espacio.sm, Espacio.lg,
+            MediaQuery.of(context).padding.bottom + Espacio.md),
+        child: BotonPrincipal(
+          etiqueta: 'BUSCAR',
+          etiquetaCargando: 'BUSCANDO...',
+          // null deshabilita: es como la pieza expresa "falta algo".
+          alTocar: _precioEsValido ? _buscar : null,
+          cargando: _cargando,
+          motivoDeshabilitado:
+              'Escribí un monto válido o dejá el precio vacío para no filtrar por él.',
         ),
       ),
     );
