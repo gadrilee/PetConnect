@@ -22,7 +22,10 @@ class AvisoError extends StatelessWidget {
           Icon(Icons.error_outline, size: 20, color: esquema.onErrorContainer),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(mensaje, style: TextStyle(color: esquema.onErrorContainer)),
+            child: Text(
+              mensaje,
+              style: TextStyle(color: esquema.onErrorContainer),
+            ),
           ),
         ],
       ),

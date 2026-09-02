@@ -33,12 +33,14 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
     // El provider del formulario se crea nuevo en cada publicacion, para no
     // arrastrar fotos ni ubicacion del anuncio anterior.
     final repo = context.read<MisAnunciosProvider>();
-    await Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ChangeNotifierProvider(
-        create: (ctx) => PublicarProvider(ctx.read()),
-        child: const PublicarScreen(),
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider(
+          create: (ctx) => PublicarProvider(ctx.read()),
+          child: const PublicarScreen(),
+        ),
       ),
-    ));
+    );
     if (mounted) repo.cargar();
   }
 
@@ -71,7 +73,8 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
             return ListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
               itemCount: estado.anuncios.length,
-              itemBuilder: (_, i) => _TarjetaAnuncio(anuncio: estado.anuncios[i]),
+              itemBuilder: (_, i) =>
+                  _TarjetaGestion(anuncio: estado.anuncios[i]),
             );
           },
         ),
@@ -91,10 +94,17 @@ class _SinAnuncios extends StatelessWidget {
     return ListView(
       children: [
         const SizedBox(height: 120),
-        Icon(Icons.home_work_outlined, size: 56, color: esquema.onSurfaceVariant),
+        Icon(
+          Icons.home_work_outlined,
+          size: 56,
+          color: esquema.onSurfaceVariant,
+        ),
         const SizedBox(height: 16),
-        Text('Todavía no publicaste nada',
-            textAlign: TextAlign.center, style: texto.titleMedium),
+        Text(
+          'Todavía no publicaste nada',
+          textAlign: TextAlign.center,
+          style: texto.titleMedium,
+        ),
         const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -110,8 +120,11 @@ class _SinAnuncios extends StatelessWidget {
   }
 }
 
-class _TarjetaAnuncio extends StatelessWidget {
-  const _TarjetaAnuncio({required this.anuncio});
+/// La tarjeta del PROPIETARIO: muestra el estado del anuncio y la accion de
+/// marcarlo como alquilado. No es la misma pieza que TarjetaAnuncio, que es
+/// la que ve la inquilina para decidir; comparten el tema, no el trabajo.
+class _TarjetaGestion extends StatelessWidget {
+  const _TarjetaGestion({required this.anuncio});
 
   final Anuncio anuncio;
 
@@ -120,8 +133,9 @@ class _TarjetaAnuncio extends StatelessWidget {
     final texto = Theme.of(context).textTheme;
     final esquema = Theme.of(context).colorScheme;
     final disponible = anuncio.estaDisponible;
-    final precio = NumberFormat.decimalPattern('es')
-        .format(double.tryParse(anuncio.precioFinal) ?? 0);
+    final precio = NumberFormat.decimalPattern(
+      'es',
+    ).format(double.tryParse(anuncio.precioFinal) ?? 0);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -133,9 +147,12 @@ class _TarjetaAnuncio extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(anuncio.titulo,
-                      style: texto.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  child: Text(
+                    anuncio.titulo,
+                    style: texto.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 Chip(
                   label: Text(anuncio.estado.etiqueta),
@@ -166,14 +183,16 @@ class _TarjetaAnuncio extends StatelessWidget {
               width: double.infinity,
               child: disponible
                   ? OutlinedButton.icon(
-                      onPressed: () =>
-                          context.read<MisAnunciosProvider>().alternarEstado(anuncio),
+                      onPressed: () => context
+                          .read<MisAnunciosProvider>()
+                          .alternarEstado(anuncio),
                       icon: const Icon(Icons.check_circle_outline, size: 18),
                       label: const Text('Marcar Ya alquilado'),
                     )
                   : TextButton.icon(
-                      onPressed: () =>
-                          context.read<MisAnunciosProvider>().alternarEstado(anuncio),
+                      onPressed: () => context
+                          .read<MisAnunciosProvider>()
+                          .alternarEstado(anuncio),
                       icon: const Icon(Icons.refresh, size: 18),
                       label: const Text('Volver a publicar'),
                     ),
@@ -199,11 +218,12 @@ class _Dato extends StatelessWidget {
       children: [
         Icon(icono, size: 15, color: esquema.onSurfaceVariant),
         const SizedBox(width: 5),
-        Text(texto,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: esquema.onSurfaceVariant)),
+        Text(
+          texto,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+        ),
       ],
     );
   }

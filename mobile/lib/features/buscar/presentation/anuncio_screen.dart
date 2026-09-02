@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api_client.dart';
 import '../../../core/theme.dart';
 import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/fila_condicion.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/solicitud_provider.dart';
@@ -276,29 +277,26 @@ class _AnuncioBody extends StatelessWidget {
                   const SizedBox(height: Espacio.sm),
 
                   // Los otros tres datos comparten peso entre si.
-                  _FilaCondicion(
+                  FilaCondicion(
                     icono: Icons.directions_walk,
                     texto:
                         '${anuncio.minutosCaminando} min caminando a la UAGRM',
-                    esquema: esquema,
                   ),
                   const SizedBox(height: Espacio.sm),
-                  _FilaCondicion(
+                  FilaCondicion(
                     icono: anuncio.aceptaMascotas
                         ? Icons.pets
                         : Icons.pets_outlined,
                     texto: anuncio.aceptaMascotas
                         ? 'Acepta mascotas'
                         : 'No acepta mascotas',
-                    esquema: esquema,
                   ),
                   const SizedBox(height: Espacio.sm),
-                  _FilaCondicion(
+                  FilaCondicion(
                     icono: Icons.home_outlined,
                     texto:
                         '${anuncio.tipoEspacio.etiqueta}'
                         '${anuncio.restricciones.isNotEmpty ? " · ${anuncio.restricciones}" : ""}',
-                    esquema: esquema,
                   ),
                 ],
               ),
@@ -391,39 +389,6 @@ class _Pastilla extends StatelessWidget {
         texto,
         style: const TextStyle(color: Colors.white, fontSize: 11),
       ),
-    );
-  }
-}
-
-class _FilaCondicion extends StatelessWidget {
-  const _FilaCondicion({
-    required this.icono,
-    required this.texto,
-    required this.esquema,
-  });
-
-  final IconData icono;
-  final String texto;
-  final ColorScheme esquema;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: esquema.primaryContainer.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Icon(icono, size: 18, color: esquema.primary),
-        ),
-        const SizedBox(width: Espacio.sm),
-        Expanded(
-          child: Text(texto, style: Theme.of(context).textTheme.bodyMedium),
-        ),
-      ],
     );
   }
 }

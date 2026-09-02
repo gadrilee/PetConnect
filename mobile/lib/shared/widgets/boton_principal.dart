@@ -93,20 +93,21 @@ class _BotonPrincipalState extends State<BotonPrincipal> {
     final (Color fondo, Color contenido) = switch (actual) {
       EstadoBoton.reposo => (esquema.primary, esquema.onPrimary),
       EstadoBoton.presionado => (
-          Color.alphaBlend(Colors.black.withValues(alpha: 0.18), esquema.primary),
-          esquema.onPrimary,
-        ),
+        Color.alphaBlend(Colors.black.withValues(alpha: 0.18), esquema.primary),
+        esquema.onPrimary,
+      ),
       EstadoBoton.cargando => (
-          esquema.primary.withValues(alpha: 0.75),
-          esquema.onPrimary,
-        ),
+        esquema.primary.withValues(alpha: 0.75),
+        esquema.onPrimary,
+      ),
       EstadoBoton.deshabilitado => (
-          esquema.onSurface.withValues(alpha: 0.12),
-          esquema.onSurface.withValues(alpha: 0.38),
-        ),
+        esquema.onSurface.withValues(alpha: 0.12),
+        esquema.onSurface.withValues(alpha: 0.38),
+      ),
     };
 
-    final habilitado = actual == EstadoBoton.reposo || actual == EstadoBoton.presionado;
+    final habilitado =
+        actual == EstadoBoton.reposo || actual == EstadoBoton.presionado;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -119,13 +120,20 @@ class _BotonPrincipalState extends State<BotonPrincipal> {
           // deshabilitado o cargando, y la persona lo toca en vano.
           hint: switch (actual) {
             EstadoBoton.cargando => 'Buscando, esperá un momento',
-            EstadoBoton.deshabilitado => widget.motivoDeshabilitado ?? 'No disponible',
+            EstadoBoton.deshabilitado =>
+              widget.motivoDeshabilitado ?? 'No disponible',
             _ => null,
           },
           child: GestureDetector(
-            onTapDown: habilitado ? (_) => setState(() => _presionado = true) : null,
-            onTapUp: habilitado ? (_) => setState(() => _presionado = false) : null,
-            onTapCancel: habilitado ? () => setState(() => _presionado = false) : null,
+            onTapDown: habilitado
+                ? (_) => setState(() => _presionado = true)
+                : null,
+            onTapUp: habilitado
+                ? (_) => setState(() => _presionado = false)
+                : null,
+            onTapCancel: habilitado
+                ? () => setState(() => _presionado = false)
+                : null,
             onTap: habilitado ? widget.alTocar : null,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 120),
@@ -145,13 +153,17 @@ class _BotonPrincipalState extends State<BotonPrincipal> {
                           height: 18,
                           width: 18,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: contenido),
+                            strokeWidth: 2,
+                            color: contenido,
+                          ),
                         ),
                         const SizedBox(width: Espacio.sm),
                         Text(
                           widget.etiquetaCargando ?? widget.etiqueta,
-                          style: texto.labelLarge
-                              ?.copyWith(color: contenido, letterSpacing: 1),
+                          style: texto.labelLarge?.copyWith(
+                            color: contenido,
+                            letterSpacing: 1,
+                          ),
                         ),
                       ],
                     )
@@ -169,7 +181,8 @@ class _BotonPrincipalState extends State<BotonPrincipal> {
 
         // El motivo sólo aparece cuando hace falta: si el botón se puede tocar,
         // explicar por qué no se puede sería ruido.
-        if (actual == EstadoBoton.deshabilitado && widget.motivoDeshabilitado != null) ...[
+        if (actual == EstadoBoton.deshabilitado &&
+            widget.motivoDeshabilitado != null) ...[
           const SizedBox(height: Espacio.sm),
           Text(
             widget.motivoDeshabilitado!,
