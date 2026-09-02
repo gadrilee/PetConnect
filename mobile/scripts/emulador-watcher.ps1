@@ -39,8 +39,12 @@ $TAREA = 'AlquilaMatch - Emulador a la vista'
 # ---------------------------------------------------------------- instalacion
 if ($Install) {
     $yo = $MyInvocation.MyCommand.Path
-    $accion = New-ScheduledTaskAction -Execute 'powershell.exe' `
-        -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$yo`""
+    # Se lanza a traves de "conhost.exe --headless": cuando Windows Terminal es
+    # la terminal predeterminada, -WindowStyle Hidden por si solo NO oculta la
+    # ventana y queda una terminal vacia abierta en cada inicio de sesion
+    # (microsoft/terminal #12464). Con conhost headless nunca aparece ventana.
+    $accion = New-ScheduledTaskAction -Execute 'conhost.exe' `
+        -Argument "--headless powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$yo`""
     $disparador = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
     $opciones = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries `
         -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -Hidden
@@ -59,9 +63,11 @@ if ($Uninstall) {
     } else {
         Write-Host 'No estaba instalado.' -ForegroundColor Yellow
     }
-    Get-Process powershell -ErrorAction SilentlyContinue |
-        Where-Object { $_.Id -ne $PID -and $_.CommandLine -like '*emulador-watcher*' } |
-        Stop-Process -Force -ErrorAction SilentlyContinue
+    # Get-Process no expone CommandLine en Windows PowerShell 5.1 (el filtro no
+    # encontraba nada y el vigilante seguia corriendo). Con CIM funciona en 5.1 y 7.
+    Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue |
+        Where-Object { $_.ProcessId -ne $PID -and $_.CommandLine -like '*emulador-watcher*' } |
+        ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
     return
 }
 
