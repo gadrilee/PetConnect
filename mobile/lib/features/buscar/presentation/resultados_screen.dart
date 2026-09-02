@@ -27,38 +27,51 @@ class ResultadosScreen extends StatelessWidget {
       body: provider.cargando
           ? const Center(child: CircularProgressIndicator())
           : provider.resultados.isEmpty
-              ? _SinResultados(error: provider.error)
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-                      child: Text(
-                        'Ordenados por cercanía a la UAGRM',
-                        style: texto.bodySmall
-                            ?.copyWith(color: esquema.onSurfaceVariant),
-                      ),
+          ? _SinResultados(error: provider.error)
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    Espacio.lg,
+                    Espacio.md,
+                    Espacio.lg,
+                    0,
+                  ),
+                  child: Text(
+                    'Ordenados por cercanía a la UAGRM',
+                    style: texto.bodySmall?.copyWith(
+                      color: esquema.onSurfaceVariant,
                     ),
-                    Expanded(
-                      child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                        itemCount: provider.resultados.length,
-                        separatorBuilder: (_, i) => const SizedBox(height: Espacio.md),
-                        itemBuilder: (ctx, i) {
-                          final anuncio = provider.resultados[i];
-                          return _TarjetaAnuncio(
-                            anuncio: anuncio,
-                            alTocar: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => AnuncioScreen(anuncioId: anuncio.id),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(
+                      Espacio.lg,
+                      Espacio.lg,
+                      Espacio.lg,
+                      Espacio.lg,
+                    ),
+                    itemCount: provider.resultados.length,
+                    separatorBuilder: (_, i) =>
+                        const SizedBox(height: Espacio.md),
+                    itemBuilder: (ctx, i) {
+                      final anuncio = provider.resultados[i];
+                      return _TarjetaAnuncio(
+                        anuncio: anuncio,
+                        alTocar: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                AnuncioScreen(anuncioId: anuncio.id),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
@@ -104,16 +117,17 @@ class _TarjetaAnuncio extends StatelessWidget {
                         anuncio.titulo,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: texto.labelLarge
-                            ?.copyWith(color: esquema.onSurface),
+                        style: texto.labelLarge?.copyWith(
+                          color: esquema.onSurface,
+                        ),
                       )
                     else
                       Container(
-                        height: 10,
+                        height: Espacio.sm,
                         width: 140,
                         decoration: BoxDecoration(
                           color: esquema.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(5),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                     const SizedBox(height: Espacio.sm),
@@ -121,8 +135,9 @@ class _TarjetaAnuncio extends StatelessWidget {
                     Text(
                       '${anuncio.precioFinal} Bs / mes',
                       style: texto.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: esquema.onSurface),
+                        fontWeight: FontWeight.w700,
+                        color: esquema.onSurface,
+                      ),
                     ),
                     // Que cubre ese precio, pegado a la cifra.
                     //
@@ -131,26 +146,30 @@ class _TarjetaAnuncio extends StatelessWidget {
                     // decir que incluye, y asi "1.000 Bs" no significa nada.
                     // El listado es donde primero se descarta, asi que tiene
                     // que responderlo sin abrir el anuncio.
+                    const SizedBox(height: Espacio.sm),
                     Text(
                       _cobertura(anuncio),
-                      style: texto.bodySmall
-                          ?.copyWith(color: esquema.onSurfaceVariant),
+                      style: texto.bodySmall?.copyWith(
+                        color: esquema.onSurfaceVariant,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: Espacio.xs),
+                    const SizedBox(height: Espacio.sm),
                     // Minutos
                     Text(
                       '${anuncio.minutosCaminando} min caminando',
-                      style: texto.bodySmall
-                          ?.copyWith(color: esquema.onSurfaceVariant),
+                      style: texto.bodySmall?.copyWith(
+                        color: esquema.onSurfaceVariant,
+                      ),
                     ),
-                    const SizedBox(height: Espacio.xs),
+                    const SizedBox(height: Espacio.sm),
                     // Mascotas + tipo
                     Text(
                       '${anuncio.aceptaMascotas ? "Acepta mascotas" : "Sin mascotas"} · ${anuncio.tipoEspacio.etiqueta}',
-                      style: texto.bodySmall
-                          ?.copyWith(color: esquema.onSurfaceVariant),
+                      style: texto.bodySmall?.copyWith(
+                        color: esquema.onSurfaceVariant,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -180,8 +199,11 @@ class _FotoMiniatura extends StatelessWidget {
         width: 88,
         height: 88,
         color: esquema.surfaceContainerHighest,
-        child: Icon(Icons.home_outlined,
-            color: esquema.onSurfaceVariant, size: 32),
+        child: Icon(
+          Icons.home_outlined,
+          color: esquema.onSurfaceVariant,
+          size: 32,
+        ),
       );
     }
 
@@ -194,8 +216,11 @@ class _FotoMiniatura extends StatelessWidget {
         width: 88,
         height: 88,
         color: esquema.surfaceContainerHighest,
-        child: Icon(Icons.broken_image_outlined,
-            color: esquema.onSurfaceVariant, size: 32),
+        child: Icon(
+          Icons.broken_image_outlined,
+          color: esquema.onSurfaceVariant,
+          size: 32,
+        ),
       ),
       loadingBuilder: (_, child, progress) => progress == null
           ? child
@@ -204,7 +229,8 @@ class _FotoMiniatura extends StatelessWidget {
               height: 88,
               color: esquema.surfaceContainerHighest,
               child: const Center(
-                  child: CircularProgressIndicator(strokeWidth: 2)),
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             ),
     );
   }
@@ -222,7 +248,7 @@ class _SinResultados extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(Espacio.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -231,20 +257,20 @@ class _SinResultados extends StatelessWidget {
               size: 64,
               color: esquema.onSurfaceVariant.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Espacio.md),
             Text(
               error ?? 'No encontramos anuncios\ncon esos filtros.',
               textAlign: TextAlign.center,
-              style: texto.bodyLarge
-                  ?.copyWith(color: esquema.onSurfaceVariant),
+              style: texto.bodyLarge?.copyWith(color: esquema.onSurfaceVariant),
             ),
             if (error == null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: Espacio.sm),
               Text(
                 'Probá ampliando el precio o los minutos.',
                 textAlign: TextAlign.center,
-                style: texto.bodySmall
-                    ?.copyWith(color: esquema.onSurfaceVariant),
+                style: texto.bodySmall?.copyWith(
+                  color: esquema.onSurfaceVariant,
+                ),
               ),
             ],
           ],
@@ -265,7 +291,9 @@ String _cobertura(Anuncio anuncio) {
   final incluidos = <String>[];
   final faltan = <String>[];
   nombres.forEach((clave, nombre) {
-    (anuncio.serviciosIncluidos[clave] == true ? incluidos : faltan).add(nombre);
+    (anuncio.serviciosIncluidos[clave] == true ? incluidos : faltan).add(
+      nombre,
+    );
   });
 
   if (faltan.isEmpty) return 'todo incluido';

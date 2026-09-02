@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/widgets/boton_principal.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../providers/solicitud_provider.dart';
 import 'solicitud_estado_screen.dart';
@@ -71,7 +72,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
         leading: const BackButton(),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        padding: const EdgeInsets.fromLTRB(Espacio.lg, Espacio.md, Espacio.lg, Espacio.lg),
         children: [
           // Introducción
           Text(
@@ -93,7 +94,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(Espacio.md, Espacio.md, Espacio.md, Espacio.sm),
                   child: Text(
                     'Estás aceptando:',
                     style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant),
@@ -116,19 +117,19 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
                     icono: Icons.info_outline,
                     texto: anuncio.restricciones,
                   ),
-                const SizedBox(height: 8),
+                const SizedBox(height: Espacio.sm),
               ],
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: Espacio.lg),
 
           // ---- Checkbox de aceptación ----
           InkWell(
             onTap: () => setState(() => _condicionesAceptadas = !_condicionesAceptadas),
             borderRadius: BorderRadius.circular(8),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.symmetric(vertical: Espacio.sm),
               child: Row(
                 children: [
                   Checkbox(
@@ -136,7 +137,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
                     onChanged: (v) => setState(() => _condicionesAceptadas = v ?? false),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: Espacio.sm),
                   Expanded(
                     child: Text(
                       'Acepto estas condiciones',
@@ -148,7 +149,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: Espacio.lg),
 
           // ---- Aviso del contacto ----
           Container(
@@ -173,11 +174,11 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: Espacio.lg),
 
           // ---- Resumen de precio ----
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(Espacio.md),
             decoration: BoxDecoration(
               color: esquema.surfaceContainerHighest.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(12),
@@ -188,7 +189,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
               children: [
                 Text('Precio final',
                     style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant)),
-                const SizedBox(height: 4),
+                const SizedBox(height: Espacio.sm),
                 Text(
                   '${anuncio.precioFinal} Bs / mes',
                   style: texto.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
@@ -197,33 +198,33 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: Espacio.lg),
         ],
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.fromLTRB(
-            20, 8, 20, MediaQuery.of(context).padding.bottom + 16),
+            Espacio.lg, Espacio.sm, Espacio.lg, MediaQuery.of(context).padding.bottom + Espacio.md),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            FilledButton(
-              onPressed: (_condicionesAceptadas && !provider.cargando) ? _enviar : null,
-              child: provider.cargando
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Text('ENVIAR SOLICITUD'),
-            ),
-            const SizedBox(height: Espacio.md),
+            // La salida secundaria va arriba, como en el wireframe: la accion
+            // principal queda al alcance del pulgar.
             OutlinedButton(
               onPressed: provider.cargando ? null : () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
+                minimumSize: const Size.fromHeight(Medida.boton),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Cancelar'),
+              child: const Text('CANCELAR'),
+            ),
+            const SizedBox(height: Espacio.sm),
+            BotonPrincipal(
+              etiqueta: 'ENVIAR SOLICITUD',
+              etiquetaCargando: 'ENVIANDO...',
+              // null deshabilita: es como la pieza expresa "falta algo".
+              alTocar: _condicionesAceptadas ? _enviar : null,
+              cargando: provider.cargando,
+              motivoDeshabilitado: 'Marcá que aceptás las condiciones.',
             ),
           ],
         ),
@@ -242,13 +243,13 @@ class _FilaCondicion extends StatelessWidget {
   Widget build(BuildContext context) {
     final esquema = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+      padding: const EdgeInsets.symmetric(horizontal: Espacio.md, vertical: Espacio.xs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: esquema.primaryContainer.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(6),
@@ -258,7 +259,7 @@ class _FilaCondicion extends StatelessWidget {
           const SizedBox(width: Espacio.sm),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.only(top: Espacio.sm),
               child: Text(texto, style: Theme.of(context).textTheme.bodySmall),
             ),
           ),

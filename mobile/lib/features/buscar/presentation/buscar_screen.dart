@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
 import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/campo_texto.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/buscar_provider.dart';
@@ -61,12 +62,14 @@ class _BuscarScreenState extends State<BuscarScreen> {
 
     final precioMax = double.tryParse(_precioCtrl.text.replaceAll(',', '.'));
 
-    await provider.buscar(FiltrosBusqueda(
-      precioMax: precioMax,
-      tipoEspacio: _tipoSeleccionado,
-      aceptaMascotas: _aceptaMascotas ? true : null,
-      minutosMax: _minutosMax.toInt(),
-    ));
+    await provider.buscar(
+      FiltrosBusqueda(
+        precioMax: precioMax,
+        tipoEspacio: _tipoSeleccionado,
+        aceptaMascotas: _aceptaMascotas ? true : null,
+        minutosMax: _minutosMax.toInt(),
+      ),
+    );
 
     setState(() => _cargando = false);
 
@@ -74,17 +77,22 @@ class _BuscarScreenState extends State<BuscarScreen> {
 
     if (provider.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.error!), behavior: SnackBarBehavior.floating),
+        SnackBar(
+          content: Text(provider.error!),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
 
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ChangeNotifierProvider.value(
-        value: provider,
-        child: const ResultadosScreen(),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider.value(
+          value: provider,
+          child: const ResultadosScreen(),
+        ),
       ),
-    ));
+    );
   }
 
   @override
@@ -93,39 +101,48 @@ class _BuscarScreenState extends State<BuscarScreen> {
     final texto = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Buscar'),
-        leading: const BackButton(),
-      ),
+      appBar: AppBar(title: const Text('Buscar'), leading: const BackButton()),
       body: ListView(
-        padding: const EdgeInsets.all(Espacio.lg),
+        // Margen de 24 a los lados; arriba 16, que es lo que el wireframe
+        // deja entre el encabezado y el primer filtro.
+        padding: const EdgeInsets.fromLTRB(
+          Espacio.lg,
+          Espacio.md,
+          Espacio.lg,
+          Espacio.lg,
+        ),
         children: [
           // ---- Precio máximo ----
-          Text('Precio máximo por mes (Bs)',
-              style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant)),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _precioCtrl,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d,.]'))],
-            decoration: const InputDecoration(
-              hintText: 'Ej. 800',
-              prefixIcon: Icon(Icons.attach_money),
-            ),
+          CampoTexto(
+            etiqueta: 'Precio máximo por mes (Bs)',
+            controlador: _precioCtrl,
+            pista: 'Ej. 800',
+            icono: Icons.attach_money,
+            tipoTeclado: const TextInputType.numberWithOptions(decimal: true),
+            formateadores: [
+              FilteringTextInputFormatter.allow(RegExp(r'[\d,.]')),
+            ],
+            // null cuando el monto sirve: es como la pieza expresa "sin error".
+            mensajeError: _precioEsValido
+                ? null
+                : 'Escribí un monto válido, como 800. O dejalo vacío para no '
+                      'filtrar por precio.',
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: Espacio.lg),
 
           // ---- Tipo de espacio ----
-          Text('Tipo de espacio',
-              style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant)),
-          const SizedBox(height: 8),
+          Text(
+            'Tipo de espacio',
+            style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant),
+          ),
+          const SizedBox(height: Espacio.sm),
           _SelectorTipo(
             seleccionado: _tipoSeleccionado,
             alCambiar: (t) => setState(() => _tipoSeleccionado = t),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: Espacio.lg),
 
           // ---- Acepta mascotas ----
           _FilaSwitch(
@@ -134,16 +151,22 @@ class _BuscarScreenState extends State<BuscarScreen> {
             alCambiar: (v) => setState(() => _aceptaMascotas = v),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: Espacio.lg),
 
           // ---- Minutos caminando ----
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Máximo caminando a la UAGRM',
-                  style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant)),
-              Text('${_minutosMax.toInt()} min',
-                  style: texto.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                'Máximo caminando a la UAGRM',
+                style: texto.labelMedium?.copyWith(
+                  color: esquema.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                '${_minutosMax.toInt()} min',
+                style: texto.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
             ],
           ),
           Slider(
@@ -155,20 +178,26 @@ class _BuscarScreenState extends State<BuscarScreen> {
             onChanged: (v) => setState(() => _minutosMax = v),
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: Espacio.xl),
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.fromLTRB(Espacio.lg, Espacio.sm, Espacio.lg,
-            MediaQuery.of(context).padding.bottom + Espacio.md),
+        padding: EdgeInsets.fromLTRB(
+          Espacio.lg,
+          Espacio.sm,
+          Espacio.lg,
+          MediaQuery.of(context).padding.bottom + Espacio.md,
+        ),
         child: BotonPrincipal(
           etiqueta: 'BUSCAR',
           etiquetaCargando: 'BUSCANDO...',
           // null deshabilita: es como la pieza expresa "falta algo".
           alTocar: _precioEsValido ? _buscar : null,
           cargando: _cargando,
-          motivoDeshabilitado:
-              'Escribí un monto válido o dejá el precio vacío para no filtrar por él.',
+          // El detalle ya está junto al campo que lo provoca. Repetirlo acá
+          // sería decir dos veces lo mismo a 600 px de distancia: basta con
+          // señalar dónde mirar.
+          motivoDeshabilitado: 'Revisá el precio, arriba.',
         ),
       ),
     );
@@ -192,17 +221,21 @@ class _SelectorTipo extends StatelessWidget {
         final activo = seleccionado == tipo;
         return Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: Espacio.sm),
             child: GestureDetector(
               onTap: () => alCambiar(activo ? null : tipo),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: Espacio.md),
                 decoration: BoxDecoration(
-                  color: activo ? esquema.primaryContainer : esquema.surfaceContainerHighest.withValues(alpha: 0.4),
+                  color: activo
+                      ? esquema.primaryContainer
+                      : esquema.surfaceContainerHighest.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: activo ? esquema.primary : esquema.outline.withValues(alpha: 0.4),
+                    color: activo
+                        ? esquema.primary
+                        : esquema.outline.withValues(alpha: 0.4),
                     width: activo ? 1.5 : 1,
                   ),
                 ),
@@ -212,7 +245,9 @@ class _SelectorTipo extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: activo ? FontWeight.w600 : FontWeight.w400,
-                    color: activo ? esquema.onPrimaryContainer : esquema.onSurface,
+                    color: activo
+                        ? esquema.onPrimaryContainer
+                        : esquema.onSurface,
                   ),
                 ),
               ),
@@ -239,7 +274,9 @@ class _FilaSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Text(titulo, style: Theme.of(context).textTheme.bodyMedium)),
+        Expanded(
+          child: Text(titulo, style: Theme.of(context).textTheme.bodyMedium),
+        ),
         Switch(value: valor, onChanged: alCambiar),
       ],
     );

@@ -131,7 +131,7 @@ class _BotonPrincipalState extends State<BotonPrincipal> {
               duration: const Duration(milliseconds: 120),
               curve: Curves.easeOut,
               width: double.infinity,
-              height: 52, // constante en los cuatro estados
+              height: Medida.boton, // constante en los cuatro estados
               decoration: BoxDecoration(
                 color: fondo,
                 borderRadius: BorderRadius.circular(12),
