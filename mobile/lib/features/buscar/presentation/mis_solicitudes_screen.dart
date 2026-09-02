@@ -23,7 +23,12 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
     });
   }
 
-  void _verEstado(BuildContext context, SolicitudVisita solicitud) {
+  /// Abre el estado de una solicitud y refresca la lista al volver.
+  ///
+  /// Usa el `context` del State, no uno recibido por parametro: `mounted`
+  /// habla de este State, asi que solo garantiza que ese context siga vivo.
+  /// Con un context ajeno la comprobacion no probaba nada.
+  void _verEstado(SolicitudVisita solicitud) {
     Navigator.of(context)
         .push(
           MaterialPageRoute(
@@ -36,7 +41,8 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
           ),
         )
         .then((_) {
-          if (mounted) context.read<MisSolicitudesProvider>().cargar();
+          if (!mounted) return;
+          context.read<MisSolicitudesProvider>().cargar();
         });
   }
 
@@ -63,7 +69,7 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
                   final solicitud = provider.solicitudes[i];
                   return _TarjetaHistorial(
                     solicitud: solicitud,
-                    alTocar: () => _verEstado(context, solicitud),
+                    alTocar: () => _verEstado(solicitud),
                   );
                 },
               ),
