@@ -26,8 +26,8 @@ class ApiException implements Exception {
 /// renueva el access token cuando vence, reintentando el pedido una sola vez.
 class ApiClient {
   ApiClient({http.Client? cliente, FlutterSecureStorage? almacen})
-      : _http = cliente ?? http.Client(),
-        _almacen = almacen ?? const FlutterSecureStorage();
+    : _http = cliente ?? http.Client(),
+      _almacen = almacen ?? const FlutterSecureStorage();
 
   final http.Client _http;
   final FlutterSecureStorage _almacen;
@@ -39,7 +39,10 @@ class ApiClient {
 
   Future<bool> get haySesion async => (await accessToken) != null;
 
-  Future<void> guardarTokens({required String access, required String refresh}) async {
+  Future<void> guardarTokens({
+    required String access,
+    required String refresh,
+  }) async {
     await _almacen.write(key: _claveAccess, value: access);
     await _almacen.write(key: _claveRefresh, value: refresh);
   }
@@ -72,6 +75,7 @@ class ApiClient {
     required String campo,
     required String rutaArchivo,
     Map<String, String> campos = const {},
+    bool esReintento = false,
   }) async {
     final uri = Uri.parse('${Config.baseUrl}$ruta');
     final peticion = http.MultipartRequest('POST', uri)
@@ -87,6 +91,29 @@ class ApiClient {
     } catch (_) {
       throw ApiException('No se pudo subir la foto. Revisá tu conexión.');
     }
+
+    // El access vencio a mitad de la carga: renovarlo y subir de nuevo, una
+    // unica vez.
+    //
+    // Sin esto, subir fotos era lo unico que NO se recuperaba de un token
+    // vencido, y justo es la parte lenta: Marta esta en el inmueble sacando
+    // varias fotos seguidas. Peor todavia, el 401 se mostraba con el mensaje
+    // generico de la API — "Usuario o contrasena incorrectos" — que es
+    // directamente falso y la deja buscando un problema que no existe.
+    //
+    // Se rehace el pedido entero en vez de reenviar el mismo: una
+    // MultipartRequest lee el archivo una sola vez y su stream ya quedo
+    // consumido.
+    if (respuesta.statusCode == 401 && !esReintento && await _renovarToken()) {
+      return postArchivo(
+        ruta,
+        campo: campo,
+        rutaArchivo: rutaArchivo,
+        campos: campos,
+        esReintento: true,
+      );
+    }
+
     return _interpretar(respuesta);
   }
 
@@ -98,7 +125,9 @@ class ApiClient {
     bool conToken = true,
     bool esReintento = false,
   }) async {
-    final uri = Uri.parse('${Config.baseUrl}$ruta').replace(queryParameters: query);
+    final uri = Uri.parse(
+      '${Config.baseUrl}$ruta',
+    ).replace(queryParameters: query);
     final cabeceras = <String, String>{'Content-Type': 'application/json'};
 
     if (conToken) {
@@ -121,8 +150,14 @@ class ApiClient {
     // El access vencio: renovarlo y reintentar una unica vez.
     if (respuesta.statusCode == 401 && conToken && !esReintento) {
       if (await _renovarToken()) {
-        return _enviar(metodo, ruta,
-            cuerpo: cuerpo, query: query, conToken: conToken, esReintento: true);
+        return _enviar(
+          metodo,
+          ruta,
+          cuerpo: cuerpo,
+          query: query,
+          conToken: conToken,
+          esReintento: true,
+        );
       }
     }
 
