@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/theme.dart';
 import '../../../shared/widgets/aviso_error.dart';
 import '../data/anuncio.dart';
 import '../providers/mis_anuncios_provider.dart';
@@ -69,9 +70,11 @@ class _PublicarScreenState extends State<PublicarScreen> {
 
     if (!_formulario.currentState!.validate()) return;
     if (!provider.hayUbicacion) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Falta marcar la ubicación del inmueble.'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Falta marcar la ubicación del inmueble.'),
+        ),
+      );
       return;
     }
     FocusScope.of(context).unfocus();
@@ -83,8 +86,9 @@ class _PublicarScreenState extends State<PublicarScreen> {
       incluyeAgua: _agua,
       incluyeLuz: _luz,
       incluyeInternet: _internet,
-      costoServiciosEstimado:
-          _todoIncluido ? '0' : _costoServicios.text.trim().replaceAll(',', '.'),
+      costoServiciosEstimado: _todoIncluido
+          ? '0'
+          : _costoServicios.text.trim().replaceAll(',', '.'),
       aceptaMascotas: _mascotas,
       restricciones: _restricciones.text.trim(),
       direccionReferencia: _referencia.text.trim(),
@@ -94,10 +98,14 @@ class _PublicarScreenState extends State<PublicarScreen> {
 
     context.read<MisAnunciosProvider>().cargar();
     Navigator.of(context).pop(anuncio);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Publicado. Está a ${anuncio.minutosCaminando} min '
-          'caminando de la UAGRM.'),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Publicado. Está a ${anuncio.minutosCaminando} min '
+          'caminando de la UAGRM.',
+        ),
+      ),
+    );
   }
 
   @override
@@ -118,7 +126,9 @@ class _PublicarScreenState extends State<PublicarScreen> {
               _Titulo('1. Qué estás alquilando'),
               SegmentedButton<TipoEspacio>(
                 segments: TipoEspacio.values
-                    .map((t) => ButtonSegment(value: t, label: Text(t.etiqueta)))
+                    .map(
+                      (t) => ButtonSegment(value: t, label: Text(t.etiqueta)),
+                    )
                     .toList(),
                 selected: {_tipo},
                 onSelectionChanged: (s) => setState(() => _tipo = s.first),
@@ -141,12 +151,16 @@ class _PublicarScreenState extends State<PublicarScreen> {
               Text(
                 'El precio con los servicios incluidos es el dato n.º 1 para '
                 'descartar. Declararlo acá te evita repetirlo por WhatsApp.',
-                style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+                style: texto.bodySmall?.copyWith(
+                  color: esquema.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _alquiler,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Alquiler mensual',
                   suffixText: 'Bs',
@@ -159,8 +173,12 @@ class _PublicarScreenState extends State<PublicarScreen> {
                 },
               ),
               const SizedBox(height: 12),
-              Text('Qué servicios incluye',
-                  style: texto.labelLarge?.copyWith(color: esquema.onSurfaceVariant)),
+              Text(
+                'Qué servicios incluye',
+                style: texto.labelLarge?.copyWith(
+                  color: esquema.onSurfaceVariant,
+                ),
+              ),
               CheckboxListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
@@ -192,13 +210,17 @@ class _PublicarScreenState extends State<PublicarScreen> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _costoServicios,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: InputDecoration(
                     labelText: 'Cuánto paga aparte por los servicios',
                     suffixText: 'Bs',
-                    helperText: 'Un estimado sirve. Sin esto no se puede publicar.',
+                    helperText:
+                        'Un estimado sirve. Sin esto no se puede publicar.',
                     helperMaxLines: 2,
-                    errorText: publicar.erroresPorCampo['costo_servicios_estimado'],
+                    errorText:
+                        publicar.erroresPorCampo['costo_servicios_estimado'],
                   ),
                   validator: (v) {
                     final n = double.tryParse((v ?? '').replaceAll(',', '.'));
@@ -220,9 +242,12 @@ class _PublicarScreenState extends State<PublicarScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Precio final',
-                        style: texto.titleSmall
-                            ?.copyWith(color: esquema.onPrimaryContainer)),
+                    Text(
+                      'Precio final',
+                      style: texto.titleSmall?.copyWith(
+                        color: esquema.onPrimaryContainer,
+                      ),
+                    ),
                     Text(
                       '${NumberFormat.decimalPattern('es').format(_precioFinal)} Bs',
                       style: texto.titleLarge?.copyWith(
@@ -240,7 +265,9 @@ class _PublicarScreenState extends State<PublicarScreen> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Acepto mascotas'),
-                subtitle: const Text('Se puede filtrar por esto en la búsqueda'),
+                subtitle: const Text(
+                  'Se puede filtrar por esto en la búsqueda',
+                ),
                 value: _mascotas,
                 onChanged: (v) => setState(() => _mascotas = v),
               ),
@@ -261,14 +288,18 @@ class _PublicarScreenState extends State<PublicarScreen> {
               Text(
                 'Tomala estando en el inmueble. De ahí sale el cálculo de '
                 'minutos caminando a la UAGRM.',
-                style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+                style: texto.bodySmall?.copyWith(
+                  color: esquema.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 12),
               if (publicar.hayUbicacion)
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: esquema.surfaceContainerHighest.withValues(alpha: 0.5),
+                    color: esquema.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -300,13 +331,17 @@ class _PublicarScreenState extends State<PublicarScreen> {
                       ? const SizedBox(
                           height: 16,
                           width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2))
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Icon(Icons.my_location),
-                  label: Text(publicar.buscandoUbicacion
-                      ? 'Buscando el GPS...'
-                      : 'Usar mi ubicación'),
+                  label: Text(
+                    publicar.buscandoUbicacion
+                        ? 'Buscando el GPS...'
+                        : 'Usar mi ubicación',
+                  ),
                   style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(52)),
+                    minimumSize: const Size.fromHeight(Medida.boton),
+                  ),
                 ),
               if (publicar.errorUbicacion != null) ...[
                 const SizedBox(height: 12),
@@ -328,7 +363,9 @@ class _PublicarScreenState extends State<PublicarScreen> {
               Text(
                 'Se toman con la cámara de la app y quedan con la fecha de '
                 'captura visible. Así nadie ve un baño que ya no existe.',
-                style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+                style: texto.bodySmall?.copyWith(
+                  color: esquema.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 12),
               if (publicar.fotos.isNotEmpty)
@@ -344,8 +381,12 @@ class _PublicarScreenState extends State<PublicarScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.file(File(f.ruta),
-                                width: 110, height: 110, fit: BoxFit.cover),
+                            child: Image.file(
+                              File(f.ruta),
+                              width: 110,
+                              height: 110,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           Positioned(
                             top: 2,
@@ -355,8 +396,11 @@ class _PublicarScreenState extends State<PublicarScreen> {
                               child: CircleAvatar(
                                 radius: 12,
                                 backgroundColor: esquema.error,
-                                child: Icon(Icons.close,
-                                    size: 14, color: esquema.onError),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: esquema.onError,
+                                ),
                               ),
                             ),
                           ),
@@ -371,7 +415,9 @@ class _PublicarScreenState extends State<PublicarScreen> {
                                 DateFormat('dd/MM/yy').format(f.fechaCaptura),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
-                                    color: Colors.white, fontSize: 11),
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                ),
                               ),
                             ),
                           ),
@@ -384,11 +430,12 @@ class _PublicarScreenState extends State<PublicarScreen> {
               OutlinedButton.icon(
                 onPressed: () => publicar.agregarFoto(),
                 icon: const Icon(Icons.photo_camera_outlined),
-                label: Text(publicar.fotos.isEmpty
-                    ? 'Tomar una foto'
-                    : 'Tomar otra foto'),
-                style:
-                    OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                label: Text(
+                  publicar.fotos.isEmpty ? 'Tomar una foto' : 'Tomar otra foto',
+                ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(Medida.boton),
+                ),
               ),
 
               // ------------------------------------------------------ publicar
@@ -403,20 +450,26 @@ class _PublicarScreenState extends State<PublicarScreen> {
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Text('Publicar'),
               ),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.lock_outline, size: 14, color: esquema.onSurfaceVariant),
+                  Icon(
+                    Icons.lock_outline,
+                    size: 14,
+                    color: esquema.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
                       'Tu WhatsApp no aparece en el anuncio',
-                      style:
-                          texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+                      style: texto.bodySmall?.copyWith(
+                        color: esquema.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -440,10 +493,9 @@ class _Titulo extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
         texto,
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium
-            ?.copyWith(fontWeight: FontWeight.w700),
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }

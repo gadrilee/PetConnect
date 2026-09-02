@@ -31,7 +31,7 @@ filtro en silencio.** Nunca te avisaba que tu filtro no se había aplicado.
 todo momento qué está ocurriendo con ella.
 
 **La regla que conserva:** se reconoce igual en todas las pantallas — mismo alto
-(52 px), mismo radio (12 px), etiqueta en mayúsculas, **una sola por pantalla**.
+(56 px), mismo radio (12 px), etiqueta en mayúsculas, **una sola por pantalla**.
 Entre pantallas cambia el texto; entre estados cambian sólo el color y el
 contenido interno. **El tamaño nunca cambia**, para que la pantalla no salte al
 cambiar de estado.
