@@ -52,6 +52,7 @@ El proceso de búsqueda y oferta de alquileres genera una enorme pérdida de tie
 | [Wireframes del flujo v0.1](wireframes/flujo-v0.1-propietario/README.md) | Los 5 SVG del propietario |
 | [Wireframes del flujo v0.2](wireframes/flujo-v0.2-inquilina/README.md) | Los 6 SVG de la inquilina |
 | [**Decisión de diseño**](docs/decision-clase-05.md) | Jerarquía, layout y espaciado: antes, cambio, prueba con usuaria y siguiente paso |
+| [**Componente y estados**](docs/decision-clase-06.md) | El botón principal como pieza reutilizable, con sus cuatro estados |
 
 ### Implementación
 
