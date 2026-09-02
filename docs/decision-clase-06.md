@@ -73,6 +73,36 @@ Se **aplicó a la pantalla `01 Buscar`** como instancia vinculada: si la pieza
 cambia, la pantalla cambia con ella. Sólo se sobreescribió la etiqueta, porque
 el texto es lo único que cambia entre pantallas.
 
+### Las propiedades de la pieza
+
+El component set expone tres propiedades, y las tres espejan la API del widget
+de Flutter — diseño y código exponen exactamente los mismos parámetros:
+
+| Propiedad | Tipo | Equivale en el código a |
+|---|---|---|
+| `Estado` | Variante | el estado derivado (`reposo`/`presionado`/`cargando`/`deshabilitado`) |
+| `Etiqueta` | Texto | `etiqueta:` |
+| `Etiqueta cargando` | Texto | `etiquetaCargando:` |
+
+**Para cambiar el estado en Figma:** seleccionar la instancia y usar el
+desplegable `Estado` en el panel derecho. Se puede duplicar la instancia y
+dejar cada copia en un estado distinto para compararlas.
+
+**Por qué la etiqueta es una propiedad y no texto suelto.** Al principio le
+escribí el texto encima a la instancia, y al cambiar de variante **se perdía**:
+volvía a decir "BUSCAR". Un override crudo no sobrevive al cambio de variante.
+Vinculando el texto a una propiedad, sí:
+
+| Estado | Texto en pantalla |
+|---|---|
+| Reposo | VER RESULTADOS |
+| Presionado | VER RESULTADOS |
+| Cargando | **BUSCANDO...** |
+| Deshabilitado | VER RESULTADOS |
+
+Recorrido verificado sobre la instancia real: la etiqueta se conserva, la
+variante de carga muestra la suya, y el ancho se mantiene en 320 en los cuatro.
+
 > **Un error que apareció al aplicarla.** La instancia entró midiendo 137 px en
 > vez de 312. Al ponerle auto-layout a las variantes después de dimensionarlas,
 > quedaron en modo *hug* y se encogían al contenido: medían 64, 64, **128** y 64
