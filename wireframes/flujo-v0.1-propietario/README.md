@@ -30,11 +30,11 @@ principal. El título se conserva porque orienta — es el paso 1 de la jerarqu�
 
 | # | Archivo | Momento de la tarea |
 |---|---|---|
-| 01 | [`01-ingresar.svg`](01-ingresar.svg) | Entra a la app |
-| 02 | [`02-crear-cuenta.svg`](02-crear-cuenta.svg) | **Elige el rol**: buscar o publicar |
-| 03 | [`03-inicio.svg`](03-inicio.svg) | Ve sus tres módulos como propietaria |
-| 04 | [`04-publicar.svg`](04-publicar.svg) | **Declara las condiciones de descarte** |
-| 05 | [`05-mis-anuncios.svg`](05-mis-anuncios.svg) | Marca *Ya alquilado* en un toque |
+| 01 | [`01 Ingresar.svg`](01%20Ingresar.svg) | Entra a la app |
+| 02 | [`02 Crear cuenta.svg`](02%20Crear%20cuenta.svg) | **Elige el rol**: buscar o publicar |
+| 03 | [`03 Inicio.svg`](03%20Inicio.svg) | Ve sus tres módulos como propietaria |
+| 04 | [`04 Publicar.svg`](04%20Publicar.svg) | **Declara las condiciones de descarte** |
+| 05 | [`05 Mis anuncios.svg`](05%20Mis%20anuncios.svg) | Marca *Ya alquilado* en un toque |
 
 ## Cómo leer la 04
 

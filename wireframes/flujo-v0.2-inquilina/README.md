@@ -3,9 +3,11 @@
 **Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
 **Flujo:** [`flujo/flujo-v0.2.md`](../../flujo/flujo-v0.2.md) · **Reglas de dibujo:** [`_lenguaje-visual.md`](../_lenguaje-visual.md)
 
-Seis pantallas, 360 × 800, escala de grises. Exportadas desde Figma, así que
-cada `.svg` entra al archivo con capas, formas reales y nombres — no como
-imagen plana.
+Seis pantallas, 360 × 800, escala de grises, exportadas desde Figma.
+
+Están en PNG: se ven directamente en GitHub, pero **no se pueden reimportar a
+Figma con capas editables**. Si hace falta volver a editarlas, la fuente es el
+archivo de Figma, no estos archivos.
 
 ## El flujo completo de un vistazo
 
@@ -31,12 +33,12 @@ principal. El título se conserva porque orienta — es el paso 1 de la jerarqu�
 
 | # | Archivo | Momento de la tarea |
 |---|---|---|
-| 01 | [`01-buscar.svg`](01-buscar.svg) | Pone sus filtros: precio, tipo, mascotas, minutos |
-| 02 | [`02-resultados.svg`](02-resultados.svg) | Ve los resultados ordenados por cercanía |
-| 03 | [`03-anuncio.svg`](03-anuncio.svg) | **Decide si le sirve o lo descarta** |
-| 04 | [`04-solicitar-visita.svg`](04-solicitar-visita.svg) | Acepta las condiciones y pide la visita |
-| 05 | [`05-solicitud-enviada.svg`](05-solicitud-enviada.svg) | Queda a la espera de la respuesta |
-| 06 | [`06-contacto-liberado.svg`](06-contacto-liberado.svg) | El propietario aprobó: aparece el contacto |
+| 01 | [`01 Buscar.png`](01%20Buscar.png) | Pone sus filtros: precio, tipo, mascotas, minutos |
+| 02 | [`02 Resultados.png`](02%20Resultados.png) | Ve los resultados ordenados por cercanía |
+| 03 | [`03 Anuncio.png`](03%20Anuncio.png) | **Decide si le sirve o lo descarta** |
+| 04 | [`04 Solicitar visita.png`](04%20Solicitar%20visita.png) | Acepta las condiciones y pide la visita |
+| 05 | [`05 Solicitud enviada.png`](05%20Solicitud%20enviada.png) | Queda a la espera de la respuesta |
+| 06 | [`06 Contacto liberado.png`](06%20Contacto%20liberado.png) | El propietario aprobó: aparece el contacto |
 
 ## Cómo leer la 03
 
@@ -53,7 +55,7 @@ la prueba con una usuaria (ver [`docs/decision-clase-05.md`](../../docs/decision
 - **No hay ningún contacto.** El teléfono del propietario no existe en esta
   pantalla: recién aparece en la 06, después de la aprobación.
 
-## Importarlos a Figma
+## La fuente editable
 
-Se arrastran los `.svg` al lienzo. Entran como grupos editables, no como
-imágenes: se pueden mover, redimensionar y renombrar las capas.
+Estas imágenes son una copia para revisar desde GitHub. Para editarlas hay que
+abrir el archivo de Figma, en la página *Flujo v0.2 — Inquilina ‑sin letters*.
