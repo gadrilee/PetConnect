@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme.dart';
 import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../data/solicitud.dart';
 import '../providers/solicitud_provider.dart';
 
@@ -260,7 +261,10 @@ class _VistaAprobada extends StatelessWidget {
         const SizedBox(height: Espacio.md),
 
         // ---- Resumen del anuncio ----
-        _TarjetaAnuncio(solicitud: solicitud),
+        TarjetaAnuncio(
+          anuncio: solicitud.anuncio,
+          tamano: TamanoTarjeta.compacta,
+        ),
       ],
     );
   }
@@ -332,7 +336,10 @@ class _VistaPendiente extends StatelessWidget {
         const SizedBox(height: Espacio.lg),
 
         // ---- Resumen del anuncio ----
-        _TarjetaAnuncio(solicitud: solicitud),
+        TarjetaAnuncio(
+          anuncio: solicitud.anuncio,
+          tamano: TamanoTarjeta.compacta,
+        ),
 
         const SizedBox(height: Espacio.lg),
 
@@ -403,78 +410,3 @@ class _EtiquetaEstado extends StatelessWidget {
 }
 
 // --------------------------------------------------------- Widget compartido
-
-class _TarjetaAnuncio extends StatelessWidget {
-  const _TarjetaAnuncio({required this.solicitud});
-
-  final SolicitudVisita solicitud;
-
-  @override
-  Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-    final anuncio = solicitud.anuncio;
-
-    return Container(
-      padding: const EdgeInsets.all(Espacio.md),
-      decoration: BoxDecoration(
-        color: esquema.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: esquema.outline.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Foto miniatura
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: anuncio.fotos.isNotEmpty
-                ? Image.network(
-                    anuncio.fotos.first.imagen,
-                    width: 64,
-                    height: 64,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, e) => _placeholder(esquema),
-                  )
-                : _placeholder(esquema),
-          ),
-          const SizedBox(width: Espacio.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (anuncio.titulo.isNotEmpty)
-                  Text(
-                    anuncio.titulo,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: texto.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                const SizedBox(height: Espacio.sm),
-                Text(
-                  '${anuncio.precioFinal} Bs / mes',
-                  style: texto.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  '${anuncio.minutosCaminando} min caminando a la UAGRM',
-                  style: texto.bodySmall?.copyWith(
-                    color: esquema.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _placeholder(ColorScheme esquema) => Container(
-    width: 64,
-    height: 64,
-    color: esquema.surfaceContainerHighest,
-    child: Icon(Icons.home_outlined, color: esquema.onSurfaceVariant),
-  );
-}

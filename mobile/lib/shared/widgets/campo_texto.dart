@@ -149,8 +149,7 @@ class _CampoTextoState extends State<CampoTexto> {
               children: [
                 if (widget.icono != null) ...[
                   const SizedBox(width: Espacio.sm),
-                  Icon(widget.icono,
-                      size: 20, color: esquema.onSurfaceVariant),
+                  Icon(widget.icono, size: 20, color: esquema.onSurfaceVariant),
                 ],
                 const SizedBox(width: Espacio.sm),
                 Expanded(

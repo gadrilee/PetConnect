@@ -22,6 +22,8 @@ const _vigilados = [
   'lib/features/buscar/presentation/solicitud_estado_screen.dart',
   'lib/shared/widgets/boton_principal.dart',
   'lib/shared/widgets/campo_texto.dart',
+  'lib/shared/widgets/tarjeta_anuncio.dart',
+  'lib/shared/widgets/fila_condicion.dart',
 ];
 
 /// `SizedBox(height: 12)` y `SizedBox(width: 12)` en una sola linea.
