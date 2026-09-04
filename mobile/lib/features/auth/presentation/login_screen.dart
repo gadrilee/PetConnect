@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../shared/widgets/aviso_error.dart';
+import '../../../core/theme.dart';
+import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/campo_texto.dart';
 import '../providers/auth_provider.dart';
 import 'registro_screen.dart';
 
@@ -13,10 +15,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formulario = GlobalKey<FormState>();
   final _usuario = TextEditingController();
   final _clave = TextEditingController();
   bool _verClave = false;
+  // Mensajes de error por campo: null = válido.
+  String? _errorUsuario;
+  String? _errorClave;
 
   @override
   void dispose() {
@@ -25,8 +29,20 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  bool _validar() {
+    bool ok = true;
+    setState(() {
+      _errorUsuario =
+          _usuario.text.trim().isEmpty ? 'Escribí tu usuario' : null;
+      _errorClave =
+          _clave.text.isEmpty ? 'Escribí tu contraseña' : null;
+      ok = _errorUsuario == null && _errorClave == null;
+    });
+    return ok;
+  }
+
   Future<void> _entrar() async {
-    if (!_formulario.currentState!.validate()) return;
+    if (!_validar()) return;
     FocusScope.of(context).unfocus();
     await context.read<AuthProvider>().login(
           username: _usuario.text.trim(),
@@ -38,95 +54,95 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final texto = Theme.of(context).textTheme;
+    final esquema = Theme.of(context).colorScheme;
+
+    // Si el backend devuelve error, lo mostramos en el campo de contraseña.
+    final errorBackend = auth.error;
 
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(Espacio.lg),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formulario,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text('AlquilaMatch', style: texto.headlineMedium?.copyWith(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'AlquilaMatch',
+                    style: texto.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                    )),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Alquiler con las condiciones por delante.',
-                      style: texto.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: Espacio.sm),
+                  Text(
+                    'Alquiler con las condiciones por delante.',
+                    style: texto.bodyMedium
+                        ?.copyWith(color: esquema.onSurfaceVariant),
+                  ),
+
+                  const SizedBox(height: Espacio.xl),
+
+                  // ---- Usuario ----
+                  CampoTexto(
+                    etiqueta: 'Usuario',
+                    controlador: _usuario,
+                    icono: Icons.person_outline,
+                    mensajeError: _errorUsuario,
+                    accionTeclado: TextInputAction.next,
+                    alEnviar: (_) => FocusScope.of(context).nextFocus(),
+                  ),
+
+                  const SizedBox(height: Espacio.md),
+
+                  // ---- Contraseña ----
+                  CampoTexto(
+                    etiqueta: 'Contraseña',
+                    controlador: _clave,
+                    icono: Icons.lock_outline,
+                    ocultarTexto: !_verClave,
+                    mensajeError: _errorClave ?? errorBackend,
+                    accionTeclado: TextInputAction.done,
+                    alEnviar: (_) => _entrar(),
+                    sufijo: IconButton(
+                      icon: Icon(
+                        _verClave
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        size: 20,
+                        color: esquema.onSurfaceVariant,
                       ),
+                      onPressed: () =>
+                          setState(() => _verClave = !_verClave),
                     ),
-                    const SizedBox(height: 40),
+                  ),
 
-                    TextFormField(
-                      controller: _usuario,
-                      decoration: const InputDecoration(
-                        labelText: 'Usuario',
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
-                      textInputAction: TextInputAction.next,
-                      autocorrect: false,
-                      validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Escribí tu usuario'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
+                  const SizedBox(height: Espacio.lg),
 
-                    TextFormField(
-                      controller: _clave,
-                      obscureText: !_verClave,
-                      decoration: InputDecoration(
-                        labelText: 'Contraseña',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(_verClave
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined),
-                          onPressed: () => setState(() => _verClave = !_verClave),
-                        ),
-                      ),
-                      onFieldSubmitted: (_) => _entrar(),
-                      validator: (v) => (v == null || v.isEmpty)
-                          ? 'Escribí tu contraseña'
-                          : null,
-                    ),
+                  // ---- Botón entrar ----
+                  BotonPrincipal(
+                    etiqueta: 'ENTRAR',
+                    etiquetaCargando: 'ENTRANDO...',
+                    alTocar: auth.ocupado ? null : _entrar,
+                    cargando: auth.ocupado,
+                  ),
 
-                    if (auth.error != null) ...[
-                      const SizedBox(height: 16),
-                      AvisoError(mensaje: auth.error!),
-                    ],
+                  const SizedBox(height: Espacio.sm),
 
-                    const SizedBox(height: 24),
-                    FilledButton(
-                      onPressed: auth.ocupado ? null : _entrar,
-                      child: auth.ocupado
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Entrar'),
-                    ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: auth.ocupado
-                          ? null
-                          : () {
-                              context.read<AuthProvider>().limpiarError();
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => const RegistroScreen(),
-                              ));
-                            },
-                      child: const Text('No tengo cuenta'),
-                    ),
-                  ],
-                ),
+                  TextButton(
+                    onPressed: auth.ocupado
+                        ? null
+                        : () {
+                            context.read<AuthProvider>().limpiarError();
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => const RegistroScreen(),
+                            ));
+                          },
+                    child: const Text('No tengo cuenta'),
+                  ),
+                ],
               ),
             ),
           ),
@@ -135,4 +151,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
