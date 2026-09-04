@@ -64,7 +64,7 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
             }
             if (estado.error != null && estado.anuncios.isEmpty) {
               return ListView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 children: [AvisoError(mensaje: estado.error!)],
               );
             }
@@ -138,7 +138,7 @@ class _TarjetaGestion extends StatelessWidget {
     ).format(double.tryParse(anuncio.precioFinal) ?? 0);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -178,7 +178,7 @@ class _TarjetaGestion extends StatelessWidget {
                 _Dato(Icons.home_outlined, anuncio.tipoEspacio.etiqueta),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: disponible
@@ -186,14 +186,14 @@ class _TarjetaGestion extends StatelessWidget {
                       onPressed: () => context
                           .read<MisAnunciosProvider>()
                           .alternarEstado(anuncio),
-                      icon: const Icon(Icons.check_circle_outline, size: 18),
+                      icon: const Icon(Icons.check_circle_outline, size: 16),
                       label: const Text('Marcar Ya alquilado'),
                     )
                   : TextButton.icon(
                       onPressed: () => context
                           .read<MisAnunciosProvider>()
                           .alternarEstado(anuncio),
-                      icon: const Icon(Icons.refresh, size: 18),
+                      icon: const Icon(Icons.refresh, size: 16),
                       label: const Text('Volver a publicar'),
                     ),
             ),
@@ -216,8 +216,8 @@ class _Dato extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icono, size: 15, color: esquema.onSurfaceVariant),
-        const SizedBox(width: 5),
+        Icon(icono, size: 16, color: esquema.onSurfaceVariant),
+        const SizedBox(width: 8),
         Text(
           texto,
           style: Theme.of(

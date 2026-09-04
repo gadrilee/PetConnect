@@ -38,7 +38,7 @@ class _SolicitudesRecibidasScreenState
               : RefreshIndicator(
                   onRefresh: provider.cargar,
                   child: ListView.separated(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(24),
                     itemCount: provider.solicitudes.length,
                     separatorBuilder: (_, i) => const SizedBox(height: 16),
                     itemBuilder: (ctx, i) =>
@@ -91,12 +91,12 @@ class _TarjetaSolicitud extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: esquema.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: colorBorde),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],
@@ -135,12 +135,12 @@ class _TarjetaSolicitud extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           // Anuncio
           Row(
             children: [
-              Icon(Icons.home_outlined, size: 20, color: esquema.primary),
+              Icon(Icons.home_outlined, size: 24, color: esquema.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -157,7 +157,7 @@ class _TarjetaSolicitud extends StatelessWidget {
           // Inquilino
           Row(
             children: [
-              Icon(Icons.person_outline, size: 20, color: esquema.onSurfaceVariant),
+              Icon(Icons.person_outline, size: 24, color: esquema.onSurfaceVariant),
               const SizedBox(width: 8),
               Text(
                 'Inquilino interesado',
@@ -170,7 +170,7 @@ class _TarjetaSolicitud extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.calendar_today_outlined, size: 20, color: esquema.onSurfaceVariant),
+              Icon(Icons.calendar_today_outlined, size: 24, color: esquema.onSurfaceVariant),
               const SizedBox(width: 8),
               Text(
                 'Recibida el ${solicitud.creadaEn.day}/${solicitud.creadaEn.month}/${solicitud.creadaEn.year}',
@@ -182,7 +182,7 @@ class _TarjetaSolicitud extends StatelessWidget {
           // Botones (Solo si está pendiente)
           if (solicitud.estaPendiente) ...[
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.symmetric(vertical: 16),
               child: Divider(),
             ),
             Row(
@@ -197,7 +197,7 @@ class _TarjetaSolicitud extends StatelessWidget {
                     child: const Text('Rechazar'),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: FilledButton(
                     onPressed: () => _aprobar(context),
