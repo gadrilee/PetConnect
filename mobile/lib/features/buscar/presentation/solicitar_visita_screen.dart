@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/boton_secundario.dart';
 import '../../../shared/widgets/fila_condicion.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../providers/solicitud_provider.dart';
@@ -179,32 +181,10 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
           const SizedBox(height: Espacio.lg),
 
           // ---- Aviso del contacto ----
-          Container(
-            padding: const EdgeInsets.all(Espacio.md),
-            decoration: BoxDecoration(
-              color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: esquema.outline.withValues(alpha: 0.4)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.lock_clock_outlined,
-                  size: 18,
-                  color: esquema.onSurfaceVariant,
-                ),
-                const SizedBox(width: Espacio.sm),
-                Expanded(
-                  child: Text(
-                    'Cuando el propietario apruebe tu solicitud, '
-                    'recibirás su contacto de WhatsApp.',
-                    style: texto.bodySmall?.copyWith(
-                      color: esquema.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          Aviso(
+            icono: Icons.lock_clock_outlined,
+            mensaje: 'Cuando el propietario apruebe tu solicitud, recibirás su contacto de WhatsApp.',
+            tipo: TipoAviso.info,
           ),
 
           const SizedBox(height: Espacio.lg),
@@ -252,17 +232,9 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
           children: [
             // La salida secundaria va arriba, como en el wireframe: la accion
             // principal queda al alcance del pulgar.
-            OutlinedButton(
-              onPressed: provider.cargando
-                  ? null
-                  : () => Navigator.of(context).pop(),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(Medida.boton),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('CANCELAR'),
+            BotonSecundario(
+              etiqueta: 'CANCELAR',
+              alTocar: provider.cargando ? null : () => Navigator.of(context).pop(),
             ),
             const SizedBox(height: Espacio.sm),
             BotonPrincipal(

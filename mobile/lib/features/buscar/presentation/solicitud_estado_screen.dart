@@ -3,7 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/boton_secundario.dart';
+import '../../../shared/widgets/etiqueta_estado.dart';
 import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../data/solicitud.dart';
 import '../providers/solicitud_provider.dart';
@@ -104,18 +107,10 @@ class _Acciones extends StatelessWidget {
             ),
           ] else ...[
             if (solicitud.estaPendiente) ...[
-              OutlinedButton.icon(
-                onPressed: provider.cargando
-                    ? null
-                    : () => provider.refrescar(),
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Actualizar estado'),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(Medida.boton),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+              BotonSecundario(
+                icono: Icons.refresh,
+                etiqueta: 'ACTUALIZAR ESTADO',
+                alTocar: provider.cargando ? null : () => provider.refrescar(),
               ),
               const SizedBox(height: Espacio.sm),
             ],
@@ -345,42 +340,16 @@ class _VistaPendiente extends StatelessWidget {
 
         // ---- Contacto aún protegido ----
         if (solicitud.estaPendiente)
-          Container(
-            padding: const EdgeInsets.all(Espacio.md),
-            decoration: BoxDecoration(
-              color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: esquema.outline.withValues(alpha: 0.4)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.lock_outline,
-                  size: 18,
-                  color: esquema.onSurfaceVariant,
-                ),
-                const SizedBox(width: Espacio.sm),
-                Expanded(
-                  child: Text(
-                    'El contacto se libera recién cuando el propietario aprueba.',
-                    style: texto.bodySmall?.copyWith(
-                      color: esquema.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          Aviso(
+            icono: Icons.lock_outline,
+            mensaje: 'El contacto se libera recién cuando el propietario aprueba.',
+            tipo: TipoAviso.info,
           ),
       ],
     );
   }
 }
 
-/// En que esta la solicitud.
-///
-/// Una sola pieza con un estado por variante, igual que en el wireframe: el
-/// texto y el color **se derivan** del estado. Si se pasaran por parametro,
-/// tarde o temprano habria una etiqueta verde que dice "Pendiente".
 class _EtiquetaEstado extends StatelessWidget {
   const _EtiquetaEstado({required this.solicitud});
 
@@ -388,23 +357,14 @@ class _EtiquetaEstado extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-
-    final color = switch (solicitud.estado) {
-      EstadoSolicitud.pendiente => Colors.orange,
-      EstadoSolicitud.rechazada => esquema.error,
-      _ => esquema.primary,
+    final tipo = switch (solicitud.estado) {
+      EstadoSolicitud.pendiente => TipoEstado.pendiente,
+      EstadoSolicitud.rechazada => TipoEstado.rechazada,
+      _ => TipoEstado.aprobada,
     };
 
     return Center(
-      child: Chip(
-        label: Text(
-          solicitud.estado.etiqueta,
-          style: TextStyle(color: color, fontWeight: FontWeight.w600),
-        ),
-        side: BorderSide(color: color.withValues(alpha: 0.6)),
-        backgroundColor: color.withValues(alpha: 0.08),
-      ),
+      child: EtiquetaEstado(estado: tipo),
     );
   }
 }
