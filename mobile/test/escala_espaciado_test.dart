@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Archivos donde la escala es obligatoria: el flujo v0.2 y las piezas.
 const _vigilados = [
+  'lib/features/home/presentation/home_screen.dart',
   'lib/features/buscar/presentation/buscar_screen.dart',
   'lib/features/buscar/presentation/resultados_screen.dart',
   'lib/features/buscar/presentation/anuncio_screen.dart',

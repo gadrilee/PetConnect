@@ -3,7 +3,7 @@
 **Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
 **Flujo:** [`flujo/flujo-v0.2.md`](../../flujo/flujo-v0.2.md) · **Reglas de dibujo:** [`_lenguaje-visual.md`](../_lenguaje-visual.md)
 
-Seis pantallas, 360 × 800, escala de grises, exportadas desde Figma.
+Siete pantallas, 360 × 800, escala de grises, exportadas desde Figma.
 
 Están en PNG: se ven directamente en GitHub, pero **no se pueden reimportar a
 Figma con capas editables**. Si hace falta volver a editarlas, la fuente es el
@@ -11,9 +11,9 @@ archivo de Figma, no estos archivos.
 
 ## El flujo completo de un vistazo
 
-![Las seis pantallas del flujo v0.2](flujo-completo.png)
+![Las siete pantallas del flujo v0.2](flujo-completo.png)
 
-Las seis pantallas lado a lado, en el orden del flujo. Sirve para revisar el
+Las siete pantallas lado a lado, en el orden del flujo. Sirve para revisar el
 recorrido entero sin abrir Figma ni los SVG uno por uno.
 
 ## Por qué casi no hay texto
@@ -33,14 +33,19 @@ principal. El título se conserva porque orienta — es el paso 1 de la jerarqu�
 
 | # | Archivo | Momento de la tarea |
 |---|---|---|
-| 01 | [`01 Buscar.png`](01%20Buscar.png) | Pone sus filtros: precio, tipo, mascotas, minutos |
-| 02 | [`02 Resultados.png`](02%20Resultados.png) | Ve los resultados ordenados por cercanía |
-| 03 | [`03 Anuncio.png`](03%20Anuncio.png) | **Decide si le sirve o lo descarta** |
-| 04 | [`04 Solicitar visita.png`](04%20Solicitar%20visita.png) | Acepta las condiciones y pide la visita |
-| 05 | [`05 Solicitud enviada.png`](05%20Solicitud%20enviada.png) | Queda a la espera de la respuesta |
-| 06 | [`06 Contacto liberado.png`](06%20Contacto%20liberado.png) | El propietario aprobó: aparece el contacto |
+| 01 | [`01 Inicio.png`](01%20Inicio.png) | Entra y elige qué va a hacer |
+| 02 | [`02 Buscar.png`](02%20Buscar.png) | Pone sus filtros: precio, tipo, mascotas, minutos |
+| 03 | [`03 Resultados.png`](03%20Resultados.png) | Ve los resultados ordenados por cercanía |
+| 04 | [`04 Anuncio.png`](04%20Anuncio.png) | **Decide si le sirve o lo descarta** |
+| 05 | [`05 Solicitar visita.png`](05%20Solicitar%20visita.png) | Acepta las condiciones y pide la visita |
+| 06 | [`06 Solicitud enviada.png`](06%20Solicitud%20enviada.png) | Queda a la espera de la respuesta |
+| 07 | [`07 Contacto liberado.png`](07%20Contacto%20liberado.png) | El propietario aprobó: aparece el contacto |
 
-## Cómo leer la 03
+La 01 es la **misma pantalla que abre el flujo v0.1**: lo único que cambia son
+los módulos que se le ofrecen a cada rol. Se documenta en los dos flujos porque
+en cada uno arranca una tarea distinta.
+
+## Cómo leer la 04
 
 Es la pantalla que decide el producto, y ya incluye la corrección que salió de
 la prueba con una usuaria (ver [`docs/decision-clase-05.md`](../../docs/decision-clase-05.md)):

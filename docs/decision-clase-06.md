@@ -4,7 +4,7 @@
 Integrantes: Gabriel Mamani Sandoval · Daniel Joaquin Mamani Peña
 Fecha: 01/09/2026
 
-Pantalla elegida: **`01 Buscar`** del flujo v0.2.
+Pantalla elegida: **`02 Buscar`** del flujo v0.2.
 
 ---
 
@@ -69,7 +69,7 @@ Se creó el **component set `Botón principal`** con cuatro variantes nombradas
 en su propia página del archivo. La regla y la glosa de cada estado están
 escritas en la `description` del componente, así viajan con la pieza.
 
-Se **aplicó a la pantalla `01 Buscar`** como instancia vinculada: si la pieza
+Se **aplicó a la pantalla `02 Buscar`** como instancia vinculada: si la pieza
 cambia, la pantalla cambia con ella. Sólo se sobreescribió la etiqueta, porque
 el texto es lo único que cambia entre pantallas.
 

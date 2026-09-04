@@ -11,12 +11,12 @@ import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../data/solicitud.dart';
 import '../providers/solicitud_provider.dart';
 
-/// Vista 05 / 06 — Estado de la solicitud enviada.
+/// Vista 06 / 07 — Estado de la solicitud enviada.
 ///
-/// Vista 05 (Solicitud enviada): cuando está PENDIENTE, muestra ícono de
+/// Vista 06 (Solicitud enviada): cuando está PENDIENTE, muestra ícono de
 /// espera y el resumen del anuncio. El botón refresca el estado.
 ///
-/// Vista 06 (Contacto liberado): cuando está APROBADA y [contacto] no es
+/// Vista 07 (Contacto liberado): cuando está APROBADA y [contacto] no es
 /// null, muestra el WhatsApp del propietario con un botón para abrirlo.
 /// La pantalla detecta el estado automáticamente.
 class SolicitudEstadoScreen extends StatelessWidget {
@@ -126,7 +126,7 @@ class _Acciones extends StatelessWidget {
   }
 }
 
-// ------------------------------------------------------------ Vista 06 — Aprobada
+// ------------------------------------------------------------ Vista 07 — Aprobada
 
 class _VistaAprobada extends StatelessWidget {
   const _VistaAprobada({required this.solicitud});
@@ -265,7 +265,7 @@ class _VistaAprobada extends StatelessWidget {
   }
 }
 
-// ------------------------------------------------------------ Vista 05 — Pendiente
+// ------------------------------------------------------------ Vista 06 — Pendiente
 
 class _VistaPendiente extends StatelessWidget {
   const _VistaPendiente({required this.solicitud, required this.provider});
