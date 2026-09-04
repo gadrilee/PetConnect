@@ -3,6 +3,8 @@ import 'package:alquilamatch/features/auth/data/auth_repository.dart';
 import 'package:alquilamatch/features/auth/data/perfil.dart';
 import 'package:alquilamatch/features/auth/presentation/login_screen.dart';
 import 'package:alquilamatch/features/auth/providers/auth_provider.dart';
+import 'package:alquilamatch/shared/widgets/boton_principal.dart';
+import 'package:alquilamatch/shared/widgets/campo_texto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -51,15 +53,17 @@ void main() {
       await tester.pumpWidget(_conProvider(const LoginScreen()));
 
       expect(find.text('AlquilaMatch'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Usuario'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Contraseña'), findsOneWidget);
-      expect(find.widgetWithText(FilledButton, 'Entrar'), findsOneWidget);
+      // La pantalla usa las piezas compartidas, no widgets de Material
+      // sueltos: buscar TextFormField aca probaria otra cosa.
+      expect(find.widgetWithText(CampoTexto, 'Usuario'), findsOneWidget);
+      expect(find.widgetWithText(CampoTexto, 'Contraseña'), findsOneWidget);
+      expect(find.widgetWithText(BotonPrincipal, 'ENTRAR'), findsOneWidget);
     });
 
     testWidgets('no envia el formulario vacio', (tester) async {
       await tester.pumpWidget(_conProvider(const LoginScreen()));
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Entrar'));
+      await tester.tap(find.widgetWithText(BotonPrincipal, 'ENTRAR'));
       await tester.pump();
 
       // La validacion corta antes de tocar la red.

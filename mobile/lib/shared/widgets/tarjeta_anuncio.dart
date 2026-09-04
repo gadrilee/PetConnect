@@ -122,7 +122,14 @@ class TarjetaAnuncio extends StatelessWidget {
     );
 
     return Container(
-      height: _esCompleta ? 136.0 : 96.0,
+      // Alto MINIMO, no fijo.
+      //
+      // Fijarlo mantenia parejo el ritmo de la lista, pero en un telefono de
+      // 360 el contenido no entraba y la tarjeta desbordaba 14 px: en debug
+      // salen las rayas amarillas y negras, en release el texto queda cortado.
+      // Un alto que no depende del contenido esta siempre a un cambio de
+      // tipografia de recortar algo.
+      constraints: BoxConstraints(minHeight: _esCompleta ? 136.0 : 96.0),
       decoration: BoxDecoration(
         color: esquema.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),

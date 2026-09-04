@@ -83,15 +83,18 @@ class _PublicarScreenState extends State<PublicarScreen> {
       _errorAlquiler = (n == null || n <= 0) ? 'Poné un monto válido' : null;
       if (!_todoIncluido) {
         final s = double.tryParse(_costoServicios.text.replaceAll(',', '.'));
-        _errorCostoServicios =
-            (s == null || s < 0) ? 'Estimá cuánto paga aparte' : null;
+        _errorCostoServicios = (s == null || s < 0)
+            ? 'Estimá cuánto paga aparte'
+            : null;
       } else {
         _errorCostoServicios = null;
       }
     });
     if (_errorTitulo != null ||
         _errorAlquiler != null ||
-        _errorCostoServicios != null) return;
+        _errorCostoServicios != null) {
+      return;
+    }
     if (!provider.hayUbicacion) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -169,8 +172,9 @@ class _PublicarScreenState extends State<PublicarScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Tu WhatsApp no aparece en el anuncio',
-                    style: texto.bodySmall
-                        ?.copyWith(color: esquema.onSurfaceVariant),
+                    style: texto.bodySmall?.copyWith(
+                      color: esquema.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -182,299 +186,299 @@ class _PublicarScreenState extends State<PublicarScreen> {
       // ── Cuerpo con scroll ─────────────────────────────────────────────────
       body: SafeArea(
         child: ListView(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-            children: [
-              // ─── 1. Qué estás alquilando ──────────────────────────────
-              _Titulo('1. Qué estás alquilando'),
-              Row(
-                children: TipoEspacio.values.map((t) {
-                  final seleccionado = _tipo == t;
-                  return Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        right: t != TipoEspacio.values.last ? 8.0 : 0.0,
-                      ),
-                      child: InkWell(
-                        onTap: () => setState(() => _tipo = t),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+          children: [
+            // ─── 1. Qué estás alquilando ──────────────────────────────
+            _Titulo('1. Qué estás alquilando'),
+            Row(
+              children: TipoEspacio.values.map((t) {
+                final seleccionado = _tipo == t;
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      right: t != TipoEspacio.values.last ? 8.0 : 0.0,
+                    ),
+                    child: InkWell(
+                      onTap: () => setState(() => _tipo = t),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: seleccionado
+                              ? esquema.surfaceContainerHighest
+                              : Colors.transparent,
+                          border: Border.all(
                             color: seleccionado
-                                ? esquema.surfaceContainerHighest
-                                : Colors.transparent,
-                            border: Border.all(
-                              color: seleccionado
-                                  ? esquema.outline
-                                  : esquema.outlineVariant,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
+                                ? esquema.outline
+                                : esquema.outlineVariant,
                           ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            t.etiqueta,
-                            style: texto.bodySmall?.copyWith(
-                              fontWeight: seleccionado
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                              color: seleccionado
-                                  ? esquema.onSurface
-                                  : esquema.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          t.etiqueta,
+                          style: texto.bodySmall?.copyWith(
+                            fontWeight: seleccionado
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                            color: seleccionado
+                                ? esquema.onSurface
+                                : esquema.onSurfaceVariant,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16),
-              CampoTexto(
-                etiqueta: 'Título del anuncio',
-                controlador: _titulo,
-                pista: 'Habitación con baño privado',
-                mensajeError: _errorTitulo ??
-                    publicar.erroresPorCampo['titulo'],
-              ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            CampoTexto(
+              etiqueta: 'Título del anuncio',
+              controlador: _titulo,
+              pista: 'Habitación con baño privado',
+              mensajeError: _errorTitulo ?? publicar.erroresPorCampo['titulo'],
+            ),
 
-              // ─── 2. Precio final ──────────────────────────────────────
-              const SizedBox(height: 32),
-              _Titulo('2. Precio final'),
-              Text(
-                'El dato n.º 1 para descartar. Declararlo acá te evita '
-                'repetirlo por WhatsApp.',
-                style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+            // ─── 2. Precio final ──────────────────────────────────────
+            const SizedBox(height: 32),
+            _Titulo('2. Precio final'),
+            Text(
+              'El dato n.º 1 para descartar. Declararlo acá te evita '
+              'repetirlo por WhatsApp.',
+              style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            CampoTexto(
+              etiqueta: 'Alquiler mensual',
+              controlador: _alquiler,
+              tipoTeclado: const TextInputType.numberWithOptions(decimal: true),
+              pista: '0',
+              sufijo: Padding(
+                padding: const EdgeInsets.only(right: Espacio.md),
+                child: Text(
+                  'Bs',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ),
+              mensajeError:
+                  _errorAlquiler ?? publicar.erroresPorCampo['precio_alquiler'],
+            ),
+            const SizedBox(height: 16),
+            // Checkboxes de servicios en fila compacta
+            Row(
+              children: [
+                Text(
+                  'Qué servicios incluye',
+                  style: texto.labelMedium?.copyWith(
+                    color: esquema.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _CheckCompacto(
+                    label: 'Agua',
+                    value: _agua,
+                    onChanged: (v) => setState(() => _agua = v ?? false),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _CheckCompacto(
+                    label: 'Luz',
+                    value: _luz,
+                    onChanged: (v) => setState(() => _luz = v ?? false),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _CheckCompacto(
+                    label: 'Internet',
+                    value: _internet,
+                    onChanged: (v) => setState(() => _internet = v ?? false),
+                  ),
+                ),
+              ],
+            ),
+            // Campo de servicios extra solo cuando no todo está incluido
+            if (!_todoIncluido) ...[
               const SizedBox(height: 16),
               CampoTexto(
-                etiqueta: 'Alquiler mensual',
-                controlador: _alquiler,
-                tipoTeclado:
-                    const TextInputType.numberWithOptions(decimal: true),
+                etiqueta: 'Cuánto paga aparte por los servicios',
+                controlador: _costoServicios,
+                tipoTeclado: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 pista: '0',
                 sufijo: Padding(
                   padding: const EdgeInsets.only(right: Espacio.md),
                   child: Text(
                     'Bs',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
-                mensajeError: _errorAlquiler ??
-                    publicar.erroresPorCampo['precio_alquiler'],
+                mensajeError:
+                    _errorCostoServicios ??
+                    publicar.erroresPorCampo['costo_servicios_estimado'],
               ),
-              const SizedBox(height: 16),
-              // Checkboxes de servicios en fila compacta
-              Row(
-                children: [
-                  Text('Qué servicios incluye',
-                      style: texto.labelMedium
-                          ?.copyWith(color: esquema.onSurfaceVariant)),
-                ],
+            ],
+            const SizedBox(height: 16),
+            // Bloque de precio final destacado
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: esquema.primaryContainer,
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(height: 8),
-              Row(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: _CheckCompacto(
-                      label: 'Agua',
-                      value: _agua,
-                      onChanged: (v) => setState(() => _agua = v ?? false),
+                  Text(
+                    'Precio final',
+                    style: texto.titleSmall?.copyWith(
+                      color: esquema.onPrimaryContainer,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _CheckCompacto(
-                      label: 'Luz',
-                      value: _luz,
-                      onChanged: (v) => setState(() => _luz = v ?? false),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _CheckCompacto(
-                      label: 'Internet',
-                      value: _internet,
-                      onChanged: (v) => setState(() => _internet = v ?? false),
+                  Text(
+                    '${NumberFormat.decimalPattern('es').format(_precioFinal)} Bs',
+                    style: texto.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: esquema.onPrimaryContainer,
                     ),
                   ),
                 ],
               ),
-              // Campo de servicios extra solo cuando no todo está incluido
-              if (!_todoIncluido) ...[
-                const SizedBox(height: 16),
-                CampoTexto(
-                  etiqueta: 'Cuánto paga aparte por los servicios',
-                  controlador: _costoServicios,
-                  tipoTeclado:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  pista: '0',
-                  sufijo: Padding(
-                    padding: const EdgeInsets.only(right: Espacio.md),
-                    child: Text(
-                      'Bs',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
+            ),
+
+            // ─── 3. Reglas ────────────────────────────────────────────
+            const SizedBox(height: 24),
+            _Titulo('3. Reglas'),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Acepto mascotas'),
+              value: _mascotas,
+              onChanged: (v) => setState(() => _mascotas = v),
+            ),
+            CampoTexto(
+              etiqueta: 'Reglas (opcional)',
+              controlador: _restricciones,
+              pista: 'Solo señoritas, sin fiestas...',
+            ),
+
+            // ─── 4. Ubicación  +  5. Fotos (en fila, como en Figma) ──
+            const SizedBox(height: 24),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 4. Ubicación
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _Titulo('4. Ubicación'),
+                      _BotonSeccion(
+                        icono: publicar.hayUbicacion
+                            ? Icons.place
+                            : Icons.my_location,
+                        label: publicar.hayUbicacion
+                            ? '${publicar.lat!.toStringAsFixed(4)},\n'
+                                  '${publicar.lng!.toStringAsFixed(4)}'
+                            : 'Usar GPS',
+                        cargando: publicar.buscandoUbicacion,
+                        onTap: () => publicar.tomarUbicacion(),
+                      ),
+                      if (publicar.errorUbicacion != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          publicar.errorUbicacion!,
+                          style: texto.bodySmall?.copyWith(
+                            color: esquema.error,
                           ),
-                    ),
+                        ),
+                      ],
+                    ],
                   ),
-                  mensajeError: _errorCostoServicios ??
-                      publicar.erroresPorCampo['costo_servicios_estimado'],
+                ),
+                const SizedBox(width: 16),
+                // 5. Fotos
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _Titulo('5. Fotos'),
+                      _BotonSeccion(
+                        icono: Icons.photo_camera_outlined,
+                        label: publicar.fotos.isEmpty
+                            ? 'Tomar foto'
+                            : '${publicar.fotos.length} foto(s)',
+                        cargando: false,
+                        onTap: () => publicar.agregarFoto(),
+                      ),
+                    ],
+                  ),
                 ),
               ],
+            ),
+
+            // Miniaturas de fotos debajo de los botones
+            if (publicar.fotos.isNotEmpty) ...[
               const SizedBox(height: 16),
-              // Bloque de precio final destacado
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: esquema.primaryContainer,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Precio final',
-                      style: texto.titleSmall?.copyWith(
-                        color: esquema.onPrimaryContainer,
-                      ),
-                    ),
-                    Text(
-                      '${NumberFormat.decimalPattern('es').format(_precioFinal)} Bs',
-                      style: texto.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: esquema.onPrimaryContainer,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // ─── 3. Reglas ────────────────────────────────────────────
-              const SizedBox(height: 24),
-              _Titulo('3. Reglas'),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Acepto mascotas'),
-                value: _mascotas,
-                onChanged: (v) => setState(() => _mascotas = v),
-              ),
-              CampoTexto(
-                etiqueta: 'Reglas (opcional)',
-                controlador: _restricciones,
-                pista: 'Solo señoritas, sin fiestas...',
-              ),
-
-              // ─── 4. Ubicación  +  5. Fotos (en fila, como en Figma) ──
-              const SizedBox(height: 24),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 4. Ubicación
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+              SizedBox(
+                height: 72,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: publicar.fotos.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (_, i) {
+                    final f = publicar.fotos[i];
+                    return Stack(
                       children: [
-                        _Titulo('4. Ubicación'),
-                        _BotonSeccion(
-                          icono: publicar.hayUbicacion
-                              ? Icons.place
-                              : Icons.my_location,
-                          label: publicar.hayUbicacion
-                              ? '${publicar.lat!.toStringAsFixed(4)},\n'
-                                  '${publicar.lng!.toStringAsFixed(4)}'
-                              : 'Usar GPS',
-                          cargando: publicar.buscandoUbicacion,
-                          onTap: () => publicar.tomarUbicacion(),
-                        ),
-                        if (publicar.errorUbicacion != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            publicar.errorUbicacion!,
-                            style: texto.bodySmall
-                                ?.copyWith(color: esquema.error),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            File(f.ruta),
+                            width: 72,
+                            height: 72,
+                            fit: BoxFit.cover,
                           ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // 5. Fotos
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _Titulo('5. Fotos'),
-                        _BotonSeccion(
-                          icono: Icons.photo_camera_outlined,
-                          label: publicar.fotos.isEmpty
-                              ? 'Tomar foto'
-                              : '${publicar.fotos.length} foto(s)',
-                          cargando: false,
-                          onTap: () => publicar.agregarFoto(),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              // Miniaturas de fotos debajo de los botones
-              if (publicar.fotos.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 72,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: publicar.fotos.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 8),
-                    itemBuilder: (_, i) {
-                      final f = publicar.fotos[i];
-                      return Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              File(f.ruta),
-                              width: 72,
-                              height: 72,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Positioned(
-                            top: 2,
-                            right: 2,
-                            child: GestureDetector(
-                              onTap: () => publicar.quitarFoto(i),
-                              child: CircleAvatar(
-                                radius: 10,
-                                backgroundColor: esquema.error,
-                                child: Icon(
-                                  Icons.close,
-                                  size: 12,
-                                  color: esquema.onError,
-                                ),
+                        Positioned(
+                          top: 2,
+                          right: 2,
+                          child: GestureDetector(
+                            onTap: () => publicar.quitarFoto(i),
+                            child: CircleAvatar(
+                              radius: 10,
+                              backgroundColor: esquema.error,
+                              child: Icon(
+                                Icons.close,
+                                size: 12,
+                                color: esquema.onError,
                               ),
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              ],
-
-              const SizedBox(height: 8),
+              ),
             ],
-          ),
+
+            const SizedBox(height: 8),
+          ],
         ),
+      ),
     );
   }
 }
@@ -492,10 +496,9 @@ class _Titulo extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         texto,
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium
-            ?.copyWith(fontWeight: FontWeight.w700),
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -523,7 +526,9 @@ class _CheckCompacto extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           border: Border.all(
-            color: value ? esquema.primary : esquema.outline.withValues(alpha: 0.5),
+            color: value
+                ? esquema.primary
+                : esquema.outline.withValues(alpha: 0.5),
           ),
           borderRadius: BorderRadius.circular(8),
           color: value
@@ -543,8 +548,8 @@ class _CheckCompacto extends StatelessWidget {
               child: Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: value ? esquema.primary : esquema.onSurfaceVariant,
-                    ),
+                  color: value ? esquema.primary : esquema.onSurfaceVariant,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -584,9 +589,7 @@ class _BotonSeccion extends StatelessWidget {
         decoration: BoxDecoration(
           color: esquema.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: esquema.outline.withValues(alpha: 0.4),
-          ),
+          border: Border.all(color: esquema.outline.withValues(alpha: 0.4)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
