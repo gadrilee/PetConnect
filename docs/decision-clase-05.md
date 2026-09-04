@@ -8,14 +8,17 @@ Fecha: 27/08/2026
 
 ## Pantalla elegida
 
-**`03 Anuncio`** del flujo v0.2 (la inquilina que busca).
+**`04 Anuncio`** del flujo v0.2 (la inquilina que busca).
+
+> Cuando se escribió esta decisión la pantalla se numeraba `03`. Al sumar
+> el Inicio al frente del flujo, todas corrieron un lugar.
 
 **El momento:** *La persona está **decidiendo** si este cuarto le sirve o lo
 descarta.* Es el paso 3 del `flujo/flujo-v0.2.md` y el que el propio documento
 marca como el momento clave: si no le sirve, vuelve a los resultados sin haber
 gastado un viaje.
 
-- Wireframe: [`03 Anuncio`](https://www.figma.com/design/kAU2JWOHr8JluthuoakVzw)
+- Wireframe: [`04 Anuncio`](https://www.figma.com/design/kAU2JWOHr8JluthuoakVzw)
 - Código: `mobile/lib/features/buscar/presentation/anuncio_screen.dart`
 
 ---
@@ -131,7 +134,7 @@ el problema de la evidencia 1 que el producto vino a resolver.
 
 ### En Figma
 
-El frame `03 Anuncio` se rehízo con la misma estructura: etiqueta `PRECIO
+El frame `04 Anuncio` se rehízo con la misma estructura: etiqueta `PRECIO
 FINAL`, el monto en 24 px negrita, los otros tres datos separados 24 px dentro
 del mismo contenedor gris, y una sola acción oscura abajo.
 
@@ -150,7 +153,7 @@ del mismo contenedor gris, y una sola acción oscura abajo.
 ## DESPUÉS
 
 **Prueba realizada:** 27/08/2026, con una persona que no conocía el proyecto
-(hermana de un integrante). Se le mostró la pantalla `03 Anuncio` sin explicarle
+(hermana de un integrante). Se le mostró la pantalla `04 Anuncio` sin explicarle
 nada y se le pidió que dijera si el cuarto le servía o no.
 
 ### Lo que hizo
@@ -226,7 +229,7 @@ PRECIO FINAL
 
 La pregunta *"¿cuánto es con luz?"* queda respondida sin que haya que hacerla.
 
-El frame `03 Anuncio` en Figma se actualizó igual, así que wireframe y código
+El frame `04 Anuncio` en Figma se actualizó igual, así que wireframe y código
 siguen representando la misma pantalla.
 
 ### Lo que falta

@@ -11,7 +11,7 @@ import '../data/solicitudes_repository.dart';
 import '../providers/solicitud_provider.dart';
 import 'solicitar_visita_screen.dart';
 
-/// Vista 03 — Detalle del anuncio.
+/// Vista 04 — Detalle del anuncio.
 ///
 /// Muestra las cuatro condiciones de descarte (precio final, mascotas, tipo,
 /// distancia), la galería de fotos con fecha de captura, las restricciones y

@@ -10,7 +10,7 @@ import '../../anuncios/data/anuncio.dart';
 import '../providers/solicitud_provider.dart';
 import 'solicitud_estado_screen.dart';
 
-/// Vista 04 — Solicitar visita.
+/// Vista 05 — Solicitar visita.
 ///
 /// El inquilino revisa las condiciones del anuncio, las acepta explicitamente
 /// con un checkbox y envía la solicitud. El contacto del propietario solo se

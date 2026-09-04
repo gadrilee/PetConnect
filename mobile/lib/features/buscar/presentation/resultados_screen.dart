@@ -6,7 +6,7 @@ import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../providers/buscar_provider.dart';
 import 'anuncio_screen.dart';
 
-/// Vista 02 — Resultados de búsqueda.
+/// Vista 03 — Resultados de búsqueda.
 ///
 /// Lista de tarjetas ordenadas por cercania (el backend ya los ordena por
 /// minutos_caminando ASC). Al tocar una tarjeta se navega al detalle.

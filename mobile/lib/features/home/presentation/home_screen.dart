@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/theme.dart';
 import '../../anuncios/presentation/mis_anuncios_screen.dart';
 import '../../anuncios/presentation/publicar_screen.dart';
 import '../../anuncios/providers/mis_anuncios_provider.dart';
@@ -11,8 +12,15 @@ import '../../buscar/presentation/mis_solicitudes_screen.dart';
 import '../../buscar/providers/mis_solicitudes_provider.dart';
 import '../../solicitudes_recibidas/presentation/solicitudes_recibidas_screen.dart';
 import '../../solicitudes_recibidas/providers/solicitudes_recibidas_provider.dart';
-/// Pantalla de entrada despues del login. Es el punto donde se bifurcan los dos
+
+/// Vista 01 — Inicio.
+///
+/// Pantalla de entrada despues del login y punto donde se bifurcan los dos
 /// flujos documentados: cada modulo del `appmap/appmap-v0.1.md` cuelga de aca.
+///
+/// Es la MISMA pantalla para los dos roles; lo unico que cambia son los
+/// modulos. Por eso abre tanto el flujo v0.1 (propietario) como el v0.2
+/// (inquilina).
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -24,12 +32,14 @@ class HomeScreen extends StatelessWidget {
     // Provider nuevo por publicacion, para no arrastrar fotos ni ubicacion
     // del anuncio anterior.
     Navigator.of(context)
-        .push(MaterialPageRoute(
-          builder: (_) => ChangeNotifierProvider(
-            create: (ctx) => PublicarProvider(ctx.read()),
-            child: const PublicarScreen(),
+        .push(
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider(
+              create: (ctx) => PublicarProvider(ctx.read()),
+              child: const PublicarScreen(),
+            ),
           ),
-        ))
+        )
         .then((_) {
           if (context.mounted) context.read<MisAnunciosProvider>().cargar();
         });
@@ -47,7 +57,8 @@ class HomeScreen extends StatelessWidget {
         ? <_Modulo>[
             _Modulo(
               titulo: 'Publicar anuncio',
-              detalle: 'Las cuatro condiciones de descarte, la ubicación por '
+              detalle:
+                  'Las cuatro condiciones de descarte, la ubicación por '
                   'GPS y las fotos con fecha.',
               icono: Icons.add_home_outlined,
               alTocar: () => _publicar(context),
@@ -62,18 +73,21 @@ class HomeScreen extends StatelessWidget {
               titulo: 'Gestionar solicitudes',
               detalle: 'Aprobar libera tu contacto, y sólo a esa persona.',
               icono: Icons.mark_email_unread_outlined,
-              alTocar: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => ChangeNotifierProvider(
-                  create: (ctx) => SolicitudesRecibidasProvider(ctx.read()),
-                  child: const SolicitudesRecibidasScreen(),
+              alTocar: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ChangeNotifierProvider(
+                    create: (ctx) => SolicitudesRecibidasProvider(ctx.read()),
+                    child: const SolicitudesRecibidasScreen(),
+                  ),
                 ),
-              )),
+              ),
             ),
           ]
         : <_Modulo>[
             _Modulo(
               titulo: 'Buscar',
-              detalle: 'Filtrar por precio final, mascotas, tipo y minutos '
+              detalle:
+                  'Filtrar por precio final, mascotas, tipo y minutos '
                   'caminando a la UAGRM. Solicitar visita y recibir el '
                   'contacto cuando el propietario aprueba.',
               icono: Icons.search,
@@ -81,14 +95,17 @@ class HomeScreen extends StatelessWidget {
             ),
             _Modulo(
               titulo: 'Estado de Solicitudes',
-              detalle: 'Revisa si los dueños aceptaron tus visitas y contactalos.',
+              detalle:
+                  'Revisa si los dueños aceptaron tus visitas y contactalos.',
               icono: Icons.mark_email_read_outlined,
-              alTocar: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => ChangeNotifierProvider(
-                  create: (ctx) => MisSolicitudesProvider(ctx.read()),
-                  child: const MisSolicitudesScreen(),
+              alTocar: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ChangeNotifierProvider(
+                    create: (ctx) => MisSolicitudesProvider(ctx.read()),
+                    child: const MisSolicitudesScreen(),
+                  ),
                 ),
-              )),
+              ),
             ),
           ];
 
@@ -104,45 +121,57 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(Espacio.lg),
         children: [
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(Espacio.lg),
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 24,
                     backgroundColor: esquema.primaryContainer,
                     child: Icon(
-                      perfil.esPropietario ? Icons.home_work_outlined : Icons.search,
+                      perfil.esPropietario
+                          ? Icons.home_work_outlined
+                          : Icons.search,
                       color: esquema.onPrimaryContainer,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: Espacio.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(perfil.username,
-                            style: texto.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 2),
-                        Text(perfil.rol.etiqueta,
-                            style: texto.bodyMedium
-                                ?.copyWith(color: esquema.onSurfaceVariant)),
-                        if (perfil.esPropietario && perfil.whatsapp.isNotEmpty) ...[
-                          const SizedBox(height: 8),
+                        Text(
+                          perfil.username,
+                          style: texto.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          perfil.rol.etiqueta,
+                          style: texto.bodyMedium?.copyWith(
+                            color: esquema.onSurfaceVariant,
+                          ),
+                        ),
+                        if (perfil.esPropietario &&
+                            perfil.whatsapp.isNotEmpty) ...[
+                          const SizedBox(height: Espacio.sm),
                           Row(
                             children: [
-                              Icon(Icons.lock_outline,
-                                  size: 16, color: esquema.onSurfaceVariant),
-                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.lock_outline,
+                                size: 16,
+                                color: esquema.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: Espacio.sm),
                               Expanded(
                                 child: Text(
                                   'Tu WhatsApp está oculto en los anuncios',
-                                  style: texto.bodySmall
-                                      ?.copyWith(color: esquema.onSurfaceVariant),
+                                  style: texto.bodySmall?.copyWith(
+                                    color: esquema.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
                             ],
@@ -155,22 +184,27 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: Espacio.xl),
           for (final m in modulos)
             Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(bottom: Espacio.md),
               child: Card(
                 child: ListTile(
                   onTap: m.alTocar,
                   enabled: m.alTocar != null,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: Espacio.md,
+                    vertical: Espacio.sm,
+                  ),
                   leading: Icon(m.icono, color: esquema.primary),
-                  title: Text(m.titulo,
-                      style:
-                          texto.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                  title: Text(
+                    m.titulo,
+                    style: texto.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.only(top: Espacio.sm),
                     child: Text(m.detalle),
                   ),
                   trailing: m.alTocar != null

@@ -53,5 +53,5 @@ Color de texto `#3A3A3A`; sobre la acción principal, `#FFFFFF`.
 ## Nombres de los frames
 
 Se usa el orden del flujo, como pide la diapositiva 7:
-`01 Buscar`, `02 Resultados`, `03 Anuncio`… El número va en el nombre del
+`01 Inicio`, `02 Buscar`, `03 Resultados`… El número va en el nombre del
 frame en Figma, **no dibujado dentro** del lienzo.

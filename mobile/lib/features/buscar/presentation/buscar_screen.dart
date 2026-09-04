@@ -11,7 +11,7 @@ import '../data/solicitudes_repository.dart';
 import '../providers/buscar_provider.dart';
 import 'resultados_screen.dart';
 
-/// Vista 01 — Buscar.
+/// Vista 02 — Buscar.
 ///
 /// Filtra por las cuatro condiciones de descarte: precio final, mascotas,
 /// tipo de espacio y minutos caminando a la UAGRM.
