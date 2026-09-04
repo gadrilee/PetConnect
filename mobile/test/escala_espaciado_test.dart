@@ -69,7 +69,8 @@ void main() {
     expect(
       infracciones,
       isEmpty,
-      reason: 'Usá una constante de Espacio (sm/md/lg/xl) en vez del número:\n'
+      reason:
+          'Usá una constante de Espacio (sm/md/lg/xl) en vez del número:\n'
           '${infracciones.join('\n')}',
     );
   });

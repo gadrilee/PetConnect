@@ -6,12 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 /// texto y la regla que los une.
 
 Widget _envolver(Widget hijo) => MaterialApp(
-      home: Scaffold(
-        // Ancho fijo: si no, el campo se estira al de la pantalla y medirlo
-        // no probaria nada.
-        body: Center(child: SizedBox(width: 320, child: hijo)),
-      ),
-    );
+  home: Scaffold(
+    // Ancho fijo: si no, el campo se estira al de la pantalla y medirlo
+    // no probaria nada.
+    body: Center(child: SizedBox(width: 320, child: hijo)),
+  ),
+);
 
 /// El estado no se pasa por parámetro: se deriva. Se lee desde el State.
 EstadoCampo _estadoDe(WidgetTester tester) {
@@ -26,13 +26,18 @@ void main() {
   tearDown(() => ctrl.dispose());
 
   group('Los cuatro estados', () {
-    testWidgets('reposo: vacío, muestra la pista y ningún error',
-        (tester) async {
-      await tester.pumpWidget(_envolver(CampoTexto(
-        etiqueta: 'Precio máximo por mes',
-        controlador: ctrl,
-        pista: 'Ej. 800',
-      )));
+    testWidgets('reposo: vacío, muestra la pista y ningún error', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _envolver(
+          CampoTexto(
+            etiqueta: 'Precio máximo por mes',
+            controlador: ctrl,
+            pista: 'Ej. 800',
+          ),
+        ),
+      );
 
       expect(_estadoDe(tester), EstadoCampo.reposo);
       expect(find.text('Ej. 800'), findsOneWidget);
@@ -41,12 +46,14 @@ void main() {
       expect(find.text('Precio máximo por mes'), findsOneWidget);
     });
 
-    testWidgets('foco: al tocarlo pasa a foco y vuelve al salir',
-        (tester) async {
-      await tester.pumpWidget(_envolver(CampoTexto(
-        etiqueta: 'Precio máximo por mes',
-        controlador: ctrl,
-      )));
+    testWidgets('foco: al tocarlo pasa a foco y vuelve al salir', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _envolver(
+          CampoTexto(etiqueta: 'Precio máximo por mes', controlador: ctrl),
+        ),
+      );
 
       await tester.tap(find.byType(TextField));
       await tester.pump();
@@ -60,10 +67,11 @@ void main() {
 
     testWidgets('relleno: con texto y sin foco', (tester) async {
       ctrl.text = '800';
-      await tester.pumpWidget(_envolver(CampoTexto(
-        etiqueta: 'Precio máximo por mes',
-        controlador: ctrl,
-      )));
+      await tester.pumpWidget(
+        _envolver(
+          CampoTexto(etiqueta: 'Precio máximo por mes', controlador: ctrl),
+        ),
+      );
 
       expect(_estadoDe(tester), EstadoCampo.relleno);
       expect(find.text('800'), findsOneWidget);
@@ -71,11 +79,15 @@ void main() {
 
     testWidgets('error: explica qué corregir, junto al campo', (tester) async {
       ctrl.text = 'abc';
-      await tester.pumpWidget(_envolver(CampoTexto(
-        etiqueta: 'Precio máximo por mes',
-        controlador: ctrl,
-        mensajeError: 'Escribí un monto válido, como 800.',
-      )));
+      await tester.pumpWidget(
+        _envolver(
+          CampoTexto(
+            etiqueta: 'Precio máximo por mes',
+            controlador: ctrl,
+            mensajeError: 'Escribí un monto válido, como 800.',
+          ),
+        ),
+      );
 
       expect(_estadoDe(tester), EstadoCampo.error);
       // El motivo va pegado al campo que lo provoca, no al final de la
@@ -88,11 +100,15 @@ void main() {
     testWidgets('la caja no cambia de tamaño entre estados', (tester) async {
       Size medirCaja() => tester.getSize(find.byType(AnimatedContainer));
 
-      await tester.pumpWidget(_envolver(CampoTexto(
-        etiqueta: 'Precio máximo por mes',
-        controlador: ctrl,
-        pista: 'Ej. 800',
-      )));
+      await tester.pumpWidget(
+        _envolver(
+          CampoTexto(
+            etiqueta: 'Precio máximo por mes',
+            controlador: ctrl,
+            pista: 'Ej. 800',
+          ),
+        ),
+      );
       final enReposo = medirCaja();
 
       await tester.tap(find.byType(TextField));
@@ -100,11 +116,15 @@ void main() {
       final conFoco = medirCaja();
 
       ctrl.text = 'abc';
-      await tester.pumpWidget(_envolver(CampoTexto(
-        etiqueta: 'Precio máximo por mes',
-        controlador: ctrl,
-        mensajeError: 'Escribí un monto válido, como 800.',
-      )));
+      await tester.pumpWidget(
+        _envolver(
+          CampoTexto(
+            etiqueta: 'Precio máximo por mes',
+            controlador: ctrl,
+            mensajeError: 'Escribí un monto válido, como 800.',
+          ),
+        ),
+      );
       await tester.pump(const Duration(milliseconds: 200));
       final conError = medirCaja();
 
@@ -117,11 +137,15 @@ void main() {
 
     testWidgets('error tiene prioridad sobre foco', (tester) async {
       ctrl.text = 'abc';
-      await tester.pumpWidget(_envolver(CampoTexto(
-        etiqueta: 'Precio máximo por mes',
-        controlador: ctrl,
-        mensajeError: 'Escribí un monto válido.',
-      )));
+      await tester.pumpWidget(
+        _envolver(
+          CampoTexto(
+            etiqueta: 'Precio máximo por mes',
+            controlador: ctrl,
+            mensajeError: 'Escribí un monto válido.',
+          ),
+        ),
+      );
 
       await tester.tap(find.byType(TextField));
       await tester.pump();
@@ -132,11 +156,15 @@ void main() {
 
     testWidgets('el mensaje no aparece si el valor es válido', (tester) async {
       ctrl.text = '800';
-      await tester.pumpWidget(_envolver(CampoTexto(
-        etiqueta: 'Precio máximo por mes',
-        controlador: ctrl,
-        mensajeError: null,
-      )));
+      await tester.pumpWidget(
+        _envolver(
+          CampoTexto(
+            etiqueta: 'Precio máximo por mes',
+            controlador: ctrl,
+            mensajeError: null,
+          ),
+        ),
+      );
 
       expect(_estadoDe(tester), EstadoCampo.relleno);
       expect(find.textContaining('monto válido'), findsNothing);

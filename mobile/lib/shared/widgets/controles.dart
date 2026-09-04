@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme.dart';
-
 /// Un botón de opción única (radio button con estilo de pastilla).
 ///
 /// Mide exactamente 96x40 con radio 8.
@@ -31,7 +29,9 @@ class Opcion extends StatelessWidget {
         decoration: BoxDecoration(
           color: seleccionada ? esquema.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: seleccionada ? null : Border.all(color: esquema.outline.withValues(alpha: 0.5)),
+          border: seleccionada
+              ? null
+              : Border.all(color: esquema.outline.withValues(alpha: 0.5)),
         ),
         alignment: Alignment.center,
         child: Text(
@@ -127,12 +127,7 @@ class Deslizador extends StatelessWidget {
           thumbColor: esquema.primary,
           overlayColor: esquema.primary.withValues(alpha: 0.1),
         ),
-        child: Slider(
-          value: valor,
-          min: min,
-          max: max,
-          onChanged: alCambiar,
-        ),
+        child: Slider(value: valor, min: min, max: max, onChanged: alCambiar),
       ),
     );
   }
