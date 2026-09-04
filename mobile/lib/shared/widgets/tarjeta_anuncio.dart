@@ -50,7 +50,7 @@ class TarjetaAnuncio extends StatelessWidget {
   Widget build(BuildContext context) {
     final esquema = Theme.of(context).colorScheme;
     final texto = Theme.of(context).textTheme;
-    final lado = _esCompleta ? 88.0 : 64.0;
+    final lado = _esCompleta ? 104.0 : 64.0;
 
     final contenido = Padding(
       padding: const EdgeInsets.all(Espacio.md),
@@ -112,19 +112,6 @@ class TarjetaAnuncio extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-
-                if (_esCompleta) ...[
-                  const SizedBox(height: Espacio.sm),
-                  Text(
-                    '${anuncio.aceptaMascotas ? "Acepta mascotas" : "Sin mascotas"}'
-                    ' · ${anuncio.tipoEspacio.etiqueta}',
-                    style: texto.bodySmall?.copyWith(
-                      color: esquema.onSurfaceVariant,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
               ],
             ),
           ),
@@ -135,6 +122,7 @@ class TarjetaAnuncio extends StatelessWidget {
     );
 
     return Container(
+      height: _esCompleta ? 136.0 : 96.0,
       decoration: BoxDecoration(
         color: esquema.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),

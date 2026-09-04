@@ -40,8 +40,12 @@ class CampoTexto extends StatefulWidget {
     this.pista,
     this.mensajeError,
     this.icono,
+    this.sufijo,
+    this.ocultarTexto = false,
     this.tipoTeclado,
     this.formateadores,
+    this.accionTeclado,
+    this.alEnviar,
   });
 
   /// El nombre del dato. Siempre visible, tambien cuando el campo tiene texto.
@@ -60,8 +64,17 @@ class CampoTexto extends StatefulWidget {
   final String? mensajeError;
 
   final IconData? icono;
+
+  /// Widget en la derecha (ej. botón del ojito de la contraseña).
+  final Widget? sufijo;
+
+  /// Si es `true` oculta el texto (contraseñas).
+  final bool ocultarTexto;
+
   final TextInputType? tipoTeclado;
   final List<TextInputFormatter>? formateadores;
+  final TextInputAction? accionTeclado;
+  final ValueChanged<String>? alEnviar;
 
   @override
   State<CampoTexto> createState() => _CampoTextoState();
@@ -110,9 +123,12 @@ class _CampoTextoState extends State<CampoTexto> {
     final actual = estado;
 
     // Lo unico que distingue los estados es el borde. La forma se conserva.
+    // Estado relleno → borde verde suave: confirma que el dato fue recibido.
+    // Estado foco → borde verde completo: "estás escribiendo aquí".
+    // Estado error → borde rojo: "esto hay que corregirlo".
     final (Color borde, double grosor) = switch (actual) {
-      EstadoCampo.reposo => (esquema.outline.withValues(alpha: 0.5), 1.0),
-      EstadoCampo.relleno => (esquema.outline.withValues(alpha: 0.5), 1.0),
+      EstadoCampo.reposo => (esquema.outline.withValues(alpha: 0.4), 1.0),
+      EstadoCampo.relleno => (esquema.primary.withValues(alpha: 0.6), 1.5),
       EstadoCampo.foco => (esquema.primary, 2.0),
       EstadoCampo.error => (esquema.error, 2.0),
     };
@@ -148,16 +164,29 @@ class _CampoTextoState extends State<CampoTexto> {
             child: Row(
               children: [
                 if (widget.icono != null) ...[
+                  const SizedBox(width: Espacio.md),
+                  Icon(
+                    widget.icono,
+                    size: 20,
+                    color: actual == EstadoCampo.error
+                        ? esquema.error
+                        : actual == EstadoCampo.foco || actual == EstadoCampo.relleno
+                            ? esquema.primary
+                            : esquema.onSurfaceVariant,
+                  ),
                   const SizedBox(width: Espacio.sm),
-                  Icon(widget.icono, size: 20, color: esquema.onSurfaceVariant),
+                ] else ...[
+                  const SizedBox(width: Espacio.md),
                 ],
-                const SizedBox(width: Espacio.sm),
                 Expanded(
                   child: TextField(
                     controller: widget.controlador,
                     focusNode: _foco,
                     keyboardType: widget.tipoTeclado,
                     inputFormatters: widget.formateadores,
+                    obscureText: widget.ocultarTexto,
+                    textInputAction: widget.accionTeclado,
+                    onSubmitted: widget.alEnviar,
                     style: texto.bodyLarge,
                     decoration: InputDecoration(
                       hintText: widget.pista,
@@ -167,7 +196,12 @@ class _CampoTextoState extends State<CampoTexto> {
                     ),
                   ),
                 ),
-                const SizedBox(width: Espacio.sm),
+                if (widget.sufijo != null) ...[
+                  widget.sufijo!,
+                  const SizedBox(width: Espacio.sm),
+                ] else ...[
+                  const SizedBox(width: Espacio.md),
+                ],
               ],
             ),
           ),
