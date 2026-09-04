@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api_client.dart';
 import '../../../core/theme.dart';
+import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/fila_condicion.dart';
 import '../../anuncios/data/anuncio.dart';
@@ -306,34 +307,10 @@ class _AnuncioBody extends StatelessWidget {
             const SizedBox(height: Espacio.lg),
 
             // ---- Contacto protegido ----
-            Container(
-              padding: const EdgeInsets.all(Espacio.md),
-              decoration: BoxDecoration(
-                color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: esquema.outline.withValues(alpha: 0.4),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.lock_outline,
-                    size: 18,
-                    color: esquema.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: Espacio.sm),
-                  Expanded(
-                    child: Text(
-                      'El contacto del propietario está protegido. '
-                      'Se libera solo cuando aprobás una solicitud.',
-                      style: texto.bodySmall?.copyWith(
-                        color: esquema.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            Aviso(
+              icono: Icons.lock_outline,
+              mensaje: 'El contacto del propietario está protegido. Se libera solo cuando aprobás una solicitud.',
+              tipo: TipoAviso.info,
             ),
 
             // ---- Ubicación aproximada ----

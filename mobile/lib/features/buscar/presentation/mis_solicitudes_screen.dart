@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/theme.dart';
+import '../../../shared/widgets/etiqueta_estado.dart';
 import '../data/solicitud.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/mis_solicitudes_provider.dart';
@@ -62,9 +64,9 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
           : RefreshIndicator(
               onRefresh: provider.cargar,
               child: ListView.separated(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(Espacio.lg),
                 itemCount: provider.solicitudes.length,
-                separatorBuilder: (_, i) => const SizedBox(height: 16),
+                separatorBuilder: (_, i) => const SizedBox(height: Espacio.md),
                 itemBuilder: (ctx, i) {
                   final solicitud = provider.solicitudes[i];
                   return _TarjetaHistorial(
@@ -97,7 +99,7 @@ class _TarjetaHistorial extends StatelessWidget {
       onTap: alTocar,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Espacio.md),
         decoration: BoxDecoration(
           color: esquema.surface,
           borderRadius: BorderRadius.circular(12),
@@ -141,7 +143,7 @@ class _TarjetaHistorial extends StatelessWidget {
                       ),
                     ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: Espacio.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +156,7 @@ class _TarjetaHistorial extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: Espacio.xs),
                   Row(
                     children: [
                       Icon(
@@ -162,7 +164,7 @@ class _TarjetaHistorial extends StatelessWidget {
                         size: 14,
                         color: esquema.onSurfaceVariant,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: Espacio.xs),
                       Text(
                         'Enviada: ${solicitud.creadaEn.day}/${solicitud.creadaEn.month}',
                         style: texto.bodySmall?.copyWith(
@@ -171,37 +173,13 @@ class _TarjetaHistorial extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        switch (solicitud.estado) {
-                          EstadoSolicitud.aprobada =>
-                            Icons.check_circle_outline,
-                          EstadoSolicitud.rechazada => Icons.cancel_outlined,
-                          EstadoSolicitud.pendiente => Icons.access_time,
-                        },
-                        size: 16,
-                        color: switch (solicitud.estado) {
-                          EstadoSolicitud.aprobada => esquema.primary,
-                          EstadoSolicitud.rechazada => esquema.error,
-                          EstadoSolicitud.pendiente => esquema.onSurfaceVariant,
-                        },
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        solicitud.estado.etiqueta,
-                        style: texto.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: switch (solicitud.estado) {
-                            EstadoSolicitud.aprobada => esquema.primary,
-                            EstadoSolicitud.rechazada => esquema.error,
-                            EstadoSolicitud.pendiente =>
-                              esquema.onSurfaceVariant,
-                          },
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: Espacio.sm),
+                  EtiquetaEstado(
+                    estado: switch (solicitud.estado) {
+                      EstadoSolicitud.aprobada => TipoEstado.aprobada,
+                      EstadoSolicitud.rechazada => TipoEstado.rechazada,
+                      EstadoSolicitud.pendiente => TipoEstado.pendiente,
+                    },
                   ),
                 ],
               ),
@@ -224,7 +202,7 @@ class _SinHistorial extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(Espacio.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -233,14 +211,14 @@ class _SinHistorial extends StatelessWidget {
               size: 64,
               color: esquema.onSurfaceVariant.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Espacio.md),
             Text(
               'Aún no enviaste solicitudes',
               style: texto.titleMedium?.copyWith(
                 color: esquema.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Espacio.sm),
             Text(
               'Cuando busques un anuncio y solicites una visita, podrás ver su estado aquí.',
               textAlign: TextAlign.center,

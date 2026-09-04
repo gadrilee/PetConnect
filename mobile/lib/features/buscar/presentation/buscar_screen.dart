@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
+import '../../../shared/widgets/controles.dart';
 import '../../anuncios/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/buscar_provider.dart';
@@ -137,18 +138,29 @@ class _BuscarScreenState extends State<BuscarScreen> {
             style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant),
           ),
           const SizedBox(height: Espacio.sm),
-          _SelectorTipo(
-            seleccionado: _tipoSeleccionado,
-            alCambiar: (t) => setState(() => _tipoSeleccionado = t),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: TipoEspacio.values.map((t) {
+              return Opcion(
+                etiqueta: t.etiqueta,
+                seleccionada: _tipoSeleccionado == t,
+                alTocar: () => setState(() => _tipoSeleccionado = _tipoSeleccionado == t ? null : t),
+              );
+            }).toList(),
           ),
 
           const SizedBox(height: Espacio.lg),
 
           // ---- Acepta mascotas ----
-          _FilaSwitch(
-            titulo: 'Solo acepta mascotas',
-            valor: _aceptaMascotas,
-            alCambiar: (v) => setState(() => _aceptaMascotas = v),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Solo acepta mascotas', style: texto.bodyMedium),
+              Interruptor(
+                encendido: _aceptaMascotas,
+                alCambiar: (v) => setState(() => _aceptaMascotas = v),
+              ),
+            ],
           ),
 
           const SizedBox(height: Espacio.lg),
@@ -169,13 +181,12 @@ class _BuscarScreenState extends State<BuscarScreen> {
               ),
             ],
           ),
-          Slider(
-            value: _minutosMax,
+          const SizedBox(height: Espacio.md),
+          Deslizador(
+            valor: _minutosMax,
             min: 5,
             max: 60,
-            divisions: 11,
-            label: '${_minutosMax.toInt()} min',
-            onChanged: (v) => setState(() => _minutosMax = v),
+            alCambiar: (v) => setState(() => _minutosMax = v),
           ),
 
           const SizedBox(height: Espacio.xl),
@@ -204,81 +215,3 @@ class _BuscarScreenState extends State<BuscarScreen> {
   }
 }
 
-// --------------------------------------------------------- Widgets de apoyo
-
-class _SelectorTipo extends StatelessWidget {
-  const _SelectorTipo({required this.seleccionado, required this.alCambiar});
-
-  final TipoEspacio? seleccionado;
-  final ValueChanged<TipoEspacio?> alCambiar;
-
-  @override
-  Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-
-    return Row(
-      children: TipoEspacio.values.map((tipo) {
-        final activo = seleccionado == tipo;
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: Espacio.sm),
-            child: GestureDetector(
-              onTap: () => alCambiar(activo ? null : tipo),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(vertical: Espacio.md),
-                decoration: BoxDecoration(
-                  color: activo
-                      ? esquema.primaryContainer
-                      : esquema.surfaceContainerHighest.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: activo
-                        ? esquema.primary
-                        : esquema.outline.withValues(alpha: 0.4),
-                    width: activo ? 1.5 : 1,
-                  ),
-                ),
-                child: Text(
-                  tipo.etiqueta,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: activo ? FontWeight.w600 : FontWeight.w400,
-                    color: activo
-                        ? esquema.onPrimaryContainer
-                        : esquema.onSurface,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class _FilaSwitch extends StatelessWidget {
-  const _FilaSwitch({
-    required this.titulo,
-    required this.valor,
-    required this.alCambiar,
-  });
-
-  final String titulo;
-  final bool valor;
-  final ValueChanged<bool> alCambiar;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(titulo, style: Theme.of(context).textTheme.bodyMedium),
-        ),
-        Switch(value: valor, onChanged: alCambiar),
-      ],
-    );
-  }
-}
