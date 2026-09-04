@@ -26,23 +26,15 @@ class FilaCondicion extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: esquema.primaryContainer.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Icon(icono, size: 16, color: esquema.primary),
-        ),
+        Icon(icono, size: 16, color: esquema.onSurfaceVariant),
         const SizedBox(width: Espacio.sm),
         Expanded(
-          child: Padding(
-            // 8 = (32 - 16) / 2. Centra la PRIMERA linea con el icono y deja
-            // que el texto largo crezca hacia abajo, en vez de centrar todo
-            // el bloque y que el icono quede flotando en el medio.
-            padding: const EdgeInsets.only(top: Espacio.sm),
-            child: Text(texto, style: Theme.of(context).textTheme.bodyMedium),
+          child: Text(
+            texto,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  height: 1.15,
+                  color: esquema.onSurfaceVariant,
+                ),
           ),
         ),
       ],
