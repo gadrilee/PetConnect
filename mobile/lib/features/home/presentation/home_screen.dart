@@ -104,15 +104,15 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         children: [
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: 26,
+                    radius: 24,
                     backgroundColor: esquema.primaryContainer,
                     child: Icon(
                       perfil.esPropietario ? Icons.home_work_outlined : Icons.search,
@@ -136,8 +136,8 @@ class HomeScreen extends StatelessWidget {
                           Row(
                             children: [
                               Icon(Icons.lock_outline,
-                                  size: 14, color: esquema.onSurfaceVariant),
-                              const SizedBox(width: 6),
+                                  size: 16, color: esquema.onSurfaceVariant),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Tu WhatsApp está oculto en los anuncios',
@@ -155,22 +155,22 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 32),
           for (final m in modulos)
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: 16),
               child: Card(
                 child: ListTile(
                   onTap: m.alTocar,
                   enabled: m.alTocar != null,
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   leading: Icon(m.icono, color: esquema.primary),
                   title: Text(m.titulo,
                       style:
                           texto.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
                   subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.only(top: 8),
                     child: Text(m.detalle),
                   ),
                   trailing: m.alTocar != null
