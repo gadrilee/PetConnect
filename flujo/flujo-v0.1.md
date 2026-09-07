@@ -89,7 +89,7 @@ flowchart TD
 
 ---
 
-## Caminos alternos para la v0.3
+## Caminos alternos todavía sin dibujar
 
 - Marta abandona el formulario a medias → guardar borrador y retomarlo.
 - Publica desde su casa y no desde el inmueble → cómo se marca una ubicación no verificada.

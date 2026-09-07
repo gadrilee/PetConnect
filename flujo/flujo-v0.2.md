@@ -52,7 +52,12 @@ flowchart TD
 
 La última columna es la que demuestra que los dos flujos son uno solo: **ninguno de los datos del paso 3 existiría si el formulario de Marta no los hubiera exigido.**
 
-**Caminos alternos para la v0.3:** sin resultados, solicitud rechazada o sin respuesta, y cuarto marcado *Ya alquilado* mientras ella espera.
+**Caminos alternos todavía sin dibujar:** sin resultados, solicitud rechazada o sin
+respuesta, y cuarto marcado *Ya alquilado* mientras ella espera.
+
+> Estos caminos estaban anotados para la v0.3, pero esa versión terminó siendo
+> el [acceso](flujo-v0.3.md) — entrar y elegir rol —, que es anterior a todo lo
+> demás. Quedan pendientes.
 
 ---
 
