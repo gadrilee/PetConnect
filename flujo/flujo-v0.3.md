@@ -5,7 +5,8 @@
 **Actor:** cualquiera de las dos. Es el **único flujo que Marta y Andrea recorren igual**.
 **Tarea:** entrar a la app y quedar del lado que le corresponde.
 **Entra al flujo porque:** alguien le pasó la app y la abre por primera vez, o vuelve y la sesión ya venció.
-**Termina cuando:** está adentro y ve los módulos de su rol.
+**Termina cuando:** está adentro y ve los módulos de su rol — que son distintos
+para cada una. Esa diferencia es el resultado del flujo, no un detalle.
 
 > **Por qué esto es un flujo y no un trámite.** Entrar y crear cuenta parecen
 > burocracia previa al producto. No lo son: acá se elige el rol, y **el rol
@@ -32,16 +33,18 @@ flowchart TD
     R1 --> R2["<b>4.</b> Usuario y contraseña<br/>· WhatsApp si publica"]
     R2 --> F
 
-    F --> D{"Según el rol"}
-    D -->|Propietaria| V1[["Flujo v0.1<br/>Publicar"]]
-    D -->|Inquilina| V2[["Flujo v0.2<br/>Buscar"]]
+    F --> D{"¿Qué rol eligió?"}
+    D -->|Publicar| P5["<b>5.</b> Inicio con 3 módulos:<br/>Publicar · Mis anuncios ·<br/>Gestionar solicitudes"]
+    D -->|Buscar| P6["<b>6.</b> Inicio con 2 módulos:<br/>Buscar ·<br/>Estado de Solicitudes"]
+    P5 --> V1[["Flujo v0.1<br/>Publicar"]]
+    P6 --> V2[["Flujo v0.2<br/>Buscar"]]
 
     classDef paso fill:#d9ead3,stroke:#38761d,color:#000
     classDef error fill:#f4cccc,stroke:#cc0000,color:#000
     classDef borde fill:#c9daf8,stroke:#1155cc,color:#000
     classDef otro fill:#fff2cc,stroke:#bf9000,color:#000
 
-    class L1,R1,R2 paso
+    class L1,R1,R2,P5,P6 paso
     class E1 error
     class S,F,V1,V2 borde
     class A,L2,D otro
@@ -59,7 +62,12 @@ flowchart TD
 | 2 | Se equivoca | **El motivo aparece debajo del campo**, no en un cartel que se va solo | Un error que desaparece deja a la persona sin saber qué corregir |
 | 3 | Elige *Busco dónde alquilar* o *Quiero publicar* | Hasta que no elija, **el botón está apagado y dice por qué** | Es la decisión que define toda la app; dejarla implícita es lo peor que puede pasar acá |
 | 4 | Completa usuario y contraseña | Si eligió publicar, **aparece el campo de WhatsApp** con el aviso de que no se publica | El WhatsApp es el dato que el producto existe para proteger (evidencia 9) |
-| 5 | — | Entra al Inicio, con los módulos de su rol | Acá empieza el v0.1 o el v0.2 |
+| 5 | — | Si eligió publicar: Inicio con **tres** módulos (Publicar, Mis anuncios, Gestionar solicitudes) | Acá empieza el flujo v0.1 |
+| 6 | — | Si eligió buscar: Inicio con **dos** (Buscar, Estado de Solicitudes) | Acá empieza el flujo v0.2 |
+
+**Los pasos 5 y 6 son la misma pantalla.** Cambian sólo los módulos, y por eso
+están dibujados los dos: ver uno solo dejaría creer que la app es igual para
+las dos, que es exactamente lo contrario de lo que decide el paso 3.
 
 **El paso 3 es el momento clave.** No es un campo más de un formulario: es la
 bifurcación del producto. Por eso el botón nace deshabilitado con su motivo a la
