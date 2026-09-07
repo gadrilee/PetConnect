@@ -3,11 +3,11 @@
 **Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
 **Flujo:** [`flujo/flujo-v0.3.md`](../../flujo/flujo-v0.3.md) · **Reglas de dibujo:** [`_lenguaje-visual.md`](../_lenguaje-visual.md)
 
-Cinco pantallas, 360 × 800, escala de grises, exportadas desde Figma.
+Seis pantallas, 360 × 800, escala de grises, exportadas desde Figma.
 
 ## El flujo completo de un vistazo
 
-![Las cinco pantallas del flujo v0.3](flujo-completo.png)
+![Las seis pantallas del flujo v0.3](flujo-completo.png)
 
 ## Por qué casi no hay texto
 
@@ -29,9 +29,14 @@ principal. El título se conserva porque orienta — es el paso 1 de la jerarqu�
 | 02 | [`02 No entra.png`](02%20No%20entra.png) | **Se equivocó**: el motivo va pegado al campo |
 | 03 | [`03 Elegir rol.png`](03%20Elegir%20rol.png) | **Sin rol elegido**: el botón está apagado y dice por qué |
 | 04 | [`04 Crear cuenta.png`](04%20Crear%20cuenta.png) | Eligió publicar → aparece el WhatsApp y su aviso |
-| 05 | [`05 Adentro.png`](05%20Adentro.png) | Dónde cae: los módulos los decide el rol |
+| 05 | [`05 Adentro — propietaria.png`](05%20Adentro%20%E2%80%94%20propietaria.png) | Cae con **tres** módulos: publicar, mis anuncios, solicitudes |
+| 06 | [`06 Adentro — inquilina.png`](06%20Adentro%20%E2%80%94%20inquilina.png) | Cae con **dos**: buscar y estado de solicitudes |
 
-**Dos de las cinco son estados de error.** Es a propósito: un flujo dibujado
+**Las dos últimas son la misma pantalla.** Cambian sólo los módulos: es el
+resultado de haber elegido el rol, y verlas juntas es la única forma de
+entender qué se decidió en la `03`.
+
+**Dos de las seis son estados de error.** Es a propósito: un flujo dibujado
 sólo en su camino feliz no sirve para revisar nada. La `02` y la `03` son
 justamente los dos momentos en que esto se rompe.
 

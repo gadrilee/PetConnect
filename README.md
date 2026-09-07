@@ -49,7 +49,7 @@ El proceso de búsqueda y oferta de alquileres genera una enorme pérdida de tie
 | Documento | Contenido |
 |---|---|
 | [Flujo](flujo/flujo-v0.3.md) | Ingresar, crear cuenta y elegir de qué lado del alquiler está |
-| [**Wireframes**](wireframes/flujo-v0.3-acceso/flujo-completo.png) | Las 5 pantallas en una lámina — se ven sin abrir Figma |
+| [**Wireframes**](wireframes/flujo-v0.3-acceso/flujo-completo.png) | Las 6 pantallas en una lámina — se ven sin abrir Figma |
 
 Es el único flujo que las dos personas recorren igual, y el que explica por qué
 la pantalla de Inicio les muestra cosas distintas.
@@ -61,7 +61,7 @@ la pantalla de Inicio les muestra cosas distintas.
 | [Lenguaje visual](wireframes/_lenguaje-visual.md) | Reglas que siguen todos los wireframes |
 | [Wireframes del flujo v0.1](wireframes/flujo-v0.1-propietario/README.md) | Los 5 SVG del propietario |
 | [Wireframes del flujo v0.2](wireframes/flujo-v0.2-inquilina/README.md) | Las 7 pantallas de la inquilina |
-| [Wireframes del flujo v0.3](wireframes/flujo-v0.3-acceso/README.md) | Las 5 pantallas del acceso |
+| [Wireframes del flujo v0.3](wireframes/flujo-v0.3-acceso/README.md) | Las 6 pantallas del acceso |
 | [**Decisión de diseño**](docs/decision-clase-05.md) | Jerarquía, layout y espaciado: antes, cambio, prueba con usuaria y siguiente paso |
 | [**Componente y estados**](docs/decision-clase-06.md) | El botón principal como pieza reutilizable, con sus cuatro estados |
 
