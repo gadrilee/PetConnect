@@ -1,5 +1,5 @@
 import '../../../core/api_client.dart';
-import '../../buscar/data/solicitud.dart';
+import '../../inquilina/data/solicitud.dart';
 
 /// Repositorio para que el propietario gestione las solicitudes recibidas.
 class SolicitudesRecibidasRepository {

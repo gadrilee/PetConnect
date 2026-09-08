@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/api_client.dart';
-import '../../buscar/data/solicitud.dart';
+import '../../inquilina/data/solicitud.dart';
 import '../data/solicitudes_recibidas_repository.dart';
 
 class SolicitudesRecibidasProvider extends ChangeNotifier {
