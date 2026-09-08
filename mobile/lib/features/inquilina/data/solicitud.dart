@@ -1,4 +1,4 @@
-import '../../anuncios/data/anuncio.dart';
+import '../../propietario/data/anuncio.dart';
 
 /// Estado de una solicitud de visita, tal como lo devuelve el backend.
 enum EstadoSolicitud {

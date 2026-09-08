@@ -6,6 +6,7 @@ import '../../../core/theme.dart';
 import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/boton_secundario.dart';
+import '../../../shared/widgets/encabezado.dart';
 import '../../../shared/widgets/etiqueta_estado.dart';
 import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../data/solicitud.dart';
@@ -32,9 +33,10 @@ class SolicitudEstadoScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('✓ Listo'),
-        automaticallyImplyLeading: false,
+      backgroundColor: AppColors.surface,
+      appBar: const Encabezado(
+        titulo: '✓ Listo',
+        conBotonVolver: false,
       ),
       body: solicitud.estaAprobada && solicitud.contacto != null
           ? _VistaAprobada(solicitud: solicitud)
@@ -78,8 +80,6 @@ class _Acciones extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final texto = Theme.of(context).textTheme;
-    final esquema = Theme.of(context).colorScheme;
     final aprobada = solicitud.estaAprobada && solicitud.contacto != null;
 
     return Padding(
@@ -98,7 +98,7 @@ class _Acciones extends StatelessWidget {
             Text(
               'Coordiná la visita por WhatsApp antes de ir.',
               textAlign: TextAlign.center,
-              style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+              style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
             ),
             const SizedBox(height: Espacio.sm),
             BotonPrincipal(
@@ -135,8 +135,6 @@ class _VistaAprobada extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
     final contacto = solicitud.contacto!;
     final partes = contacto.split('·');
     final nombre = partes.first.trim();
@@ -155,11 +153,11 @@ class _VistaAprobada extends StatelessWidget {
           child: Container(
             width: 72,
             height: 72,
-            decoration: BoxDecoration(
-              color: esquema.primary,
+            decoration: const BoxDecoration(
+              color: AppColors.success,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.check, size: 40, color: esquema.onPrimary),
+            child: const Icon(Icons.check, size: 40, color: AppColors.surface),
           ),
         ),
 
@@ -168,13 +166,13 @@ class _VistaAprobada extends StatelessWidget {
         Text(
           'Solicitud aprobada',
           textAlign: TextAlign.center,
-          style: texto.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+          style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 24),
         ),
         const SizedBox(height: Espacio.sm),
         Text(
           'Ya podés coordinar la visita por WhatsApp.',
           textAlign: TextAlign.center,
-          style: texto.bodyMedium?.copyWith(color: esquema.onSurfaceVariant),
+          style: AppText.body(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
         ),
 
         const SizedBox(height: Espacio.xl),
@@ -189,18 +187,19 @@ class _VistaAprobada extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(Espacio.md),
           decoration: BoxDecoration(
-            color: esquema.primaryContainer.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: esquema.primary.withValues(alpha: 0.6)),
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(Medida.radio),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'CONTACTO LIBERADO',
-                style: texto.labelSmall?.copyWith(
-                  color: esquema.onSurfaceVariant,
+                style: AppText.caption(context).copyWith(
+                  color: AppColors.primary,
                   letterSpacing: 1.2,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: Espacio.sm),
@@ -210,13 +209,13 @@ class _VistaAprobada extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: esquema.primary,
-                      borderRadius: BorderRadius.circular(6),
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(Medida.radioSm),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.chat_bubble_outline,
                       size: 20,
-                      color: esquema.onPrimary,
+                      color: AppColors.surface,
                     ),
                   ),
                   const SizedBox(width: Espacio.sm),
@@ -226,15 +225,13 @@ class _VistaAprobada extends StatelessWidget {
                       children: [
                         Text(
                           nombre.isNotEmpty ? nombre : contacto,
-                          style: texto.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: AppText.button(context).copyWith(color: AppColors.text),
                         ),
                         if (numero.isNotEmpty)
                           Text(
                             numero,
-                            style: texto.bodySmall?.copyWith(
-                              color: esquema.onSurfaceVariant,
+                            style: AppText.caption(context).copyWith(
+                              color: AppColors.text.withValues(alpha: 0.7),
                             ),
                           ),
                       ],
@@ -245,8 +242,8 @@ class _VistaAprobada extends StatelessWidget {
               const SizedBox(height: Espacio.sm),
               Text(
                 'Solo vos podés ver este contacto.',
-                style: texto.bodySmall?.copyWith(
-                  color: esquema.onSurfaceVariant,
+                style: AppText.caption(context).copyWith(
+                  color: AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
             ],
@@ -275,9 +272,6 @@ class _VistaPendiente extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         Espacio.lg,
@@ -292,9 +286,9 @@ class _VistaPendiente extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: esquema.surfaceContainerHighest,
+              color: AppColors.text.withValues(alpha: 0.05),
               shape: BoxShape.circle,
-              border: Border.all(color: esquema.outline.withValues(alpha: 0.5)),
+              border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
             ),
             child: Icon(
               solicitud.estaRechazada
@@ -302,8 +296,8 @@ class _VistaPendiente extends StatelessWidget {
                   : Icons.hourglass_top_outlined,
               size: 40,
               color: solicitud.estaRechazada
-                  ? esquema.error
-                  : esquema.onSurfaceVariant,
+                  ? AppColors.error
+                  : AppColors.text.withValues(alpha: 0.5),
             ),
           ),
         ),
@@ -313,7 +307,7 @@ class _VistaPendiente extends StatelessWidget {
         Text(
           solicitud.estaRechazada ? 'Solicitud rechazada' : 'Solicitud enviada',
           textAlign: TextAlign.center,
-          style: texto.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+          style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 24),
         ),
         const SizedBox(height: Espacio.sm),
         Text(
@@ -321,7 +315,7 @@ class _VistaPendiente extends StatelessWidget {
               ? 'El propietario rechazó la solicitud. Podés buscar otros anuncios.'
               : 'El propietario tiene que aceptar tu solicitud antes de recibir su contacto.',
           textAlign: TextAlign.center,
-          style: texto.bodyMedium?.copyWith(color: esquema.onSurfaceVariant),
+          style: AppText.body(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
         ),
 
         const SizedBox(height: Espacio.md),

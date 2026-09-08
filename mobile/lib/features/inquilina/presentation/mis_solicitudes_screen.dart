@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/widgets/encabezado.dart';
 import '../../../shared/widgets/etiqueta_estado.dart';
 import '../data/solicitud.dart';
 import '../data/solicitudes_repository.dart';
@@ -53,10 +54,8 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
     final provider = context.watch<MisSolicitudesProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Estado de Solicitudes'),
-        leading: const BackButton(),
-      ),
+      backgroundColor: AppColors.surface,
+      appBar: const Encabezado(titulo: 'Estado de Solicitudes'),
       body: provider.cargando && provider.solicitudes.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : provider.solicitudes.isEmpty
@@ -88,22 +87,19 @@ class _TarjetaHistorial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
     final fotoUrl = solicitud.anuncio.fotos.isNotEmpty
         ? solicitud.anuncio.fotos.first.imagen
         : '';
 
     return InkWell(
       onTap: alTocar,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(Medida.radio),
       child: Container(
         padding: const EdgeInsets.all(Espacio.md),
         decoration: BoxDecoration(
-          color: esquema.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: esquema.outline.withValues(alpha: 0.2)),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(Medida.radio),
+          border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
@@ -116,15 +112,15 @@ class _TarjetaHistorial extends StatelessWidget {
           children: [
             // Foto en miniatura
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(Medida.radioSm),
               child: fotoUrl.isEmpty
                   ? Container(
                       width: 60,
                       height: 60,
-                      color: esquema.surfaceContainerHighest,
+                      color: AppColors.text.withValues(alpha: 0.05),
                       child: Icon(
                         Icons.home_outlined,
-                        color: esquema.onSurfaceVariant,
+                        color: AppColors.text.withValues(alpha: 0.5),
                       ),
                     )
                   : Image.network(
@@ -135,10 +131,11 @@ class _TarjetaHistorial extends StatelessWidget {
                       errorBuilder: (_, _, e) => Container(
                         width: 60,
                         height: 60,
-                        color: esquema.surfaceContainerHighest,
+                        color: AppColors.text.withValues(alpha: 0.05),
                         child: const Icon(
                           Icons.broken_image_outlined,
                           size: 24,
+                          color: AppColors.text,
                         ),
                       ),
                     ),
@@ -150,9 +147,7 @@ class _TarjetaHistorial extends StatelessWidget {
                 children: [
                   Text(
                     solicitud.anuncio.titulo,
-                    style: texto.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppText.button(context).copyWith(color: AppColors.text),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -162,13 +157,13 @@ class _TarjetaHistorial extends StatelessWidget {
                       Icon(
                         Icons.calendar_today_outlined,
                         size: 14,
-                        color: esquema.onSurfaceVariant,
+                        color: AppColors.text.withValues(alpha: 0.5),
                       ),
                       const SizedBox(width: Espacio.xs),
                       Text(
                         'Enviada: ${solicitud.creadaEn.day}/${solicitud.creadaEn.month}',
-                        style: texto.bodySmall?.copyWith(
-                          color: esquema.onSurfaceVariant,
+                        style: AppText.caption(context).copyWith(
+                          color: AppColors.text.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -184,7 +179,7 @@ class _TarjetaHistorial extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: esquema.onSurfaceVariant),
+            Icon(Icons.chevron_right, color: AppColors.text.withValues(alpha: 0.5)),
           ],
         ),
       ),
@@ -197,9 +192,6 @@ class _SinHistorial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Espacio.xl),
@@ -209,20 +201,21 @@ class _SinHistorial extends StatelessWidget {
             Icon(
               Icons.inbox_outlined,
               size: 64,
-              color: esquema.onSurfaceVariant.withValues(alpha: 0.5),
+              color: AppColors.text.withValues(alpha: 0.5),
             ),
             const SizedBox(height: Espacio.md),
             Text(
               'Aún no enviaste solicitudes',
-              style: texto.titleMedium?.copyWith(
-                color: esquema.onSurfaceVariant,
+              style: AppText.heading(context).copyWith(
+                color: AppColors.text.withValues(alpha: 0.7),
+                fontSize: 18,
               ),
             ),
             const SizedBox(height: Espacio.sm),
             Text(
               'Cuando busques un anuncio y solicites una visita, podrás ver su estado aquí.',
               textAlign: TextAlign.center,
-              style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+              style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
             ),
           ],
         ),

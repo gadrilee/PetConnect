@@ -1,5 +1,5 @@
 import '../../../core/api_client.dart';
-import '../../anuncios/data/anuncio.dart';
+import '../../propietario/data/anuncio.dart';
 import 'solicitud.dart';
 
 /// Repositorio del flujo del inquilino.

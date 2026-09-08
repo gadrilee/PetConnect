@@ -6,7 +6,8 @@ import '../../../core/theme.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
 import '../../../shared/widgets/controles.dart';
-import '../../anuncios/data/anuncio.dart';
+import '../../../shared/widgets/encabezado.dart';
+import '../../propietario/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/buscar_provider.dart';
 import 'resultados_screen.dart';
@@ -98,11 +99,9 @@ class _BuscarScreenState extends State<BuscarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Buscar'), leading: const BackButton()),
+      backgroundColor: AppColors.surface,
+      appBar: const Encabezado(titulo: 'Buscar'),
       body: ListView(
         // Margen de 24 a los lados; arriba 16, que es lo que el wireframe
         // deja entre el encabezado y el primer filtro.
@@ -135,7 +134,7 @@ class _BuscarScreenState extends State<BuscarScreen> {
           // ---- Tipo de espacio ----
           Text(
             'Tipo de espacio',
-            style: texto.labelMedium?.copyWith(color: esquema.onSurfaceVariant),
+            style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
           ),
           const SizedBox(height: Espacio.sm),
           Row(
@@ -155,7 +154,7 @@ class _BuscarScreenState extends State<BuscarScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Solo acepta mascotas', style: texto.bodyMedium),
+              Text('Solo acepta mascotas', style: AppText.body(context).copyWith(color: AppColors.text)),
               Interruptor(
                 encendido: _aceptaMascotas,
                 alCambiar: (v) => setState(() => _aceptaMascotas = v),
@@ -171,13 +170,13 @@ class _BuscarScreenState extends State<BuscarScreen> {
             children: [
               Text(
                 'Máximo caminando a la UAGRM',
-                style: texto.labelMedium?.copyWith(
-                  color: esquema.onSurfaceVariant,
+                style: AppText.caption(context).copyWith(
+                  color: AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
               Text(
                 '${_minutosMax.toInt()} min',
-                style: texto.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                style: AppText.button(context).copyWith(color: AppColors.text),
               ),
             ],
           ),

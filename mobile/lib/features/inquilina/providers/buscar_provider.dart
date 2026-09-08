@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../core/api_client.dart';
-import '../../anuncios/data/anuncio.dart';
+import '../../propietario/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 
 /// Filtros activos en la pantalla de busqueda.
