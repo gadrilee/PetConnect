@@ -1,5 +1,5 @@
 import 'package:alquilamatch/core/theme.dart';
-import 'package:alquilamatch/features/anuncios/data/anuncio.dart';
+import 'package:alquilamatch/features/propietario/data/anuncio.dart';
 import 'package:alquilamatch/shared/widgets/tarjeta_anuncio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

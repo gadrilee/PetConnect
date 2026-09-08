@@ -3,14 +3,15 @@ import 'package:provider/provider.dart';
 
 import 'core/api_client.dart';
 import 'core/theme.dart';
-import 'features/anuncios/data/anuncios_repository.dart';
-import 'features/anuncios/providers/mis_anuncios_provider.dart';
-import 'features/auth/data/auth_repository.dart';
-import 'features/auth/presentation/login_screen.dart';
-import 'features/auth/providers/auth_provider.dart';
-import 'features/buscar/data/solicitudes_repository.dart';
-import 'features/home/presentation/home_screen.dart';
-import 'features/solicitudes_recibidas/data/solicitudes_recibidas_repository.dart';
+import 'features/propietario/data/anuncios_repository.dart';
+import 'features/propietario/providers/mis_anuncios_provider.dart';
+import 'features/acceso/data/auth_repository.dart';
+import 'features/acceso/presentation/login_screen.dart';
+import 'features/acceso/providers/auth_provider.dart';
+import 'features/inquilina/data/solicitudes_repository.dart';
+import 'features/inquilina/presentation/inicio_screen.dart';
+import 'features/propietario/presentation/inicio_screen.dart';
+import 'features/propietario/data/solicitudes_recibidas_repository.dart';
 
 void main() {
   final api = ApiClient();
@@ -62,7 +63,11 @@ class _Puerta extends StatelessWidget {
           body: Center(child: CircularProgressIndicator()),
         ),
       EstadoSesion.sinSesion => const LoginScreen(),
-      EstadoSesion.autenticado => const HomeScreen(),
+      EstadoSesion.autenticado => Builder(builder: (context) {
+          final perfil = context.watch<AuthProvider>().perfil;
+          if (perfil == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return perfil.esPropietario ? const InicioPropietarioScreen() : const InicioInquilinaScreen();
+        }),
     };
   }
 }
