@@ -1,8 +1,8 @@
 import 'package:alquilamatch/core/api_client.dart';
-import 'package:alquilamatch/features/auth/data/auth_repository.dart';
-import 'package:alquilamatch/features/auth/data/perfil.dart';
-import 'package:alquilamatch/features/auth/presentation/login_screen.dart';
-import 'package:alquilamatch/features/auth/providers/auth_provider.dart';
+import 'package:alquilamatch/features/acceso/data/auth_repository.dart';
+import 'package:alquilamatch/features/acceso/data/perfil.dart';
+import 'package:alquilamatch/features/acceso/presentation/login_screen.dart';
+import 'package:alquilamatch/features/acceso/providers/auth_provider.dart';
 import 'package:alquilamatch/shared/widgets/boton_principal.dart';
 import 'package:alquilamatch/shared/widgets/campo_texto.dart';
 import 'package:flutter/material.dart';
