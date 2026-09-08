@@ -5,8 +5,9 @@ import '../../../core/api_client.dart';
 import '../../../core/theme.dart';
 import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/encabezado.dart';
 import '../../../shared/widgets/fila_condicion.dart';
-import '../../anuncios/data/anuncio.dart';
+import '../../propietario/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/solicitud_provider.dart';
 import 'solicitar_visita_screen.dart';
@@ -80,7 +81,8 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Anuncio'), leading: const BackButton()),
+      backgroundColor: AppColors.surface,
+      appBar: const Encabezado(titulo: 'Anuncio'),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -113,9 +115,6 @@ class _AnuncioBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
     return ListView(
       // El mismo margen de 24 del wireframe para toda la pantalla. Arriba van
       // 16, que es la distancia entre el encabezado y la foto.
@@ -139,11 +138,11 @@ class _AnuncioBody extends StatelessWidget {
             width: double.infinity,
             child: anuncio.fotos.isEmpty
                 ? Container(
-                    color: esquema.surfaceContainerHighest,
+                    color: AppColors.text.withValues(alpha: 0.05),
                     child: Icon(
                       Icons.home_outlined,
                       size: 64,
-                      color: esquema.onSurfaceVariant,
+                      color: AppColors.text.withValues(alpha: 0.5),
                     ),
                   )
                 : PageView.builder(
@@ -157,10 +156,11 @@ class _AnuncioBody extends StatelessWidget {
                             foto.imagen,
                             fit: BoxFit.cover,
                             errorBuilder: (_, _, e) => Container(
-                              color: esquema.surfaceContainerHighest,
+                              color: AppColors.text.withValues(alpha: 0.05),
                               child: const Icon(
                                 Icons.broken_image_outlined,
                                 size: 48,
+                                color: AppColors.text,
                               ),
                             ),
                           ),
@@ -199,7 +199,7 @@ class _AnuncioBody extends StatelessWidget {
             if (anuncio.titulo.isNotEmpty)
               Text(
                 anuncio.titulo,
-                style: texto.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 20),
               ),
 
             // Espacio de GRUPO: separa orientar de informar.
@@ -214,8 +214,8 @@ class _AnuncioBody extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(Espacio.md),
               decoration: BoxDecoration(
-                color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(12),
+                color: AppColors.text.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(Medida.radio),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,15 +224,16 @@ class _AnuncioBody extends StatelessWidget {
                   // brief, asi que se lee primero y con mas peso.
                   Text(
                     'Precio final',
-                    style: texto.labelSmall?.copyWith(
-                      color: esquema.onSurfaceVariant,
+                    style: AppText.caption(context).copyWith(
+                      color: AppColors.text.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(height: Espacio.sm),
                   Text(
                     '${anuncio.precioFinal} Bs / mes',
-                    style: texto.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: AppText.heading(context).copyWith(
+                      color: AppColors.primary,
+                      fontSize: 24,
                     ),
                   ),
 
@@ -273,7 +274,7 @@ class _AnuncioBody extends StatelessWidget {
                   const SizedBox(height: Espacio.sm),
                   Divider(
                     height: 1,
-                    color: esquema.outline.withValues(alpha: 0.3),
+                    color: AppColors.text.withValues(alpha: 0.1),
                   ),
                   const SizedBox(height: Espacio.sm),
 
@@ -319,10 +320,10 @@ class _AnuncioBody extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(Espacio.md),
               decoration: BoxDecoration(
-                color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(10),
+                color: AppColors.text.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(Medida.radio),
                 border: Border.all(
-                  color: esquema.outline.withValues(alpha: 0.4),
+                  color: AppColors.text.withValues(alpha: 0.1),
                 ),
               ),
               child: Text(
@@ -330,8 +331,8 @@ class _AnuncioBody extends StatelessWidget {
                     ? anuncio.direccionReferencia
                     : 'Ubicación aproximada — visible al aprobar la solicitud',
                 textAlign: TextAlign.center,
-                style: texto.bodySmall?.copyWith(
-                  color: esquema.onSurfaceVariant,
+                style: AppText.caption(context).copyWith(
+                  color: AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -412,8 +413,7 @@ class _Servicio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final color = incluido ? esquema.onSurface : esquema.onSurfaceVariant;
+    final color = incluido ? AppColors.text : AppColors.text.withValues(alpha: 0.5);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -421,12 +421,12 @@ class _Servicio extends StatelessWidget {
         Icon(
           incluido ? Icons.check_circle : Icons.cancel_outlined,
           size: 15,
-          color: incluido ? esquema.primary : esquema.outline,
+          color: incluido ? AppColors.success : AppColors.text.withValues(alpha: 0.3),
         ),
         const SizedBox(width: Espacio.sm),
         Text(
           incluido ? nombre : '$nombre no',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          style: AppText.caption(context).copyWith(
             color: color,
             fontWeight: incluido ? FontWeight.w600 : FontWeight.normal,
           ),

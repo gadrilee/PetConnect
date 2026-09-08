@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/widgets/encabezado.dart';
 import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../providers/buscar_provider.dart';
 import 'anuncio_screen.dart';
@@ -16,14 +17,10 @@ class ResultadosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<BuscarProvider>();
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Resultados'),
-        leading: const BackButton(),
-      ),
+      backgroundColor: AppColors.surface,
+      appBar: const Encabezado(titulo: 'Resultados'),
       body: provider.cargando
           ? const Center(child: CircularProgressIndicator())
           : provider.resultados.isEmpty
@@ -40,8 +37,8 @@ class ResultadosScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'Ordenados por cercanía a la UAGRM',
-                    style: texto.bodySmall?.copyWith(
-                      color: esquema.onSurfaceVariant,
+                    style: AppText.caption(context).copyWith(
+                      color: AppColors.text.withValues(alpha: 0.7),
                     ),
                   ),
                 ),
@@ -85,9 +82,6 @@ class _SinResultados extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Espacio.xl),
@@ -97,21 +91,21 @@ class _SinResultados extends StatelessWidget {
             Icon(
               error != null ? Icons.wifi_off_outlined : Icons.search_off,
               size: 64,
-              color: esquema.onSurfaceVariant.withValues(alpha: 0.5),
+              color: AppColors.text.withValues(alpha: 0.5),
             ),
             const SizedBox(height: Espacio.md),
             Text(
               error ?? 'No encontramos anuncios\ncon esos filtros.',
               textAlign: TextAlign.center,
-              style: texto.bodyLarge?.copyWith(color: esquema.onSurfaceVariant),
+              style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 18),
             ),
             if (error == null) ...[
               const SizedBox(height: Espacio.sm),
               Text(
                 'Probá ampliando el precio o los minutos.',
                 textAlign: TextAlign.center,
-                style: texto.bodySmall?.copyWith(
-                  color: esquema.onSurfaceVariant,
+                style: AppText.caption(context).copyWith(
+                  color: AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
             ],

@@ -5,8 +5,10 @@ import '../../../core/theme.dart';
 import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/boton_secundario.dart';
+import '../../../shared/widgets/casilla.dart';
+import '../../../shared/widgets/encabezado.dart';
 import '../../../shared/widgets/fila_condicion.dart';
-import '../../anuncios/data/anuncio.dart';
+import '../../propietario/data/anuncio.dart';
 import '../providers/solicitud_provider.dart';
 import 'solicitud_estado_screen.dart';
 
@@ -57,8 +59,6 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
     final provider = context.watch<SolicitudProvider>();
     final anuncio = widget.anuncio;
 
@@ -74,10 +74,8 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
         : '';
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Solicitar visita'),
-        leading: const BackButton(),
-      ),
+      backgroundColor: AppColors.surface,
+      appBar: const Encabezado(titulo: 'Solicitar visita'),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           Espacio.lg,
@@ -90,7 +88,7 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
           Text(
             'Aceptás estas condiciones antes de solicitar la visita. '
             'El propietario no necesita repetírtelas.',
-            style: texto.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+            style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
           ),
 
           const SizedBox(height: Espacio.lg),
@@ -98,9 +96,9 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
           // ---- Condiciones del anuncio ----
           Container(
             decoration: BoxDecoration(
-              color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: esquema.outline.withValues(alpha: 0.4)),
+              color: AppColors.text.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(Medida.radio),
+              border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,8 +112,8 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
                   ),
                   child: Text(
                     'Estás aceptando:',
-                    style: texto.labelMedium?.copyWith(
-                      color: esquema.onSurfaceVariant,
+                    style: AppText.caption(context).copyWith(
+                      color: AppColors.text.withValues(alpha: 0.7),
                     ),
                   ),
                 ),
@@ -148,34 +146,10 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
           const SizedBox(height: Espacio.lg),
 
           // ---- Checkbox de aceptación ----
-          InkWell(
-            onTap: () =>
-                setState(() => _condicionesAceptadas = !_condicionesAceptadas),
-            borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: Espacio.sm),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: _condicionesAceptadas,
-                    onChanged: (v) =>
-                        setState(() => _condicionesAceptadas = v ?? false),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(width: Espacio.sm),
-                  Expanded(
-                    child: Text(
-                      'Acepto estas condiciones',
-                      style: texto.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          Casilla(
+            etiqueta: 'Acepto estas condiciones',
+            marcado: _condicionesAceptadas,
+            alCambiar: (v) => setState(() => _condicionesAceptadas = v ?? false),
           ),
 
           const SizedBox(height: Espacio.lg),
@@ -193,24 +167,25 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
           Container(
             padding: const EdgeInsets.all(Espacio.md),
             decoration: BoxDecoration(
-              color: esquema.surfaceContainerHighest.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: esquema.outline.withValues(alpha: 0.4)),
+              color: AppColors.text.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(Medida.radio),
+              border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Precio final',
-                  style: texto.labelMedium?.copyWith(
-                    color: esquema.onSurfaceVariant,
+                  style: AppText.caption(context).copyWith(
+                    color: AppColors.text.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: Espacio.sm),
                 Text(
                   '${anuncio.precioFinal} Bs / mes',
-                  style: texto.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
+                  style: AppText.heading(context).copyWith(
+                    color: AppColors.primary,
+                    fontSize: 24,
                   ),
                 ),
               ],
