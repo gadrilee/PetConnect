@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
-import '../../features/anuncios/data/anuncio.dart';
+import '../../features/propietario/data/anuncio.dart';
 
 /// Cuanto espacio ocupa la tarjeta, segun el papel del anuncio en la pantalla.
 enum TamanoTarjeta {

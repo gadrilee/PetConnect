@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme.dart';
+
 /// Un botón de opción única (radio button con estilo de pastilla).
 ///
 /// Mide exactamente 96x40 con radio 8.
@@ -17,27 +19,24 @@ class Opcion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
     return InkWell(
       onTap: alTocar,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(Medida.radioSm),
       child: Container(
         width: 96,
         height: 40,
         decoration: BoxDecoration(
-          color: seleccionada ? esquema.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          color: seleccionada ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(Medida.radioSm),
           border: seleccionada
               ? null
-              : Border.all(color: esquema.outline.withValues(alpha: 0.5)),
+              : Border.all(color: AppColors.text.withValues(alpha: 0.2)),
         ),
         alignment: Alignment.center,
         child: Text(
           etiqueta,
-          style: texto.bodySmall?.copyWith(
-            color: seleccionada ? esquema.onPrimary : esquema.onSurfaceVariant,
+          style: AppText.caption(context).copyWith(
+            color: seleccionada ? AppColors.surface : AppColors.text.withValues(alpha: 0.7),
             fontWeight: seleccionada ? FontWeight.w600 : FontWeight.normal,
           ),
           maxLines: 1,
@@ -63,8 +62,6 @@ class Interruptor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-
     return GestureDetector(
       onTap: () => alCambiar(!encendido),
       child: AnimatedContainer(
@@ -73,7 +70,7 @@ class Interruptor extends StatelessWidget {
         height: 24,
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: encendido ? esquema.primary : esquema.surfaceContainerHighest,
+          color: encendido ? AppColors.primary : AppColors.text.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: AnimatedAlign(
@@ -83,7 +80,7 @@ class Interruptor extends StatelessWidget {
             width: 16,
             height: 16,
             decoration: BoxDecoration(
-              color: encendido ? esquema.onPrimary : esquema.outline,
+              color: encendido ? AppColors.surface : AppColors.text.withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
           ),
@@ -112,20 +109,18 @@ class Deslizador extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-
     return SizedBox(
-      width: 312,
+      width: double.infinity,
       height: 16,
       child: SliderTheme(
         data: SliderThemeData(
           trackHeight: 4,
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
           overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-          activeTrackColor: esquema.primary,
-          inactiveTrackColor: esquema.surfaceContainerHighest,
-          thumbColor: esquema.primary,
-          overlayColor: esquema.primary.withValues(alpha: 0.1),
+          activeTrackColor: AppColors.primary,
+          inactiveTrackColor: AppColors.text.withValues(alpha: 0.1),
+          thumbColor: AppColors.primary,
+          overlayColor: AppColors.primary.withValues(alpha: 0.1),
         ),
         child: Slider(value: valor, min: min, max: max, onChanged: alCambiar),
       ),

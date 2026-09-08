@@ -4,7 +4,9 @@ import '../../core/theme.dart';
 
 enum TipoAviso {
   info,
+  exito,
   error,
+  advertencia,
 }
 
 /// Un bloque de información que interrumpe el flujo normal para advertir o explicar algo.
@@ -26,15 +28,23 @@ class Aviso extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
     final (Color fondo, Color contenido) = switch (tipo) {
       TipoAviso.info => (
-          esquema.surfaceContainerHighest.withValues(alpha: 0.5),
-          esquema.onSurfaceVariant
+          AppColors.text.withValues(alpha: 0.05),
+          AppColors.text
         ),
-      TipoAviso.error => (esquema.errorContainer, esquema.onErrorContainer),
+      TipoAviso.exito => (
+          AppColors.success.withValues(alpha: 0.1),
+          AppColors.success
+        ),
+      TipoAviso.error => (
+          AppColors.error.withValues(alpha: 0.1),
+          AppColors.error
+        ),
+      TipoAviso.advertencia => (
+          AppColors.warning.withValues(alpha: 0.1),
+          AppColors.warning
+        ),
     };
 
     return Container(
@@ -42,10 +52,8 @@ class Aviso extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: Espacio.md),
       decoration: BoxDecoration(
         color: fondo,
-        borderRadius: BorderRadius.circular(12),
-        border: tipo == TipoAviso.info
-            ? Border.all(color: esquema.outline.withValues(alpha: 0.2))
-            : null,
+        borderRadius: BorderRadius.circular(Medida.radio),
+        border: Border.all(color: contenido),
       ),
       child: Row(
         children: [
@@ -54,7 +62,7 @@ class Aviso extends StatelessWidget {
           Expanded(
             child: Text(
               mensaje,
-              style: texto.bodySmall?.copyWith(
+              style: AppText.caption(context).copyWith(
                 color: contenido,
                 height: 1.25,
               ),
@@ -65,5 +73,51 @@ class Aviso extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Muestra este componente como un "Toast" flotante en la parte superior derecha.
+  static void mostrarToast(
+    BuildContext context, {
+    required String mensaje,
+    required TipoAviso tipo,
+    IconData? icono,
+  }) {
+    final overlay = Overlay.of(context);
+    late OverlayEntry entry;
+
+    final iconData = icono ??
+        switch (tipo) {
+          TipoAviso.info => Icons.info_outline,
+          TipoAviso.exito => Icons.check_circle_outline,
+          TipoAviso.error => Icons.error_outline,
+          TipoAviso.advertencia => Icons.warning_amber_outlined,
+        };
+
+    entry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: MediaQuery.of(context).padding.bottom + 16,
+        right: 16,
+        left: 16,
+        child: Material(
+          color: Colors.transparent,
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: Aviso(
+                icono: iconData,
+                mensaje: mensaje,
+                tipo: tipo,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(entry);
+    Future.delayed(const Duration(seconds: 3), () {
+      if (entry.mounted) entry.remove();
+    });
   }
 }
