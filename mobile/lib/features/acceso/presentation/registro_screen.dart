@@ -6,11 +6,17 @@ import '../../../core/theme.dart';
 import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
+import '../../../shared/widgets/encabezado.dart';
 import '../data/perfil.dart';
 import '../providers/auth_provider.dart';
 
 class RegistroScreen extends StatefulWidget {
-  const RegistroScreen({super.key});
+  final Rol rol;
+
+  const RegistroScreen({
+    super.key,
+    required this.rol,
+  });
 
   @override
   State<RegistroScreen> createState() => _RegistroScreenState();
@@ -20,7 +26,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final _usuario = TextEditingController();
   final _clave = TextEditingController();
   final _whatsapp = TextEditingController();
-  Rol? _rol;
+  bool _verClave = false;
 
   @override
   void dispose() {
@@ -31,72 +37,50 @@ class _RegistroScreenState extends State<RegistroScreen> {
   }
 
   Future<void> _crearCuenta() async {
-    if (_rol == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Elegí si vas a buscar o a publicar.')),
-      );
-      return;
-    }
     FocusScope.of(context).unfocus();
 
     final ok = await context.read<AuthProvider>().registro(
           username: _usuario.text.trim(),
           password: _clave.text,
-          rol: _rol!,
+          rol: widget.rol,
           whatsapp: _whatsapp.text.trim(),
         );
 
-    if (ok && mounted) Navigator.of(context).pop();
+    if (ok && mounted) {
+      Aviso.mostrarToast(
+        context,
+        mensaje: 'Cuenta creada con éxito',
+        tipo: TipoAviso.exito,
+      );
+      // Cerramos ElegirRolScreen y RegistroScreen para volver al login o ir al inicio
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final texto = Theme.of(context).textTheme;
-    final esquema = Theme.of(context).colorScheme;
-
-    // Errores del backend por campo
     final errores = auth.erroresPorCampo;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear cuenta')),
+      backgroundColor: AppColors.surface,
+      appBar: const Encabezado(titulo: 'Crear cuenta'),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-              Espacio.lg, Espacio.sm, Espacio.lg, Espacio.lg),
+          padding: const EdgeInsets.all(Espacio.lg),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 416),
+              constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Qué vas a hacer en la app',
-                    style: texto.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    'Tus datos',
+                    style: AppText.heading(context).copyWith(
+                      color: AppColors.text,
+                    ),
                   ),
-                  const SizedBox(height: Espacio.md),
-
-                  // ---- Selector de rol ----
-                  _TarjetaRol(
-                    titulo: 'Busco dónde alquilar',
-                    detalle:
-                        'Filtrás por precio final, mascotas y minutos caminando a la UAGRM.',
-                    icono: Icons.search,
-                    elegido: _rol == Rol.inquilino,
-                    onTap: () => setState(() => _rol = Rol.inquilino),
-                  ),
-                  const SizedBox(height: Espacio.sm),
-                  _TarjetaRol(
-                    titulo: 'Quiero publicar',
-                    detalle:
-                        'Publicás una vez con las condiciones por delante y dejás de repetirte por WhatsApp.',
-                    icono: Icons.home_work_outlined,
-                    elegido: _rol == Rol.propietario,
-                    onTap: () => setState(() => _rol = Rol.propietario),
-                  ),
-
-                  const SizedBox(height: Espacio.xl),
+                  const SizedBox(height: Espacio.xxl),
 
                   // ---- Usuario ----
                   CampoTexto(
@@ -114,7 +98,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                     etiqueta: 'Contraseña',
                     controlador: _clave,
                     icono: Icons.lock_outline,
-                    ocultarTexto: true,
+                    ocultarTexto: !_verClave,
                     pista: 'Al menos 8 caracteres',
                     mensajeError: errores['password'] ??
                         (_clave.text.isNotEmpty && _clave.text.length < 8
@@ -122,10 +106,21 @@ class _RegistroScreenState extends State<RegistroScreen> {
                             : null),
                     accionTeclado: TextInputAction.next,
                     alEnviar: (_) => FocusScope.of(context).nextFocus(),
+                    sufijo: IconButton(
+                      icon: Icon(
+                        _verClave
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        size: 20,
+                        color: AppColors.text.withValues(alpha: 0.5),
+                      ),
+                      onPressed: () =>
+                          setState(() => _verClave = !_verClave),
+                    ),
                   ),
 
                   // ---- WhatsApp (solo propietario) ----
-                  if (_rol == Rol.propietario) ...[
+                  if (widget.rol == Rol.propietario) ...[
                     const SizedBox(height: Espacio.md),
                     CampoTexto(
                       etiqueta: 'WhatsApp',
@@ -135,9 +130,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
                       formateadores: [FilteringTextInputFormatter.digitsOnly],
                       pista: '70011122',
                       mensajeError: errores['whatsapp'],
+                      accionTeclado: TextInputAction.done,
+                      alEnviar: (_) => _crearCuenta(),
                     ),
                     const SizedBox(height: Espacio.sm),
-                    Aviso(
+                    const Aviso(
                       icono: Icons.lock_outline,
                       mensaje:
                           'No aparece en tus anuncios. Se libera solo cuando aprobás una visita.',
@@ -169,91 +166,14 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   Text(
                     'Vas a poder cambiar de rol creando otra cuenta.',
                     textAlign: TextAlign.center,
-                    style: texto.bodySmall
-                        ?.copyWith(color: esquema.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TarjetaRol extends StatelessWidget {
-  const _TarjetaRol({
-    required this.titulo,
-    required this.detalle,
-    required this.icono,
-    required this.elegido,
-    required this.onTap,
-  });
-
-  final String titulo;
-  final String detalle;
-  final IconData icono;
-  final bool elegido;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.all(Espacio.md),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: elegido
-              ? esquema.primaryContainer
-              : esquema.surfaceContainerHighest.withValues(alpha: 0.35),
-          border: Border.all(
-            color: elegido ? esquema.primary : Colors.transparent,
-            width: 2,
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              icono,
-              color: elegido
-                  ? esquema.onPrimaryContainer
-                  : esquema.onSurfaceVariant,
-            ),
-            const SizedBox(width: Espacio.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    titulo,
-                    style: texto.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: elegido ? esquema.onPrimaryContainer : null,
-                    ),
-                  ),
-                  const SizedBox(height: Espacio.xs),
-                  Text(
-                    detalle,
-                    style: texto.bodySmall?.copyWith(
-                      color: elegido
-                          ? esquema.onPrimaryContainer
-                          : esquema.onSurfaceVariant,
+                    style: AppText.caption(context).copyWith(
+                      color: AppColors.text.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
               ),
             ),
-            if (elegido)
-              Icon(Icons.check_circle, color: esquema.primary, size: 24),
-          ],
+          ),
         ),
       ),
     );

@@ -180,7 +180,13 @@ class ApiClient {
   /// todas para no mostrarle un JSON crudo a la persona.
   String _mensajeDeError(dynamic cuerpo, int codigo) {
     if (cuerpo is Map) {
-      if (cuerpo['detail'] is String) return cuerpo['detail'] as String;
+      if (cuerpo['detail'] is String) {
+        final detalle = cuerpo['detail'] as String;
+        if (codigo == 401 || detalle.toLowerCase().contains('invalid')) {
+          return 'Usuario o contraseña incorrectos.';
+        }
+        return detalle;
+      }
       for (final valor in cuerpo.values) {
         if (valor is List && valor.isNotEmpty) return valor.first.toString();
         if (valor is String) return valor;

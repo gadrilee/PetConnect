@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 import '../../../core/theme.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
+import '../../../shared/widgets/logo_alquilamatch.dart';
 import '../providers/auth_provider.dart';
-import 'registro_screen.dart';
+import 'elegir_rol_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,7 +19,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usuario = TextEditingController();
   final _clave = TextEditingController();
   bool _verClave = false;
-  // Mensajes de error por campo: null = válido.
+  
+  // Mensajes de error locales por campo: null = válido.
   String? _errorUsuario;
   String? _errorClave;
 
@@ -53,13 +55,12 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final texto = Theme.of(context).textTheme;
-    final esquema = Theme.of(context).colorScheme;
-
-    // Si el backend devuelve error, lo mostramos en el campo de contraseña.
+    
+    // Si el backend devuelve error general, lo pasamos al campo de contraseña
     final errorBackend = auth.error;
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -70,20 +71,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'AlquilaMatch',
-                    style: texto.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  const LogoAlquilaMatch(),
                   const SizedBox(height: Espacio.sm),
                   Text(
                     'Alquiler con las condiciones por delante.',
-                    style: texto.bodyMedium
-                        ?.copyWith(color: esquema.onSurfaceVariant),
+                    textAlign: TextAlign.center,
+                    style: AppText.body(context).copyWith(
+                      color: AppColors.text.withValues(alpha: 0.7),
+                    ),
                   ),
 
-                  const SizedBox(height: Espacio.xl),
+                  const SizedBox(height: Espacio.xxl),
 
                   // ---- Usuario ----
                   CampoTexto(
@@ -112,14 +110,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
                         size: 20,
-                        color: esquema.onSurfaceVariant,
+                        color: AppColors.text.withValues(alpha: 0.5),
                       ),
                       onPressed: () =>
                           setState(() => _verClave = !_verClave),
                     ),
                   ),
 
-                  const SizedBox(height: Espacio.lg),
+                  const SizedBox(height: Espacio.xl),
 
                   // ---- Botón entrar ----
                   BotonPrincipal(
@@ -129,18 +127,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     cargando: auth.ocupado,
                   ),
 
-                  const SizedBox(height: Espacio.sm),
+                  const SizedBox(height: Espacio.md),
 
+                  // ---- Botón registro ----
                   TextButton(
                     onPressed: auth.ocupado
                         ? null
                         : () {
                             context.read<AuthProvider>().limpiarError();
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => const RegistroScreen(),
+                              builder: (_) => const ElegirRolScreen(),
                             ));
                           },
-                    child: const Text('No tengo cuenta'),
+                    child: Text(
+                      'No tengo cuenta',
+                      style: AppText.button(context).copyWith(color: AppColors.primary),
+                    ),
                   ),
                 ],
               ),
