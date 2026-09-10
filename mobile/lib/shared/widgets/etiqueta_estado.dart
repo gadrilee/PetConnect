@@ -1,59 +1,47 @@
 import 'package:flutter/material.dart';
 
-enum TipoEstado {
-  pendiente,
-  aprobada,
-  rechazada,
-}
+import '../../features/inquilina/data/solicitud.dart';
+import '../../features/propietario/data/anuncio.dart';
+import 'pastilla.dart';
 
-/// Etiqueta que indica el estado de una solicitud.
+/// Los estados que se muestran con etiqueta.
+enum TipoEstado { pendiente, aprobada, rechazada, disponible, alquilado }
+
+/// El estado de una solicitud o de un anuncio, dicho con color y palabra.
 ///
-/// REGLA DE LA PIEZA:
-/// Mide exactamente 88x24 con radio de 12. Centrada en un ancho de 360px
-/// cae perfecto en la grilla base 8.
+/// REGLA DE LA PIEZA
+/// -----------------
+/// El mismo estado se ve igual en todas las pantallas: la aprobada siempre
+/// verde, la rechazada siempre roja. Antes habia tres versiones distintas, una
+/// por pantalla. Es una [Pastilla], asi que el ancho lo pone la palabra.
 class EtiquetaEstado extends StatelessWidget {
   const EtiquetaEstado({super.key, required this.estado});
+
+  /// Atajo para una solicitud de visita.
+  EtiquetaEstado.solicitud(EstadoSolicitud estado, {super.key})
+      : estado = switch (estado) {
+          EstadoSolicitud.pendiente => TipoEstado.pendiente,
+          EstadoSolicitud.aprobada => TipoEstado.aprobada,
+          EstadoSolicitud.rechazada => TipoEstado.rechazada,
+        };
+
+  /// Atajo para un anuncio.
+  const EtiquetaEstado.anuncio(EstadoAnuncio estado, {super.key})
+      : estado = estado == EstadoAnuncio.disponible
+            ? TipoEstado.disponible
+            : TipoEstado.alquilado;
 
   final TipoEstado estado;
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    final texto = Theme.of(context).textTheme;
-
-    final (Color fondo, Color colorTexto, String etiqueta) = switch (estado) {
-      TipoEstado.pendiente => (
-          esquema.surfaceContainerHighest,
-          esquema.onSurfaceVariant,
-          'Pendiente'
-        ),
-      TipoEstado.aprobada => (
-          esquema.primaryContainer,
-          esquema.onPrimaryContainer,
-          'Aprobada'
-        ),
-      TipoEstado.rechazada => (
-          esquema.errorContainer,
-          esquema.onErrorContainer,
-          'Rechazada'
-        ),
+    final (texto, tono) = switch (estado) {
+      TipoEstado.pendiente => ('Pendiente', TonoPastilla.neutro),
+      TipoEstado.aprobada => ('Aprobada', TonoPastilla.exito),
+      TipoEstado.rechazada => ('Rechazada', TonoPastilla.error),
+      TipoEstado.disponible => ('Disponible', TonoPastilla.primario),
+      TipoEstado.alquilado => ('Ya alquilado', TonoPastilla.neutro),
     };
-
-    return Container(
-      width: 88,
-      height: 24,
-      decoration: BoxDecoration(
-        color: fondo,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        etiqueta,
-        style: texto.labelSmall?.copyWith(
-          color: colorTexto,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
+    return Pastilla(texto, tono: tono);
   }
 }

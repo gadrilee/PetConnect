@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
 import '../../../shared/layout/grilla.dart';
+import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/aviso.dart';
+import '../../../shared/widgets/bloque.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/boton_secundario.dart';
-import '../../../shared/widgets/encabezado.dart';
+import '../../../shared/widgets/estado_vacio.dart';
+import '../../../shared/widgets/fila_condicion.dart';
 import '../../inquilina/data/solicitud.dart';
 import '../data/anuncio.dart';
 import '../providers/solicitudes_recibidas_provider.dart';
@@ -30,8 +33,10 @@ class SolicitudDetalleScreen extends StatelessWidget {
     final ok = await accion(id);
     if (!ok && context.mounted) {
       final error = context.read<SolicitudesRecibidasProvider>().error;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error ?? siFalla)),
+      Aviso.mostrarToast(
+        context,
+        mensaje: error ?? siFalla,
+        tipo: TipoAviso.error,
       );
     }
   }
@@ -42,59 +47,49 @@ class SolicitudDetalleScreen extends StatelessWidget {
     final solicitud = provider.porId(id);
 
     if (solicitud == null) {
-      return Scaffold(
-        backgroundColor: AppColors.surface,
-        appBar: const Encabezado(titulo: 'Solicitud'),
-        body: Center(
-          child: Text(
-            'Esta solicitud ya no está disponible.',
-            style: AppText.body(context).copyWith(color: AppColors.text),
-          ),
+      return const Pagina(
+        titulo: 'Solicitud',
+        cuerpo: EstadoVacio(
+          icono: Icons.search_off,
+          titulo: 'Esta solicitud ya no está disponible.',
         ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: Encabezado(titulo: 'Solicitud #${solicitud.id}'),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(Espacio.lg),
-        // CONSTRAINTS: en un monitor el contenido se detiene en 1200 y queda
-        // centrado; en el telefono ocupa todo el ancho menos los margenes.
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: Grilla.anchoMaximo),
-            // GRID: lo que se decide ocupa 8 columnas y la decision 4 en
-            // escritorio; 6 y 6 en tablet; en movil las dos van a 12, una
-            // debajo de la otra, en el mismo orden que el wireframe.
-            child: Grilla12(
-              celdas: [
-                CeldaGrilla(
-                  columnas: const Columnas(tablet: 6, escritorio: 8),
-                  child: _Contexto(solicitud: solicitud),
-                ),
-                CeldaGrilla(
-                  columnas: const Columnas(tablet: 6, escritorio: 4),
-                  child: _Decision(
-                    solicitud: solicitud,
-                    procesando: provider.procesando(solicitud.id),
-                    alAprobar: () => _responder(
-                      context,
-                      provider.aprobar,
-                      'No se pudo aprobar la solicitud.',
-                    ),
-                    alRechazar: () => _responder(
-                      context,
-                      provider.rechazar,
-                      'No se pudo rechazar la solicitud.',
-                    ),
-                  ),
-                ),
-              ],
+    // CONSTRAINTS: la Pagina detiene el contenido en 1200 y lo centra; en el
+    // telefono ocupa todo el ancho menos los margenes.
+    return Pagina(
+      titulo: 'Solicitud #${solicitud.id}',
+      hijos: [
+        // GRID: lo que se decide ocupa 8 columnas y la decision 4 en
+        // escritorio; 6 y 6 en tablet; en movil las dos van a 12, una debajo
+        // de la otra, en el mismo orden que el wireframe.
+        Grilla12(
+          celdas: [
+            CeldaGrilla(
+              columnas: const Columnas(tablet: 6, escritorio: 8),
+              child: _Contexto(solicitud: solicitud),
             ),
-          ),
+            CeldaGrilla(
+              columnas: const Columnas(tablet: 6, escritorio: 4),
+              child: _Decision(
+                solicitud: solicitud,
+                procesando: provider.procesando(solicitud.id),
+                alAprobar: () => _responder(
+                  context,
+                  provider.aprobar,
+                  'No se pudo aprobar la solicitud.',
+                ),
+                alRechazar: () => _responder(
+                  context,
+                  provider.rechazar,
+                  'No se pudo rechazar la solicitud.',
+                ),
+              ),
+            ),
+          ],
         ),
-      ),
+      ],
     );
   }
 }
@@ -109,18 +104,27 @@ class _Contexto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final anuncio = solicitud.anuncio;
-    final tenue = AppColors.text.withValues(alpha: 0.6);
+    final tenue = AppText.caption(context)
+        .copyWith(color: AppColors.text.withValues(alpha: 0.6));
     final precio = _precio(anuncio.precioFinal);
 
-    // AUTO LAYOUT: una columna con separacion 16. Ninguna tarjeta tiene alto
-    // fijo: si el titulo del anuncio ocupa dos lineas, la tarjeta crece y lo
-    // de abajo baja solo.
+    Widget condicion(String texto) => FilaCondicion(
+          icono: Icons.check_circle_outline,
+          tamanoIcono: 20,
+          colorIcono: AppColors.primary,
+          texto: texto,
+          estilo: AppText.body(context).copyWith(color: AppColors.text),
+        );
+
+    // AUTO LAYOUT: una columna con separacion 16. Ningun bloque tiene alto
+    // fijo: si el titulo del anuncio ocupa dos lineas, el bloque crece y lo de
+    // abajo baja solo.
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Bloque(
-          children: [
+        Bloque(
+          hijos: [
             Text(
               anuncio.titulo,
               style: AppText.button(context)
@@ -129,79 +133,23 @@ class _Contexto extends StatelessWidget {
             const SizedBox(height: Espacio.sm),
             Text(
               'Tipo: ${anuncio.tipoEspacio.etiqueta} · $precio Bs/mes',
-              style: AppText.caption(context).copyWith(color: tenue),
+              style: tenue,
             ),
           ],
         ),
         const SizedBox(height: Espacio.md),
-        _Bloque(
-          children: [
-            Text(
-              'Condiciones que acepta',
-              style: AppText.caption(context).copyWith(color: tenue),
-            ),
+        Bloque(
+          hijos: [
+            Text('Condiciones que acepta', style: tenue),
             const SizedBox(height: Espacio.md),
-            _Condicion('Precio: $precio Bs/mes'),
+            condicion('Precio: $precio Bs/mes'),
             const SizedBox(height: Espacio.sm),
-            _Condicion(_servicios(anuncio)),
+            condicion(_servicios(anuncio)),
             const SizedBox(height: Espacio.sm),
-            _Condicion(
+            condicion(
               anuncio.aceptaMascotas ? 'Acepta mascotas' : 'Sin mascotas',
             ),
           ],
-        ),
-      ],
-    );
-  }
-}
-
-/// Una tarjeta con borde suave, del alto de su contenido.
-class _Bloque extends StatelessWidget {
-  const _Bloque({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(Espacio.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(Medida.radio),
-        border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
-      ),
-    );
-  }
-}
-
-/// Una condicion que la persona acepto al pedir la visita.
-class _Condicion extends StatelessWidget {
-  const _Condicion(this.texto);
-
-  final String texto;
-
-  @override
-  Widget build(BuildContext context) {
-    // FLEXBOX: icono fijo y texto flexible, alineados al centro del eje
-    // cruzado (align-items: center).
-    return Row(
-      children: [
-        const Icon(
-          Icons.check_circle_outline,
-          size: 20,
-          color: AppColors.primary,
-        ),
-        const SizedBox(width: Espacio.sm),
-        Expanded(
-          child: Text(
-            texto,
-            style: AppText.body(context).copyWith(color: AppColors.text),
-          ),
         ),
       ],
     );
@@ -254,20 +202,21 @@ class _Decision extends StatelessWidget {
                 alTocar: procesando ? null : alRechazar,
               ),
             ],
+          // El resultado de una decision ya tomada: que paso y que significa.
           EstadoSolicitud.aprobada => [
-              _Resultado(
+              Aviso(
                 tipo: TipoAviso.exito,
                 titulo: 'Contacto liberado a $quien',
-                detalle: 'Ahora puede escribirte por WhatsApp.',
+                mensaje: 'Ahora puede escribirte por WhatsApp.',
               ),
               const SizedBox(height: Espacio.sm),
               BotonSecundario(etiqueta: 'Volver a la bandeja', alTocar: volver),
             ],
           EstadoSolicitud.rechazada => [
-              const _Resultado(
+              const Aviso(
                 tipo: TipoAviso.error,
                 titulo: 'Solicitud rechazada y cerrada',
-                detalle: 'No se abrirá conversación por WhatsApp. '
+                mensaje: 'No se abrirá conversación por WhatsApp. '
                     'El inquilino fue notificado.',
               ),
               const SizedBox(height: Espacio.sm),
@@ -275,67 +224,6 @@ class _Decision extends StatelessWidget {
             ],
         },
       ],
-    );
-  }
-}
-
-/// El resultado de una decision ya tomada: que paso y que significa.
-///
-/// No es el Aviso de una linea: trae titulo y detalle. AUTO LAYOUT: no tiene
-/// alto fijo y crece con el texto.
-class _Resultado extends StatelessWidget {
-  const _Resultado({
-    required this.tipo,
-    required this.titulo,
-    required this.detalle,
-  });
-
-  final TipoAviso tipo;
-  final String titulo;
-  final String detalle;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = tipo == TipoAviso.exito ? AppColors.success : AppColors.error;
-
-    return Container(
-      padding: const EdgeInsets.all(Espacio.md),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(Medida.radio),
-        border: Border.all(color: color),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            tipo == TipoAviso.exito
-                ? Icons.check_circle_outline
-                : Icons.error_outline,
-            size: 24,
-            color: color,
-          ),
-          const SizedBox(width: Espacio.md),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: AppText.button(context)
-                      .copyWith(color: color, letterSpacing: 0),
-                ),
-                const SizedBox(height: Espacio.xs),
-                Text(
-                  detalle,
-                  style: AppText.caption(context).copyWith(color: color),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

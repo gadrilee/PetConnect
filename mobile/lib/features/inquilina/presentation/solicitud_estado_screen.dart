@@ -3,11 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/aviso.dart';
+import '../../../shared/widgets/bloque.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/boton_secundario.dart';
-import '../../../shared/widgets/encabezado.dart';
 import '../../../shared/widgets/etiqueta_estado.dart';
+import '../../../shared/widgets/icono_circulo.dart';
 import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../data/solicitud.dart';
 import '../providers/solicitud_provider.dart';
@@ -29,21 +31,27 @@ class SolicitudEstadoScreen extends StatelessWidget {
     final solicitud = provider.solicitud;
 
     if (solicitud == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Pagina(cuerpo: CircularProgressIndicator());
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: const Encabezado(
-        titulo: '✓ Listo',
-        conBotonVolver: false,
-      ),
-      body: solicitud.estaAprobada && solicitud.contacto != null
-          ? _VistaAprobada(solicitud: solicitud)
-          : _VistaPendiente(solicitud: solicitud, provider: provider),
+    final aprobada = solicitud.estaAprobada && solicitud.contacto != null;
+
+    // CONSTRAINTS: es una confirmacion, asi que va en una sola columna del
+    // ancho de un formulario, centrada.
+    return Pagina(
+      titulo: '✓ Listo',
+      conBotonVolver: false,
+      ancho: AnchoPagina.formulario,
       // La accion principal va fija abajo, como en el wireframe y como en el
       // resto del flujo. Dentro del scroll podia quedar fuera de pantalla.
-      bottomNavigationBar: _Acciones(solicitud: solicitud, provider: provider),
+      pie: _Acciones(solicitud: solicitud, provider: provider),
+      hijos: [
+        const SizedBox(height: Espacio.sm),
+        if (aprobada)
+          _VistaAprobada(solicitud: solicitud)
+        else
+          _VistaPendiente(solicitud: solicitud),
+      ],
     );
   }
 }
@@ -58,11 +66,10 @@ Future<void> _abrirWhatsApp(BuildContext context, String contacto) async {
 
   if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo abrir WhatsApp.'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      Aviso.mostrarToast(
+        context,
+        mensaje: 'No se pudo abrir WhatsApp.',
+        tipo: TipoAviso.error,
       );
     }
   }
@@ -82,46 +89,39 @@ class _Acciones extends StatelessWidget {
   Widget build(BuildContext context) {
     final aprobada = solicitud.estaAprobada && solicitud.contacto != null;
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        Espacio.lg,
-        Espacio.sm,
-        Espacio.lg,
-        MediaQuery.of(context).padding.bottom + Espacio.md,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (aprobada) ...[
-            // La nota va ARRIBA del boton, como en el wireframe: se lee antes
-            // de tocar, no despues.
-            Text(
-              'Coordiná la visita por WhatsApp antes de ir.',
-              textAlign: TextAlign.center,
-              style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (aprobada) ...[
+          // La nota va ARRIBA del boton, como en el wireframe: se lee antes
+          // de tocar, no despues.
+          Text(
+            'Coordiná la visita por WhatsApp antes de ir.',
+            textAlign: TextAlign.center,
+            style: AppText.caption(context)
+                .copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+          ),
+          const SizedBox(height: Espacio.sm),
+          BotonPrincipal(
+            etiqueta: 'ABRIR WHATSAPP',
+            alTocar: () => _abrirWhatsApp(context, solicitud.contacto!),
+          ),
+        ] else ...[
+          if (solicitud.estaPendiente) ...[
+            BotonSecundario(
+              icono: Icons.refresh,
+              etiqueta: 'ACTUALIZAR ESTADO',
+              alTocar: provider.cargando ? null : () => provider.refrescar(),
             ),
             const SizedBox(height: Espacio.sm),
-            BotonPrincipal(
-              etiqueta: 'ABRIR WHATSAPP',
-              alTocar: () => _abrirWhatsApp(context, solicitud.contacto!),
-            ),
-          ] else ...[
-            if (solicitud.estaPendiente) ...[
-              BotonSecundario(
-                icono: Icons.refresh,
-                etiqueta: 'ACTUALIZAR ESTADO',
-                alTocar: provider.cargando ? null : () => provider.refrescar(),
-              ),
-              const SizedBox(height: Espacio.sm),
-            ],
-            BotonPrincipal(
-              etiqueta: 'VOLVER A LOS RESULTADOS',
-              alTocar: () => Navigator.of(context).popUntil((r) => r.isFirst),
-              cargando: provider.cargando,
-            ),
           ],
+          BotonPrincipal(
+            etiqueta: 'VOLVER A LOS RESULTADOS',
+            alTocar: () => Navigator.of(context).popUntil((r) => r.isFirst),
+            cargando: provider.cargando,
+          ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -139,117 +139,89 @@ class _VistaAprobada extends StatelessWidget {
     final partes = contacto.split('·');
     final nombre = partes.first.trim();
     final numero = partes.length > 1 ? partes.last.trim() : '';
+    final tenue = AppColors.text.withValues(alpha: 0.7);
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        Espacio.lg,
-        Espacio.xl,
-        Espacio.lg,
-        Espacio.lg,
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // ---- Ícono aprobado ----
-        Center(
-          child: Container(
-            width: 72,
-            height: 72,
-            decoration: const BoxDecoration(
-              color: AppColors.success,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.check, size: 40, color: AppColors.surface),
+        const Center(
+          child: IconoCirculo(
+            Icons.check,
+            diametro: 72,
+            tono: TonoIcono.exito,
+            relleno: true,
           ),
         ),
-
         const SizedBox(height: Espacio.lg),
-
         Text(
           'Solicitud aprobada',
           textAlign: TextAlign.center,
-          style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 24),
+          style: AppText.cifra(context).copyWith(color: AppColors.text),
         ),
         const SizedBox(height: Espacio.sm),
         Text(
           'Ya podés coordinar la visita por WhatsApp.',
           textAlign: TextAlign.center,
-          style: AppText.body(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+          style: AppText.body(context).copyWith(color: tenue),
         ),
-
         const SizedBox(height: Espacio.xl),
 
         // En que quedo la solicitud. Estaba solo en la vista pendiente, asi
         // que al aprobarse desaparecia el unico rotulo que decia el estado.
-        _EtiquetaEstado(solicitud: solicitud),
-
+        Center(child: EtiquetaEstado.solicitud(solicitud.estado)),
         const SizedBox(height: Espacio.lg),
 
         // ---- Contacto liberado ----
-        Container(
-          padding: const EdgeInsets.all(Espacio.md),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(Medida.radio),
-            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'CONTACTO LIBERADO',
-                style: AppText.caption(context).copyWith(
-                  color: AppColors.primary,
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.bold,
-                ),
+        Bloque(
+          tono: TonoBloque.destacado,
+          hijos: [
+            Text(
+              'CONTACTO LIBERADO',
+              style: AppText.caption(context).copyWith(
+                color: AppColors.primary,
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: Espacio.sm),
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(Medida.radioSm),
-                    ),
-                    child: const Icon(
-                      Icons.chat_bubble_outline,
-                      size: 20,
-                      color: AppColors.surface,
-                    ),
-                  ),
-                  const SizedBox(width: Espacio.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+            ),
+            const SizedBox(height: Espacio.sm),
+            // FLEXBOX: el icono mide lo suyo y los datos toman el resto.
+            Row(
+              children: [
+                const IconoCirculo(
+                  Icons.chat_bubble_outline,
+                  diametro: 32,
+                  relleno: true,
+                ),
+                const SizedBox(width: Espacio.sm),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        nombre.isNotEmpty ? nombre : contacto,
+                        style: AppText.button(context)
+                            .copyWith(color: AppColors.text),
+                      ),
+                      if (numero.isNotEmpty)
                         Text(
-                          nombre.isNotEmpty ? nombre : contacto,
-                          style: AppText.button(context).copyWith(color: AppColors.text),
+                          numero,
+                          style:
+                              AppText.caption(context).copyWith(color: tenue),
                         ),
-                        if (numero.isNotEmpty)
-                          Text(
-                            numero,
-                            style: AppText.caption(context).copyWith(
-                              color: AppColors.text.withValues(alpha: 0.7),
-                            ),
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: Espacio.sm),
-              Text(
-                'Solo vos podés ver este contacto.',
-                style: AppText.caption(context).copyWith(
-                  color: AppColors.text.withValues(alpha: 0.7),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+            const SizedBox(height: Espacio.sm),
+            Text(
+              'Solo vos podés ver este contacto.',
+              style: AppText.caption(context).copyWith(color: tenue),
+            ),
+          ],
         ),
-
         const SizedBox(height: Espacio.md),
 
         // ---- Resumen del anuncio ----
@@ -265,63 +237,42 @@ class _VistaAprobada extends StatelessWidget {
 // ------------------------------------------------------------ Vista 06 — Pendiente
 
 class _VistaPendiente extends StatelessWidget {
-  const _VistaPendiente({required this.solicitud, required this.provider});
+  const _VistaPendiente({required this.solicitud});
 
   final SolicitudVisita solicitud;
-  final SolicitudProvider provider;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        Espacio.lg,
-        Espacio.xl,
-        Espacio.lg,
-        Espacio.lg,
-      ),
+    final rechazada = solicitud.estaRechazada;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // ---- Ícono de espera ----
         Center(
-          child: Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: AppColors.text.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
-            ),
-            child: Icon(
-              solicitud.estaRechazada
-                  ? Icons.cancel_outlined
-                  : Icons.hourglass_top_outlined,
-              size: 40,
-              color: solicitud.estaRechazada
-                  ? AppColors.error
-                  : AppColors.text.withValues(alpha: 0.5),
-            ),
+          child: IconoCirculo(
+            rechazada ? Icons.cancel_outlined : Icons.hourglass_top_outlined,
+            diametro: 72,
+            tono: rechazada ? TonoIcono.error : TonoIcono.neutro,
           ),
         ),
-
         const SizedBox(height: Espacio.lg),
-
         Text(
-          solicitud.estaRechazada ? 'Solicitud rechazada' : 'Solicitud enviada',
+          rechazada ? 'Solicitud rechazada' : 'Solicitud enviada',
           textAlign: TextAlign.center,
-          style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 24),
+          style: AppText.cifra(context).copyWith(color: AppColors.text),
         ),
         const SizedBox(height: Espacio.sm),
         Text(
-          solicitud.estaRechazada
+          rechazada
               ? 'El propietario rechazó la solicitud. Podés buscar otros anuncios.'
               : 'El propietario tiene que aceptar tu solicitud antes de recibir su contacto.',
           textAlign: TextAlign.center,
-          style: AppText.body(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+          style: AppText.body(context)
+              .copyWith(color: AppColors.text.withValues(alpha: 0.7)),
         ),
-
         const SizedBox(height: Espacio.md),
-
-        _EtiquetaEstado(solicitud: solicitud),
-
+        Center(child: EtiquetaEstado.solicitud(solicitud.estado)),
         const SizedBox(height: Espacio.lg),
 
         // ---- Resumen del anuncio ----
@@ -330,37 +281,16 @@ class _VistaPendiente extends StatelessWidget {
           tamano: TamanoTarjeta.compacta,
         ),
 
-        const SizedBox(height: Espacio.lg),
-
         // ---- Contacto aún protegido ----
-        if (solicitud.estaPendiente)
-          Aviso(
+        if (solicitud.estaPendiente) ...[
+          const SizedBox(height: Espacio.lg),
+          const Aviso(
             icono: Icons.lock_outline,
-            mensaje: 'El contacto se libera recién cuando el propietario aprueba.',
-            tipo: TipoAviso.info,
+            mensaje:
+                'El contacto se libera recién cuando el propietario aprueba.',
           ),
+        ],
       ],
     );
   }
 }
-
-class _EtiquetaEstado extends StatelessWidget {
-  const _EtiquetaEstado({required this.solicitud});
-
-  final SolicitudVisita solicitud;
-
-  @override
-  Widget build(BuildContext context) {
-    final tipo = switch (solicitud.estado) {
-      EstadoSolicitud.pendiente => TipoEstado.pendiente,
-      EstadoSolicitud.rechazada => TipoEstado.rechazada,
-      _ => TipoEstado.aprobada,
-    };
-
-    return Center(
-      child: EtiquetaEstado(estado: tipo),
-    );
-  }
-}
-
-// --------------------------------------------------------- Widget compartido

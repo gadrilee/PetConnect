@@ -31,12 +31,18 @@ class BuscarProvider extends ChangeNotifier {
   bool _cargando = false;
   String? error;
   bool _busquedaRealizada = false;
+  FiltrosBusqueda? _filtros;
 
   List<Anuncio> get resultados => _resultados;
   bool get cargando => _cargando;
   bool get busquedaRealizada => _busquedaRealizada;
 
+  /// Los filtros de la ultima busqueda. Resultados los muestra en el panel
+  /// "Tu búsqueda".
+  FiltrosBusqueda? get filtros => _filtros;
+
   Future<void> buscar(FiltrosBusqueda filtros) async {
+    _filtros = filtros;
     _cargando = true;
     error = null;
     notifyListeners();

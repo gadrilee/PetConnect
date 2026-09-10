@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/layout/grilla.dart';
+import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/aviso.dart';
+import '../../../shared/widgets/bloque.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/boton_secundario.dart';
 import '../../../shared/widgets/casilla.dart';
-import '../../../shared/widgets/encabezado.dart';
 import '../../../shared/widgets/fila_condicion.dart';
 import '../../propietario/data/anuncio.dart';
 import '../providers/solicitud_provider.dart';
@@ -36,11 +38,10 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
     if (!mounted) return;
 
     if (!ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(provider.error ?? 'No se pudo enviar la solicitud.'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      Aviso.mostrarToast(
+        context,
+        mensaje: provider.error ?? 'No se pudo enviar la solicitud.',
+        tipo: TipoAviso.error,
       );
       return;
     }
@@ -61,168 +62,130 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<SolicitudProvider>();
     final anuncio = widget.anuncio;
+    final tenue = AppText.caption(context)
+        .copyWith(color: AppColors.text.withValues(alpha: 0.7));
 
-    // Servicios incluidos
-    final servicios = <String>[];
-    if (anuncio.serviciosIncluidos['agua'] == true) servicios.add('Agua');
-    if (anuncio.serviciosIncluidos['luz'] == true) servicios.add('Luz');
-    if (anuncio.serviciosIncluidos['internet'] == true) {
-      servicios.add('Internet');
-    }
+    final servicios = [
+      if (anuncio.serviciosIncluidos['agua'] == true) 'Agua',
+      if (anuncio.serviciosIncluidos['luz'] == true) 'Luz',
+      if (anuncio.serviciosIncluidos['internet'] == true) 'Internet',
+    ];
     final serviciosTexto = servicios.isNotEmpty
         ? ', todo incluido (${servicios.join(", ")})'
         : '';
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: const Encabezado(titulo: 'Solicitar visita'),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          Espacio.lg,
-          Espacio.md,
-          Espacio.lg,
-          Espacio.lg,
-        ),
+    final condiciones = <(IconData, String)>[
+      (Icons.attach_money, '${anuncio.precioFinal} Bs por mes$serviciosTexto'),
+      (
+        Icons.directions_walk,
+        '${anuncio.minutosCaminando} min caminando a la UAGRM',
+      ),
+      (
+        anuncio.aceptaMascotas ? Icons.pets : Icons.pets_outlined,
+        anuncio.aceptaMascotas ? 'Acepta mascotas' : 'No acepta mascotas',
+      ),
+      if (anuncio.restricciones.isNotEmpty)
+        (Icons.info_outline, anuncio.restricciones),
+    ];
+
+    return Pagina(
+      titulo: 'Solicitar visita',
+      pie: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Introducción
-          Text(
-            'Aceptás estas condiciones antes de solicitar la visita. '
-            'El propietario no necesita repetírtelas.',
-            style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+          // La salida secundaria va arriba, como en el wireframe: la accion
+          // principal queda al alcance del pulgar.
+          BotonSecundario(
+            etiqueta: 'CANCELAR',
+            alTocar:
+                provider.cargando ? null : () => Navigator.of(context).pop(),
           ),
-
-          const SizedBox(height: Espacio.lg),
-
-          // ---- Condiciones del anuncio ----
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.text.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(Medida.radio),
-              border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    Espacio.md,
-                    Espacio.md,
-                    Espacio.md,
-                    Espacio.sm,
-                  ),
-                  child: Text(
-                    'Estás aceptando:',
-                    style: AppText.caption(context).copyWith(
-                      color: AppColors.text.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-                FilaCondicion(
-                  icono: Icons.attach_money,
-                  texto: '${anuncio.precioFinal} Bs por mes$serviciosTexto',
-                ),
-                FilaCondicion(
-                  icono: Icons.directions_walk,
-                  texto: '${anuncio.minutosCaminando} min caminando a la UAGRM',
-                ),
-                FilaCondicion(
-                  icono: anuncio.aceptaMascotas
-                      ? Icons.pets
-                      : Icons.pets_outlined,
-                  texto: anuncio.aceptaMascotas
-                      ? 'Acepta mascotas'
-                      : 'No acepta mascotas',
-                ),
-                if (anuncio.restricciones.isNotEmpty)
-                  FilaCondicion(
-                    icono: Icons.info_outline,
-                    texto: anuncio.restricciones,
-                  ),
-                const SizedBox(height: Espacio.sm),
-              ],
-            ),
+          const SizedBox(height: Espacio.sm),
+          BotonPrincipal(
+            etiqueta: 'ENVIAR SOLICITUD',
+            etiquetaCargando: 'ENVIANDO...',
+            // null deshabilita: es como la pieza expresa "falta algo".
+            alTocar: _condicionesAceptadas ? _enviar : null,
+            cargando: provider.cargando,
+            motivoDeshabilitado: 'Marcá que aceptás las condiciones.',
           ),
-
-          const SizedBox(height: Espacio.lg),
-
-          // ---- Checkbox de aceptación ----
-          Casilla(
-            etiqueta: 'Acepto estas condiciones',
-            marcado: _condicionesAceptadas,
-            alCambiar: (v) => setState(() => _condicionesAceptadas = v ?? false),
-          ),
-
-          const SizedBox(height: Espacio.lg),
-
-          // ---- Aviso del contacto ----
-          Aviso(
-            icono: Icons.lock_clock_outlined,
-            mensaje: 'Cuando el propietario apruebe tu solicitud, recibirás su contacto de WhatsApp.',
-            tipo: TipoAviso.info,
-          ),
-
-          const SizedBox(height: Espacio.lg),
-
-          // ---- Resumen de precio ----
-          Container(
-            padding: const EdgeInsets.all(Espacio.md),
-            decoration: BoxDecoration(
-              color: AppColors.text.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(Medida.radio),
-              border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Precio final',
-                  style: AppText.caption(context).copyWith(
-                    color: AppColors.text.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: Espacio.sm),
-                Text(
-                  '${anuncio.precioFinal} Bs / mes',
-                  style: AppText.heading(context).copyWith(
-                    color: AppColors.primary,
-                    fontSize: 24,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: Espacio.lg),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.fromLTRB(
-          Espacio.lg,
-          Espacio.sm,
-          Espacio.lg,
-          MediaQuery.of(context).padding.bottom + Espacio.md,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // La salida secundaria va arriba, como en el wireframe: la accion
-            // principal queda al alcance del pulgar.
-            BotonSecundario(
-              etiqueta: 'CANCELAR',
-              alTocar: provider.cargando ? null : () => Navigator.of(context).pop(),
+      hijos: [
+        // GRID: lo que se acepta ocupa 8 columnas; el aviso y el precio, 4.
+        // En movil van 12 y 12, en el orden del wireframe.
+        Grilla12(
+          separacionFilas: Espacio.lg,
+          celdas: [
+            CeldaGrilla(
+              columnas: const Columnas(tablet: 6, escritorio: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Aceptás estas condiciones antes de solicitar la visita. '
+                    'El propietario no necesita repetírtelas.',
+                    style: tenue,
+                  ),
+                  const SizedBox(height: Espacio.lg),
+
+                  // ---- Condiciones del anuncio ----
+                  Bloque(
+                    tono: TonoBloque.suave,
+                    hijos: [
+                      Text('Estás aceptando:', style: tenue),
+                      for (final (icono, texto) in condiciones) ...[
+                        const SizedBox(height: Espacio.sm),
+                        FilaCondicion(icono: icono, texto: texto),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: Espacio.lg),
+
+                  // ---- Checkbox de aceptación ----
+                  Casilla(
+                    etiqueta: 'Acepto estas condiciones',
+                    marcado: _condicionesAceptadas,
+                    alCambiar: (v) =>
+                        setState(() => _condicionesAceptadas = v ?? false),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: Espacio.sm),
-            BotonPrincipal(
-              etiqueta: 'ENVIAR SOLICITUD',
-              etiquetaCargando: 'ENVIANDO...',
-              // null deshabilita: es como la pieza expresa "falta algo".
-              alTocar: _condicionesAceptadas ? _enviar : null,
-              cargando: provider.cargando,
-              motivoDeshabilitado: 'Marcá que aceptás las condiciones.',
+            CeldaGrilla(
+              columnas: const Columnas(tablet: 6, escritorio: 4),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ---- Aviso del contacto ----
+                  const Aviso(
+                    icono: Icons.lock_clock_outlined,
+                    mensaje:
+                        'Cuando el propietario apruebe tu solicitud, recibirás su contacto de WhatsApp.',
+                  ),
+                  const SizedBox(height: Espacio.lg),
+
+                  // ---- Resumen de precio ----
+                  Bloque(
+                    tono: TonoBloque.suave,
+                    hijos: [
+                      Text('Precio final', style: tenue),
+                      const SizedBox(height: Espacio.sm),
+                      Text(
+                        '${anuncio.precioFinal} Bs / mes',
+                        style: AppText.cifra(context)
+                            .copyWith(color: AppColors.primary),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 }

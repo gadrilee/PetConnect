@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme.dart';
+import '../../core/theme.dart';
 
-/// Un botón de opción única (radio button con estilo de pastilla).
+/// Un boton de opcion unica, con forma de pastilla.
 ///
-/// Mide exactamente 96x40 con radio 8.
+/// REGLA DE LA PIEZA
+/// -----------------
+/// Elegida va rellena del color principal; sin elegir, solo con borde. Se usa
+/// igual para el tipo de espacio en Buscar y en Publicar.
+///
+/// AUTO LAYOUT: el ancho lo pone la etiqueta y el alto es 40, asi
+/// "Departamento" no se corta y "Casa" no queda con aire de sobra. Se ubican
+/// en un Wrap: si no entran en una fila, pasan a la siguiente.
 class Opcion extends StatelessWidget {
   const Opcion({
     super.key,
@@ -19,69 +26,34 @@ class Opcion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: alTocar,
-      borderRadius: BorderRadius.circular(Medida.radioSm),
-      child: Container(
-        width: 96,
-        height: 40,
-        decoration: BoxDecoration(
-          color: seleccionada ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(Medida.radioSm),
-          border: seleccionada
-              ? null
-              : Border.all(color: AppColors.text.withValues(alpha: 0.2)),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          etiqueta,
-          style: AppText.caption(context).copyWith(
-            color: seleccionada ? AppColors.surface : AppColors.text.withValues(alpha: 0.7),
-            fontWeight: seleccionada ? FontWeight.w600 : FontWeight.normal,
+    return Semantics(
+      button: true,
+      selected: seleccionada,
+      child: InkWell(
+        onTap: alTocar,
+        borderRadius: BorderRadius.circular(Medida.radioSm),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Espacio.md,
+            vertical: Espacio.sm + Espacio.xs,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    );
-  }
-}
-
-/// Un interruptor personalizado que mide exactamente 48x24.
-///
-/// La perilla mide 16x16 y el aire alrededor es de 4px.
-class Interruptor extends StatelessWidget {
-  const Interruptor({
-    super.key,
-    required this.encendido,
-    required this.alCambiar,
-  });
-
-  final bool encendido;
-  final ValueChanged<bool> alCambiar;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => alCambiar(!encendido),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 48,
-        height: 24,
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: encendido ? AppColors.primary : AppColors.text.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 150),
-          alignment: encendido ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(
-              color: encendido ? AppColors.surface : AppColors.text.withValues(alpha: 0.5),
-              shape: BoxShape.circle,
+          decoration: BoxDecoration(
+            color: seleccionada ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(Medida.radioSm),
+            border: Border.all(
+              color: seleccionada
+                  ? AppColors.primary
+                  : AppColors.text.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Text(
+            etiqueta,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppText.caption(context).copyWith(
+              color: seleccionada
+                  ? AppColors.surface
+                  : AppColors.text.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -90,7 +62,80 @@ class Interruptor extends StatelessWidget {
   }
 }
 
-/// Un deslizador personalizado que mide 312x16.
+/// Un interruptor de encendido y apagado, de 48x24.
+///
+/// Con [etiqueta] arma la fila completa: la etiqueta a la izquierda y el
+/// interruptor anclado a la derecha. Antes habia dos piezas con el mismo
+/// nombre, una con Material y otra propia, y cada pantalla usaba una distinta.
+class Interruptor extends StatelessWidget {
+  const Interruptor({
+    super.key,
+    required this.encendido,
+    required this.alCambiar,
+    this.etiqueta,
+  });
+
+  final bool encendido;
+  final ValueChanged<bool> alCambiar;
+  final String? etiqueta;
+
+  @override
+  Widget build(BuildContext context) {
+    final pista = Semantics(
+      toggled: encendido,
+      label: etiqueta,
+      child: GestureDetector(
+        onTap: () => alCambiar(!encendido),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: 48,
+          height: 24,
+          padding: const EdgeInsets.all(Espacio.xs),
+          decoration: BoxDecoration(
+            color: encendido
+                ? AppColors.primary
+                : AppColors.text.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(Medida.radio),
+          ),
+          child: AnimatedAlign(
+            duration: const Duration(milliseconds: 150),
+            alignment:
+                encendido ? Alignment.centerRight : Alignment.centerLeft,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                color: encendido
+                    ? AppColors.surface
+                    : AppColors.text.withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (etiqueta == null) return pista;
+
+    // FLEXBOX: la etiqueta toma el espacio libre y el interruptor queda
+    // anclado a la derecha.
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            etiqueta!,
+            style: AppText.body(context).copyWith(color: AppColors.text),
+          ),
+        ),
+        const SizedBox(width: Espacio.md),
+        pista,
+      ],
+    );
+  }
+}
+
+/// Un deslizador de 16 de alto que ocupa todo el ancho.
 ///
 /// La pista mide 4 de alto y el pulgar 16x16.
 class Deslizador extends StatelessWidget {

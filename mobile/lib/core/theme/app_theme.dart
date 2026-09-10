@@ -29,8 +29,9 @@ class AppTheme {
         centerTitle: false,
       ),
       inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
+        // Sin relleno: en Figma el "Campo de texto" es blanco con borde, y la
+        // caja la dibuja CampoTexto. Un relleno aca se colaba dentro del campo.
+        filled: false,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(Medida.radio),
           borderSide: BorderSide.none,

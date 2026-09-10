@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
 import '../../features/propietario/data/anuncio.dart';
+import 'bloque.dart';
+import 'foto_inmueble.dart';
 
 /// Cuanto espacio ocupa la tarjeta, segun el papel del anuncio en la pantalla.
 enum TamanoTarjeta {
@@ -52,17 +54,26 @@ class TarjetaAnuncio extends StatelessWidget {
     final texto = Theme.of(context).textTheme;
     final lado = _esCompleta ? 104.0 : 64.0;
 
-    final contenido = Padding(
-      padding: const EdgeInsets.all(Espacio.md),
+    // AUTO LAYOUT: el borde, el color y el toque vienen de Bloque, los mismos
+    // de todas las tarjetas de la app.
+    //
+    // El alto es MINIMO, no fijo: nunca menos que la foto, y crece si el texto
+    // lo pide. Fijarlo mantenia parejo el ritmo de la lista, pero en un
+    // telefono de 360 el contenido no entraba y la tarjeta desbordaba 14 px: en
+    // debug salen las rayas amarillas y negras, en release el texto queda
+    // cortado. Un alto que no depende del contenido esta siempre a un cambio de
+    // tipografia de recortar algo.
+    return Bloque(
+      alTocar: alTocar,
+      // FLEXBOX: la foto mide lo suyo, los datos toman el ancho que queda y la
+      // flecha queda anclada a la derecha.
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: _Foto(
-              foto: anuncio.fotos.isNotEmpty ? anuncio.fotos.first : null,
-              lado: lado,
-            ),
+          FotoInmueble(
+            url: anuncio.fotos.isNotEmpty ? anuncio.fotos.first.imagen : null,
+            ancho: lado,
+            alto: lado,
           ),
           const SizedBox(width: Espacio.md),
           Expanded(
@@ -120,26 +131,6 @@ class TarjetaAnuncio extends StatelessWidget {
         ],
       ),
     );
-
-    return Container(
-      // Alto MINIMO, no fijo.
-      //
-      // Fijarlo mantenia parejo el ritmo de la lista, pero en un telefono de
-      // 360 el contenido no entraba y la tarjeta desbordaba 14 px: en debug
-      // salen las rayas amarillas y negras, en release el texto queda cortado.
-      // Un alto que no depende del contenido esta siempre a un cambio de
-      // tipografia de recortar algo.
-      constraints: BoxConstraints(minHeight: _esCompleta ? 136.0 : 96.0),
-      decoration: BoxDecoration(
-        color: esquema.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: esquema.outline.withValues(alpha: 0.4)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: alTocar == null
-          ? contenido
-          : InkWell(onTap: alTocar, child: contenido),
-    );
   }
 
   /// El titulo, o una barra gris si el anuncio no tiene.
@@ -162,44 +153,6 @@ class TarjetaAnuncio extends StatelessWidget {
         color: esquema.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
       ),
-    );
-  }
-}
-
-class _Foto extends StatelessWidget {
-  const _Foto({required this.foto, required this.lado});
-
-  final FotoAnuncio? foto;
-  final double lado;
-
-  @override
-  Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-
-    Widget marcador([IconData icono = Icons.home_outlined]) => Container(
-      width: lado,
-      height: lado,
-      color: esquema.surfaceContainerHighest,
-      child: Icon(icono, color: esquema.onSurfaceVariant, size: lado / 2.75),
-    );
-
-    if (foto == null) return marcador();
-
-    return Image.network(
-      foto!.imagen,
-      width: lado,
-      height: lado,
-      fit: BoxFit.cover,
-      errorBuilder: (_, _, _) => marcador(Icons.broken_image_outlined),
-      loadingBuilder: (_, hijo, progreso) => progreso == null
-          ? hijo
-          : SizedBox(
-              width: lado,
-              height: lado,
-              child: const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ),
     );
   }
 }

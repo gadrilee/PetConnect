@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/layout/grilla.dart';
+import '../../../shared/layout/pagina.dart';
+import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
 import '../../../shared/widgets/controles.dart';
-import '../../../shared/widgets/encabezado.dart';
+import '../../../shared/widgets/resumen_busqueda.dart';
 import '../../propietario/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/buscar_provider.dart';
@@ -56,33 +59,31 @@ class _BuscarScreenState extends State<BuscarScreen> {
     return n != null && n > 0;
   }
 
-  Future<void> _buscar() async {
-    setState(() => _cargando = true);
-
-    final repo = context.read<SolicitudesRepository>();
-    final provider = BuscarProvider(repo);
-
-    final precioMax = double.tryParse(_precioCtrl.text.replaceAll(',', '.'));
-
-    await provider.buscar(
-      FiltrosBusqueda(
-        precioMax: precioMax,
+  /// Los filtros tal como estan en pantalla. Los usan la busqueda y el panel
+  /// "Tu búsqueda", asi los dos dicen siempre lo mismo.
+  FiltrosBusqueda get _filtros => FiltrosBusqueda(
+        precioMax: _precioEsValido
+            ? double.tryParse(_precioCtrl.text.trim().replaceAll(',', '.'))
+            : null,
         tipoEspacio: _tipoSeleccionado,
         aceptaMascotas: _aceptaMascotas ? true : null,
         minutosMax: _minutosMax.toInt(),
-      ),
-    );
+      );
 
-    setState(() => _cargando = false);
+  Future<void> _buscar() async {
+    setState(() => _cargando = true);
+
+    final provider = BuscarProvider(context.read<SolicitudesRepository>());
+    await provider.buscar(_filtros);
 
     if (!mounted) return;
+    setState(() => _cargando = false);
 
     if (provider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(provider.error!),
-          behavior: SnackBarBehavior.floating,
-        ),
+      Aviso.mostrarToast(
+        context,
+        mensaje: provider.error!,
+        tipo: TipoAviso.error,
       );
       return;
     }
@@ -99,118 +100,116 @@ class _BuscarScreenState extends State<BuscarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: const Encabezado(titulo: 'Buscar'),
-      body: ListView(
-        // Margen de 24 a los lados; arriba 16, que es lo que el wireframe
-        // deja entre el encabezado y el primer filtro.
-        padding: const EdgeInsets.fromLTRB(
-          Espacio.lg,
-          Espacio.md,
-          Espacio.lg,
-          Espacio.lg,
-        ),
-        children: [
-          // ---- Precio máximo ----
-          CampoTexto(
-            etiqueta: 'Precio máximo por mes (Bs)',
-            controlador: _precioCtrl,
-            pista: 'Ej. 800',
-            icono: Icons.attach_money,
-            tipoTeclado: const TextInputType.numberWithOptions(decimal: true),
-            formateadores: [
-              FilteringTextInputFormatter.allow(RegExp(r'[\d,.]')),
-            ],
-            // null cuando el monto sirve: es como la pieza expresa "sin error".
-            mensajeError: _precioEsValido
-                ? null
-                : 'Escribí un monto válido, como 800. O dejalo vacío para no '
-                      'filtrar por precio.',
-          ),
+    final tenue = AppText.caption(context)
+        .copyWith(color: AppColors.text.withValues(alpha: 0.7));
 
-          const SizedBox(height: Espacio.lg),
-
-          // ---- Tipo de espacio ----
-          Text(
-            'Tipo de espacio',
-            style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
-          ),
-          const SizedBox(height: Espacio.sm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: TipoEspacio.values.map((t) {
-              return Opcion(
-                etiqueta: t.etiqueta,
-                seleccionada: _tipoSeleccionado == t,
-                alTocar: () => setState(() => _tipoSeleccionado = _tipoSeleccionado == t ? null : t),
-              );
-            }).toList(),
-          ),
-
-          const SizedBox(height: Espacio.lg),
-
-          // ---- Acepta mascotas ----
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Solo acepta mascotas', style: AppText.body(context).copyWith(color: AppColors.text)),
-              Interruptor(
-                encendido: _aceptaMascotas,
-                alCambiar: (v) => setState(() => _aceptaMascotas = v),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: Espacio.lg),
-
-          // ---- Minutos caminando ----
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Máximo caminando a la UAGRM',
-                style: AppText.caption(context).copyWith(
-                  color: AppColors.text.withValues(alpha: 0.7),
-                ),
-              ),
-              Text(
-                '${_minutosMax.toInt()} min',
-                style: AppText.button(context).copyWith(color: AppColors.text),
-              ),
-            ],
-          ),
-          const SizedBox(height: Espacio.md),
-          Deslizador(
-            valor: _minutosMax,
-            min: 5,
-            max: 60,
-            alCambiar: (v) => setState(() => _minutosMax = v),
-          ),
-
-          const SizedBox(height: Espacio.xl),
-        ],
+    return Pagina(
+      titulo: 'Buscar',
+      pie: BotonPrincipal(
+        etiqueta: 'BUSCAR',
+        etiquetaCargando: 'BUSCANDO...',
+        // null deshabilita: es como la pieza expresa "falta algo".
+        alTocar: _precioEsValido ? _buscar : null,
+        cargando: _cargando,
+        // El detalle ya está junto al campo que lo provoca. Repetirlo acá
+        // sería decir dos veces lo mismo a 600 px de distancia: basta con
+        // señalar dónde mirar.
+        motivoDeshabilitado: 'Revisá el precio, arriba.',
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.fromLTRB(
-          Espacio.lg,
-          Espacio.sm,
-          Espacio.lg,
-          MediaQuery.of(context).padding.bottom + Espacio.md,
+      hijos: [
+        // GRID: los filtros en 8 columnas y "Tu búsqueda" en 4, como en Figma.
+        // En movil van 12 y 12, uno debajo del otro.
+        Grilla12(
+          separacionFilas: Espacio.lg,
+          celdas: [
+            CeldaGrilla(
+              columnas: const Columnas(tablet: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ---- Precio máximo ----
+                  CampoTexto(
+                    etiqueta: 'Precio máximo por mes (Bs)',
+                    controlador: _precioCtrl,
+                    pista: 'Ej. 800',
+                    icono: Icons.attach_money,
+                    tipoTeclado:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    formateadores: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[\d,.]')),
+                    ],
+                    // null cuando el monto sirve: es como la pieza expresa
+                    // "sin error".
+                    mensajeError: _precioEsValido
+                        ? null
+                        : 'Escribí un monto válido, como 800. O dejalo vacío '
+                            'para no filtrar por precio.',
+                  ),
+                  const SizedBox(height: Espacio.lg),
+
+                  // ---- Tipo de espacio ----
+                  Text('Tipo de espacio', style: tenue),
+                  const SizedBox(height: Espacio.sm),
+                  // FLEXBOX: cada opcion mide lo que su palabra y, si no
+                  // entran en una fila, pasan a la siguiente (flex-wrap).
+                  Wrap(
+                    spacing: Espacio.md,
+                    runSpacing: Espacio.sm,
+                    children: [
+                      for (final t in TipoEspacio.values)
+                        Opcion(
+                          etiqueta: t.etiqueta,
+                          seleccionada: _tipoSeleccionado == t,
+                          alTocar: () => setState(
+                            () => _tipoSeleccionado =
+                                _tipoSeleccionado == t ? null : t,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: Espacio.lg),
+
+                  // ---- Acepta mascotas ----
+                  Interruptor(
+                    etiqueta: 'Solo acepta mascotas',
+                    encendido: _aceptaMascotas,
+                    alCambiar: (v) => setState(() => _aceptaMascotas = v),
+                  ),
+                  const SizedBox(height: Espacio.lg),
+
+                  // ---- Minutos caminando ----
+                  // FLEXBOX: la etiqueta toma el espacio libre y el valor
+                  // queda anclado a la derecha.
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text('Máximo caminando a la UAGRM', style: tenue),
+                      ),
+                      Text(
+                        '${_minutosMax.toInt()} min',
+                        style: AppText.button(context)
+                            .copyWith(color: AppColors.text),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Espacio.md),
+                  Deslizador(
+                    valor: _minutosMax,
+                    min: 5,
+                    max: 60,
+                    alCambiar: (v) => setState(() => _minutosMax = v),
+                  ),
+                ],
+              ),
+            ),
+            CeldaGrilla(
+              columnas: const Columnas(tablet: 4),
+              child: ResumenBusqueda(filtros: _filtros),
+            ),
+          ],
         ),
-        child: BotonPrincipal(
-          etiqueta: 'BUSCAR',
-          etiquetaCargando: 'BUSCANDO...',
-          // null deshabilita: es como la pieza expresa "falta algo".
-          alTocar: _precioEsValido ? _buscar : null,
-          cargando: _cargando,
-          // El detalle ya está junto al campo que lo provoca. Repetirlo acá
-          // sería decir dos veces lo mismo a 600 px de distancia: basta con
-          // señalar dónde mirar.
-          motivoDeshabilitado: 'Revisá el precio, arriba.',
-        ),
-      ),
+      ],
     );
   }
 }
-

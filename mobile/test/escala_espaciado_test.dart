@@ -13,18 +13,51 @@ import 'package:flutter_test/flutter_test.dart';
 /// elemento —el alto de una foto, el lado de un icono— no son espaciado y no
 /// se revisan aca.
 
-/// Archivos donde la escala es obligatoria: el flujo v0.2 y las piezas.
+/// Archivos donde la escala es obligatoria: las pantallas de los flujos y las
+/// piezas compartidas. Las rutas cambiaron cuando `features/` se reorganizo en
+/// acceso/inquilina/propietario; la cobertura es la misma de antes.
 const _vigilados = [
-  'lib/features/home/presentation/home_screen.dart',
-  'lib/features/buscar/presentation/buscar_screen.dart',
-  'lib/features/buscar/presentation/resultados_screen.dart',
-  'lib/features/buscar/presentation/anuncio_screen.dart',
-  'lib/features/buscar/presentation/solicitar_visita_screen.dart',
-  'lib/features/buscar/presentation/solicitud_estado_screen.dart',
+  'lib/features/inquilina/presentation/inicio_screen.dart',
+  'lib/features/inquilina/presentation/buscar_screen.dart',
+  'lib/features/inquilina/presentation/resultados_screen.dart',
+  'lib/features/inquilina/presentation/anuncio_screen.dart',
+  'lib/features/inquilina/presentation/solicitar_visita_screen.dart',
+  'lib/features/inquilina/presentation/solicitud_estado_screen.dart',
+  'lib/features/propietario/presentation/inicio_screen.dart',
   'lib/shared/widgets/boton_principal.dart',
   'lib/shared/widgets/campo_texto.dart',
   'lib/shared/widgets/tarjeta_anuncio.dart',
   'lib/shared/widgets/fila_condicion.dart',
+  // Flujo v0.4: gestion de solicitudes.
+  'lib/features/propietario/presentation/solicitudes_recibidas_screen.dart',
+  'lib/features/propietario/presentation/solicitud_detalle_screen.dart',
+  'lib/shared/widgets/tarjeta_solicitud.dart',
+  'lib/shared/layout/grilla.dart',
+  // Todas las pantallas de todos los flujos, armadas con las piezas.
+  'lib/features/acceso/presentation/login_screen.dart',
+  'lib/features/acceso/presentation/registro_screen.dart',
+  'lib/features/acceso/presentation/elegir_rol_screen.dart',
+  'lib/features/inquilina/presentation/mis_solicitudes_screen.dart',
+  'lib/features/propietario/presentation/mis_anuncios_screen.dart',
+  'lib/features/propietario/presentation/publicar_screen.dart',
+  // Las piezas compartidas.
+  'lib/shared/layout/pagina.dart',
+  'lib/shared/widgets/aviso.dart',
+  'lib/shared/widgets/bloque.dart',
+  'lib/shared/widgets/boton_flotante.dart',
+  'lib/shared/widgets/boton_secundario.dart',
+  'lib/shared/widgets/boton_texto.dart',
+  'lib/shared/widgets/casilla.dart',
+  'lib/shared/widgets/controles.dart',
+  'lib/shared/widgets/estado_vacio.dart',
+  'lib/shared/widgets/etiqueta_estado.dart',
+  'lib/shared/widgets/foto_inmueble.dart',
+  'lib/shared/widgets/icono_circulo.dart',
+  'lib/shared/widgets/pastilla.dart',
+  'lib/shared/widgets/resumen_busqueda.dart',
+  'lib/shared/widgets/tarjeta_menu.dart',
+  'lib/shared/widgets/tarjeta_perfil.dart',
+  'lib/shared/widgets/titulo_seccion.dart',
 ];
 
 /// `SizedBox(height: 12)` y `SizedBox(width: 12)` en una sola linea.
@@ -77,7 +110,7 @@ void main() {
   });
 
   test('la escala es la de la clase: 8, 16, 24 y 32', () {
-    final fuente = File('lib/core/theme.dart').readAsStringSync();
+    final fuente = File('lib/core/theme/app_spacing.dart').readAsStringSync();
 
     // Si alguien cambia un valor, la app entera cambia de ritmo. Que sea
     // deliberado y no un descuido.

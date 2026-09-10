@@ -20,6 +20,7 @@ class BotonSecundario extends StatefulWidget {
     required this.alTocar,
     this.icono,
     this.destructiva = false,
+    this.compacto = false,
   });
 
   final String etiqueta;
@@ -30,6 +31,9 @@ class BotonSecundario extends StatefulWidget {
   /// solo el color, borde y texto en rojo; la forma es la misma, para que se
   /// siga leyendo como secundaria al lado de la principal.
   final bool destructiva;
+
+  /// Version de 48 de alto para las acciones dentro de una tarjeta.
+  final bool compacto;
 
   @override
   State<BotonSecundario> createState() => _BotonSecundarioState();
@@ -66,6 +70,12 @@ class _BotonSecundarioState extends State<BotonSecundario> {
     final habilitado =
         actual == EstadoBotonSecundario.reposo || actual == EstadoBotonSecundario.presionado;
 
+    final estiloEtiqueta = texto.labelLarge?.copyWith(
+      color: contenido,
+      letterSpacing: 1,
+      fontWeight: FontWeight.w600,
+    );
+
     return Semantics(
       button: true,
       enabled: habilitado,
@@ -79,7 +89,7 @@ class _BotonSecundarioState extends State<BotonSecundario> {
           duration: const Duration(milliseconds: 120),
           curve: Curves.easeOut,
           width: double.infinity,
-          height: Medida.boton,
+          height: widget.compacto ? Medida.campo : Medida.boton,
           decoration: BoxDecoration(
             color: actual == EstadoBotonSecundario.presionado
                 ? acento.withValues(alpha: 0.08)
@@ -89,25 +99,18 @@ class _BotonSecundarioState extends State<BotonSecundario> {
           ),
           alignment: Alignment.center,
           child: widget.icono == null
-              ? Text(
-                  widget.etiqueta,
-                  style: texto.labelLarge?.copyWith(
-                    color: contenido,
-                    letterSpacing: 1,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )
+              ? Text(widget.etiqueta, style: estiloEtiqueta)
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(widget.icono, size: 18, color: contenido),
                     const SizedBox(width: Espacio.sm),
-                    Text(
-                      widget.etiqueta,
-                      style: texto.labelLarge?.copyWith(
-                        color: contenido,
-                        letterSpacing: 1,
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        widget.etiqueta,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: estiloEtiqueta,
                       ),
                     ),
                   ],

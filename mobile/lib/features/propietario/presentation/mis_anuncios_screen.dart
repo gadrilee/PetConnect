@@ -3,8 +3,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
-import '../../../shared/widgets/aviso.dart';
-import '../../../shared/widgets/encabezado.dart';
+import '../../../shared/layout/grilla.dart';
+import '../../../shared/layout/pagina.dart';
+import '../../../shared/widgets/bloque.dart';
+import '../../../shared/widgets/boton_flotante.dart';
+import '../../../shared/widgets/boton_secundario.dart';
+import '../../../shared/widgets/boton_texto.dart';
+import '../../../shared/widgets/estado_vacio.dart';
+import '../../../shared/widgets/etiqueta_estado.dart';
+import '../../../shared/widgets/fila_condicion.dart';
 import '../data/anuncio.dart';
 import '../providers/mis_anuncios_provider.dart';
 import '../providers/publicar_provider.dart';
@@ -49,79 +56,48 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
   @override
   Widget build(BuildContext context) {
     final estado = context.watch<MisAnunciosProvider>();
+    final anuncios = estado.anuncios;
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: const Encabezado(titulo: 'Mis anuncios'),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _publicar,
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.surface,
-        icon: const Icon(Icons.add),
-        label: const Text('Publicar'),
+    Widget? cuerpo;
+    if (estado.cargando && anuncios.isEmpty) {
+      cuerpo = const CircularProgressIndicator();
+    } else if (estado.error != null && anuncios.isEmpty) {
+      cuerpo = EstadoVacio(
+        icono: Icons.error_outline,
+        titulo: estado.error!,
+        esError: true,
+        accion: 'Reintentar',
+        alAccion: estado.cargar,
+      );
+    } else if (anuncios.isEmpty) {
+      cuerpo = const EstadoVacio(
+        icono: Icons.home_work_outlined,
+        titulo: 'Todavía no publicaste nada',
+        detalle:
+            'Publicá una vez con las condiciones por delante y el anuncio filtra solo.',
+      );
+    }
+
+    return Pagina(
+      titulo: 'Mis anuncios',
+      alRefrescar: estado.cargar,
+      botonFlotante: BotonFlotante(
+        etiqueta: 'Publicar',
+        icono: Icons.add,
+        alTocar: _publicar,
       ),
-      body: RefreshIndicator(
-        onRefresh: () => estado.cargar(),
-        child: Builder(
-          builder: (_) {
-            if (estado.cargando && estado.anuncios.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (estado.error != null && estado.anuncios.isEmpty) {
-              return ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  Aviso(
-                    icono: Icons.error_outline,
-                    mensaje: estado.error!,
-                    tipo: TipoAviso.error,
-                  )
-                ],
-              );
-            }
-            if (estado.anuncios.isEmpty) return const _SinAnuncios();
-
-            return ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-              itemCount: estado.anuncios.length,
-              itemBuilder: (_, i) =>
-                  _TarjetaGestion(anuncio: estado.anuncios[i]),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _SinAnuncios extends StatelessWidget {
-  const _SinAnuncios();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        const SizedBox(height: 120),
-        Icon(
-          Icons.home_work_outlined,
-          size: 56,
-          color: AppColors.text.withValues(alpha: 0.5),
-        ),
-        const SizedBox(height: Espacio.md),
-        Text(
-          'Todavía no publicaste nada',
-          textAlign: TextAlign.center,
-          style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 18),
-        ),
-        const SizedBox(height: Espacio.sm),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Text(
-            'Publicá una vez con las condiciones por delante y el anuncio '
-            'filtra solo.',
-            textAlign: TextAlign.center,
-            style: AppText.body(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
-          ),
+      cuerpo: cuerpo,
+      hijos: [
+        // GRID: un anuncio por fila en movil, dos en tablet y tres en
+        // escritorio.
+        Grilla12(
+          celdas: [
+            for (final anuncio in anuncios)
+              CeldaGrilla(
+                columnas: const Columnas(tablet: 6, escritorio: 4),
+                child: _TarjetaGestion(anuncio: anuncio),
+              ),
+          ],
         ),
       ],
     );
@@ -130,7 +106,7 @@ class _SinAnuncios extends StatelessWidget {
 
 /// La tarjeta del PROPIETARIO: muestra el estado del anuncio y la accion de
 /// marcarlo como alquilado. No es la misma pieza que TarjetaAnuncio, que es
-/// la que ve la inquilina para decidir; comparten el tema, no el trabajo.
+/// la que ve la inquilina para decidir; comparten las piezas, no el trabajo.
 class _TarjetaGestion extends StatelessWidget {
   const _TarjetaGestion({required this.anuncio});
 
@@ -138,121 +114,74 @@ class _TarjetaGestion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final disponible = anuncio.estaDisponible;
-    final precio = NumberFormat.decimalPattern(
-      'es',
-    ).format(double.tryParse(anuncio.precioFinal) ?? 0);
+    final precio = NumberFormat.decimalPattern('es')
+        .format(double.tryParse(anuncio.precioFinal) ?? 0);
+    void alternar() =>
+        context.read<MisAnunciosProvider>().alternarEstado(anuncio);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: Espacio.md),
-      padding: const EdgeInsets.all(Espacio.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(Medida.radio),
-        border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    final datos = <(IconData, String)>[
+      (Icons.payments_outlined, '$precio Bs'),
+      (Icons.directions_walk, '${anuncio.minutosCaminando} min'),
+      (
+        anuncio.aceptaMascotas ? Icons.pets : Icons.block,
+        anuncio.aceptaMascotas ? 'Mascotas' : 'Sin mascotas',
       ),
+      (Icons.home_outlined, anuncio.tipoEspacio.etiqueta),
+    ];
+
+    return Bloque(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // FLEXBOX: el titulo toma el espacio libre y el estado queda
+          // anclado a la derecha.
           Row(
             children: [
               Expanded(
                 child: Text(
                   anuncio.titulo,
-                  style: AppText.button(context).copyWith(color: AppColors.text),
+                  style:
+                      AppText.button(context).copyWith(color: AppColors.text),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: Espacio.sm, vertical: 4),
-                decoration: BoxDecoration(
-                  color: disponible
-                      ? AppColors.primary.withValues(alpha: 0.1)
-                      : AppColors.text.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(Medida.radioSm),
-                ),
-                child: Text(
-                  anuncio.estado.etiqueta,
-                  style: AppText.caption(context).copyWith(
-                    color: disponible ? AppColors.primary : AppColors.text.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              const SizedBox(width: Espacio.sm),
+              EtiquetaEstado.anuncio(anuncio.estado),
             ],
           ),
           const SizedBox(height: Espacio.sm),
+          // FLEXBOX: los datos van en fila y bajan si no entran (flex-wrap).
           Wrap(
             spacing: Espacio.md,
-            runSpacing: 4,
+            runSpacing: Espacio.xs,
             children: [
-              _Dato(Icons.payments_outlined, '$precio Bs'),
-              _Dato(Icons.directions_walk, '${anuncio.minutosCaminando} min'),
-              _Dato(
-                anuncio.aceptaMascotas ? Icons.pets : Icons.block,
-                anuncio.aceptaMascotas ? 'Mascotas' : 'Sin mascotas',
-              ),
-              _Dato(Icons.home_outlined, anuncio.tipoEspacio.etiqueta),
+              for (final (icono, texto) in datos)
+                FilaCondicion(
+                  enLinea: true,
+                  icono: icono,
+                  texto: texto,
+                  colorIcono: AppColors.text.withValues(alpha: 0.5),
+                  estilo: AppText.caption(context)
+                      .copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+                ),
             ],
           ),
           const SizedBox(height: Espacio.md),
-          SizedBox(
-            width: double.infinity,
-            child: disponible
-                ? OutlinedButton.icon(
-                    onPressed: () => context
-                        .read<MisAnunciosProvider>()
-                        .alternarEstado(anuncio),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.text,
-                      side: BorderSide(color: AppColors.text.withValues(alpha: 0.3)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Medida.radioSm)),
-                    ),
-                    icon: const Icon(Icons.check_circle_outline, size: 16),
-                    label: const Text('Marcar Ya alquilado'),
-                  )
-                : TextButton.icon(
-                    onPressed: () => context
-                        .read<MisAnunciosProvider>()
-                        .alternarEstado(anuncio),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Medida.radioSm)),
-                    ),
-                    icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Volver a publicar'),
-                  ),
-          ),
+          if (anuncio.estaDisponible)
+            BotonSecundario(
+              etiqueta: 'Marcar Ya alquilado',
+              icono: Icons.check_circle_outline,
+              compacto: true,
+              alTocar: alternar,
+            )
+          else
+            BotonTexto(
+              etiqueta: 'Volver a publicar',
+              icono: Icons.refresh,
+              alTocar: alternar,
+            ),
         ],
       ),
-    );
-  }
-}
-
-class _Dato extends StatelessWidget {
-  const _Dato(this.icono, this.texto);
-
-  final IconData icono;
-  final String texto;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icono, size: 16, color: AppColors.text.withValues(alpha: 0.5)),
-        const SizedBox(width: Espacio.xs),
-        Text(
-          texto,
-          style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
-        ),
-      ],
     );
   }
 }
