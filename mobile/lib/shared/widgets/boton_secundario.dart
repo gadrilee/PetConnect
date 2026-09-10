@@ -19,11 +19,17 @@ class BotonSecundario extends StatefulWidget {
     required this.etiqueta,
     required this.alTocar,
     this.icono,
+    this.destructiva = false,
   });
 
   final String etiqueta;
   final VoidCallback? alTocar;
   final IconData? icono;
+
+  /// La accion cierra o descarta algo, como Rechazar una solicitud. Cambia
+  /// solo el color, borde y texto en rojo; la forma es la misma, para que se
+  /// siga leyendo como secundaria al lado de la principal.
+  final bool destructiva;
 
   @override
   State<BotonSecundario> createState() => _BotonSecundarioState();
@@ -43,13 +49,14 @@ class _BotonSecundarioState extends State<BotonSecundario> {
     final esquema = Theme.of(context).colorScheme;
     final texto = Theme.of(context).textTheme;
     final actual = estado;
+    final acento = widget.destructiva ? esquema.error : esquema.primary;
 
     final (Color borde, Color contenido) = switch (actual) {
-      EstadoBotonSecundario.reposo => (esquema.outline, esquema.primary),
-      EstadoBotonSecundario.presionado => (
-        esquema.primary,
-        esquema.primary,
+      EstadoBotonSecundario.reposo => (
+        widget.destructiva ? esquema.error : esquema.outline,
+        acento,
       ),
+      EstadoBotonSecundario.presionado => (acento, acento),
       EstadoBotonSecundario.deshabilitado => (
         esquema.onSurface.withValues(alpha: 0.12),
         esquema.onSurface.withValues(alpha: 0.38),
@@ -75,7 +82,7 @@ class _BotonSecundarioState extends State<BotonSecundario> {
           height: Medida.boton,
           decoration: BoxDecoration(
             color: actual == EstadoBotonSecundario.presionado
-                ? esquema.primary.withValues(alpha: 0.08)
+                ? acento.withValues(alpha: 0.08)
                 : Colors.transparent,
             border: Border.all(color: borde),
             borderRadius: BorderRadius.circular(12),

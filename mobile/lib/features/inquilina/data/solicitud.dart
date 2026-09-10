@@ -28,6 +28,8 @@ class SolicitudVisita {
     required this.anuncio,
     required this.estado,
     required this.creadaEn,
+    this.inquilino = '',
+    this.condicionesAceptadas = false,
     this.contacto,
     this.respondidaEn,
   });
@@ -36,6 +38,14 @@ class SolicitudVisita {
   final Anuncio anuncio;
   final EstadoSolicitud estado;
   final DateTime creadaEn;
+
+  /// El usuario de quien pidio la visita. La propietaria lo ve antes de
+  /// decidir: aprobar sin saber a quien es liberar el WhatsApp a ciegas.
+  final String inquilino;
+
+  /// Si acepto las condiciones del anuncio al pedir la visita. El backend no
+  /// deja crear una solicitud sin esto.
+  final bool condicionesAceptadas;
 
   /// El WhatsApp del propietario, o null si la solicitud no fue aprobada aun.
   final String? contacto;
@@ -52,6 +62,8 @@ class SolicitudVisita {
       anuncio: Anuncio.desdeJson(anuncioJson),
       estado: EstadoSolicitud.desdeApi(j['estado'] as String? ?? ''),
       creadaEn: DateTime.tryParse(j['creada_en'] as String? ?? '') ?? DateTime.now(),
+      inquilino: j['inquilino'] as String? ?? '',
+      condicionesAceptadas: j['condiciones_aceptadas'] as bool? ?? false,
       contacto: j['contacto'] as String?,
       respondidaEn: j['respondida_en'] != null
           ? DateTime.tryParse(j['respondida_en'] as String)
