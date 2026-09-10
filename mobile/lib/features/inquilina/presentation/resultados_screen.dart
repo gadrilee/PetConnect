@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
-import '../../../shared/widgets/encabezado.dart';
+import '../../../shared/layout/grilla.dart';
+import '../../../shared/layout/pagina.dart';
+import '../../../shared/widgets/estado_vacio.dart';
+import '../../../shared/widgets/resumen_busqueda.dart';
 import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../providers/buscar_provider.dart';
 import 'anuncio_screen.dart';
@@ -14,104 +17,86 @@ import 'anuncio_screen.dart';
 class ResultadosScreen extends StatelessWidget {
   const ResultadosScreen({super.key});
 
+  static const _titulo = 'Resultados';
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<BuscarProvider>();
+    final filtros = provider.filtros;
+    final resultados = provider.resultados;
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: const Encabezado(titulo: 'Resultados'),
-      body: provider.cargando
-          ? const Center(child: CircularProgressIndicator())
-          : provider.resultados.isEmpty
-          ? _SinResultados(error: provider.error)
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    Espacio.lg,
-                    Espacio.md,
-                    Espacio.lg,
-                    0,
-                  ),
-                  child: Text(
+    if (provider.cargando) {
+      return const Pagina(titulo: _titulo, cuerpo: CircularProgressIndicator());
+    }
+
+    if (resultados.isEmpty) {
+      final error = provider.error;
+      return Pagina(
+        titulo: _titulo,
+        // Un error nunca se muestra como "no hay anuncios": seria falso.
+        cuerpo: error != null
+            ? EstadoVacio(
+                icono: Icons.wifi_off_outlined,
+                titulo: error,
+                esError: true,
+                accion: filtros == null ? null : 'Reintentar',
+                alAccion:
+                    filtros == null ? null : () => provider.buscar(filtros),
+              )
+            : const EstadoVacio(
+                icono: Icons.search_off,
+                titulo: 'No encontramos anuncios\ncon esos filtros.',
+                detalle: 'Probá ampliando el precio o los minutos.',
+              ),
+      );
+    }
+
+    return Pagina(
+      titulo: _titulo,
+      hijos: [
+        // GRID: la lista en 8 columnas y "Tu búsqueda" en 4, como en Figma. En
+        // movil el resumen baja debajo de la lista.
+        Grilla12(
+          separacionFilas: Espacio.lg,
+          celdas: [
+            CeldaGrilla(
+              columnas: const Columnas(tablet: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
                     'Ordenados por cercanía a la UAGRM',
                     style: AppText.caption(context).copyWith(
                       color: AppColors.text.withValues(alpha: 0.7),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(
-                      Espacio.lg,
-                      Espacio.lg,
-                      Espacio.lg,
-                      Espacio.lg,
-                    ),
-                    itemCount: provider.resultados.length,
-                    separatorBuilder: (_, i) =>
-                        const SizedBox(height: Espacio.md),
-                    itemBuilder: (ctx, i) {
-                      final anuncio = provider.resultados[i];
-                      return TarjetaAnuncio(
-                        anuncio: anuncio,
-                        alTocar: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                AnuncioScreen(anuncioId: anuncio.id),
-                          ),
+                  for (var i = 0; i < resultados.length; i++) ...[
+                    SizedBox(height: i == 0 ? Espacio.lg : Espacio.md),
+                    TarjetaAnuncio(
+                      anuncio: resultados[i],
+                      alTocar: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              AnuncioScreen(anuncioId: resultados[i].id),
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-    );
-  }
-}
-
-// --------------------------------------------------------- Widgets de apoyo
-
-class _SinResultados extends StatelessWidget {
-  const _SinResultados({this.error});
-
-  final String? error;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Espacio.xl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              error != null ? Icons.wifi_off_outlined : Icons.search_off,
-              size: 64,
-              color: AppColors.text.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: Espacio.md),
-            Text(
-              error ?? 'No encontramos anuncios\ncon esos filtros.',
-              textAlign: TextAlign.center,
-              style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 18),
-            ),
-            if (error == null) ...[
-              const SizedBox(height: Espacio.sm),
-              Text(
-                'Probá ampliando el precio o los minutos.',
-                textAlign: TextAlign.center,
-                style: AppText.caption(context).copyWith(
-                  color: AppColors.text.withValues(alpha: 0.7),
+            if (filtros != null)
+              CeldaGrilla(
+                columnas: const Columnas(tablet: 4),
+                child: ResumenBusqueda(
+                  filtros: filtros,
+                  cantidad: resultados.length,
                 ),
               ),
-            ],
           ],
         ),
-      ),
+      ],
     );
   }
 }

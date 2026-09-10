@@ -40,6 +40,7 @@ class BotonPrincipal extends StatefulWidget {
     this.cargando = false,
     this.etiquetaCargando,
     this.motivoDeshabilitado,
+    this.compacto = false,
   });
 
   /// El texto en reposo. En mayusculas por convencion de la accion principal.
@@ -63,6 +64,10 @@ class BotonPrincipal extends StatefulWidget {
   /// Un boton apagado sin explicacion deja a la persona adivinando. Este texto
   /// es el que convierte "no anda" en "ya se que me falta".
   final String? motivoDeshabilitado;
+
+  /// Version de 48 de alto para las acciones dentro de una tarjeta. Es el
+  /// mismo boton con los mismos estados; solo cambia el alto.
+  final bool compacto;
 
   @override
   State<BotonPrincipal> createState() => _BotonPrincipalState();
@@ -139,7 +144,8 @@ class _BotonPrincipalState extends State<BotonPrincipal> {
               duration: const Duration(milliseconds: 120),
               curve: Curves.easeOut,
               width: double.infinity,
-              height: Medida.boton, // constante en los cuatro estados
+              // Constante en los cuatro estados.
+              height: widget.compacto ? Medida.campo : Medida.boton,
               decoration: BoxDecoration(
                 color: fondo,
                 borderRadius: BorderRadius.circular(12),

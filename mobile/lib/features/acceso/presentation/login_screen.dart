@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/boton_texto.dart';
 import '../../../shared/widgets/campo_texto.dart';
 import '../../../shared/widgets/logo_alquilamatch.dart';
 import '../providers/auth_provider.dart';
@@ -18,8 +20,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _usuario = TextEditingController();
   final _clave = TextEditingController();
-  bool _verClave = false;
-  
+
   // Mensajes de error locales por campo: null = válido.
   String? _errorUsuario;
   String? _errorClave;
@@ -36,8 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _errorUsuario =
           _usuario.text.trim().isEmpty ? 'Escribí tu usuario' : null;
-      _errorClave =
-          _clave.text.isEmpty ? 'Escribí tu contraseña' : null;
+      _errorClave = _clave.text.isEmpty ? 'Escribí tu contraseña' : null;
       ok = _errorUsuario == null && _errorClave == null;
     });
     return ok;
@@ -55,101 +55,64 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    
+
     // Si el backend devuelve error general, lo pasamos al campo de contraseña
     final errorBackend = auth.error;
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Espacio.lg),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const LogoAlquilaMatch(),
-                  const SizedBox(height: Espacio.sm),
-                  Text(
-                    'Alquiler con las condiciones por delante.',
-                    textAlign: TextAlign.center,
-                    style: AppText.body(context).copyWith(
-                      color: AppColors.text.withValues(alpha: 0.7),
-                    ),
-                  ),
-
-                  const SizedBox(height: Espacio.xxl),
-
-                  // ---- Usuario ----
-                  CampoTexto(
-                    etiqueta: 'Usuario',
-                    controlador: _usuario,
-                    icono: Icons.person_outline,
-                    mensajeError: _errorUsuario,
-                    accionTeclado: TextInputAction.next,
-                    alEnviar: (_) => FocusScope.of(context).nextFocus(),
-                  ),
-
-                  const SizedBox(height: Espacio.md),
-
-                  // ---- Contraseña ----
-                  CampoTexto(
-                    etiqueta: 'Contraseña',
-                    controlador: _clave,
-                    icono: Icons.lock_outline,
-                    ocultarTexto: !_verClave,
-                    mensajeError: _errorClave ?? errorBackend,
-                    accionTeclado: TextInputAction.done,
-                    alEnviar: (_) => _entrar(),
-                    sufijo: IconButton(
-                      icon: Icon(
-                        _verClave
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        size: 20,
-                        color: AppColors.text.withValues(alpha: 0.5),
-                      ),
-                      onPressed: () =>
-                          setState(() => _verClave = !_verClave),
-                    ),
-                  ),
-
-                  const SizedBox(height: Espacio.xl),
-
-                  // ---- Botón entrar ----
-                  BotonPrincipal(
-                    etiqueta: 'ENTRAR',
-                    etiquetaCargando: 'ENTRANDO...',
-                    alTocar: auth.ocupado ? null : _entrar,
-                    cargando: auth.ocupado,
-                  ),
-
-                  const SizedBox(height: Espacio.md),
-
-                  // ---- Botón registro ----
-                  TextButton(
-                    onPressed: auth.ocupado
-                        ? null
-                        : () {
-                            context.read<AuthProvider>().limpiarError();
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => const ElegirRolScreen(),
-                            ));
-                          },
-                    child: Text(
-                      'No tengo cuenta',
-                      style: AppText.button(context).copyWith(color: AppColors.primary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    // CONSTRAINTS: la Pagina centra el formulario en los dos ejes y lo deja
+    // con el ancho de formulario, igual que en el registro.
+    return Pagina(
+      ancho: AnchoPagina.formulario,
+      centrarVertical: true,
+      hijos: [
+        const LogoAlquilaMatch(),
+        const SizedBox(height: Espacio.sm),
+        Text(
+          'Alquiler con las condiciones por delante.',
+          textAlign: TextAlign.center,
+          style: AppText.body(context).copyWith(
+            color: AppColors.text.withValues(alpha: 0.7),
           ),
         ),
-      ),
+        const SizedBox(height: Espacio.xxl),
+        CampoTexto(
+          etiqueta: 'Usuario',
+          controlador: _usuario,
+          icono: Icons.person_outline,
+          mensajeError: _errorUsuario,
+          accionTeclado: TextInputAction.next,
+          alEnviar: (_) => FocusScope.of(context).nextFocus(),
+        ),
+        const SizedBox(height: Espacio.md),
+        CampoTexto(
+          etiqueta: 'Contraseña',
+          controlador: _clave,
+          icono: Icons.lock_outline,
+          esClave: true,
+          mensajeError: _errorClave ?? errorBackend,
+          accionTeclado: TextInputAction.done,
+          alEnviar: (_) => _entrar(),
+        ),
+        const SizedBox(height: Espacio.xl),
+        BotonPrincipal(
+          etiqueta: 'ENTRAR',
+          etiquetaCargando: 'ENTRANDO...',
+          alTocar: auth.ocupado ? null : _entrar,
+          cargando: auth.ocupado,
+        ),
+        const SizedBox(height: Espacio.md),
+        BotonTexto(
+          etiqueta: 'No tengo cuenta',
+          alTocar: auth.ocupado
+              ? null
+              : () {
+                  context.read<AuthProvider>().limpiarError();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ElegirRolScreen()),
+                  );
+                },
+        ),
+      ],
     );
   }
 }

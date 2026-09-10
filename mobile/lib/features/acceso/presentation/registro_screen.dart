@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
-import '../../../shared/widgets/encabezado.dart';
 import '../data/perfil.dart';
 import '../providers/auth_provider.dart';
 
@@ -26,7 +26,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final _usuario = TextEditingController();
   final _clave = TextEditingController();
   final _whatsapp = TextEditingController();
-  bool _verClave = false;
 
   @override
   void dispose() {
@@ -62,120 +61,87 @@ class _RegistroScreenState extends State<RegistroScreen> {
     final auth = context.watch<AuthProvider>();
     final errores = auth.erroresPorCampo;
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: const Encabezado(titulo: 'Crear cuenta'),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Espacio.lg),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Tus datos',
-                    style: AppText.heading(context).copyWith(
-                      color: AppColors.text,
-                    ),
-                  ),
-                  const SizedBox(height: Espacio.xxl),
+    return Pagina(
+      titulo: 'Crear cuenta',
+      ancho: AnchoPagina.formulario,
+      hijos: [
+        Text(
+          'Tus datos',
+          style: AppText.heading(context).copyWith(color: AppColors.text),
+        ),
+        const SizedBox(height: Espacio.xxl),
+        CampoTexto(
+          etiqueta: 'Usuario',
+          controlador: _usuario,
+          icono: Icons.person_outline,
+          mensajeError: errores['username'],
+          accionTeclado: TextInputAction.next,
+          alEnviar: (_) => FocusScope.of(context).nextFocus(),
+        ),
+        const SizedBox(height: Espacio.md),
+        CampoTexto(
+          etiqueta: 'Contraseña',
+          controlador: _clave,
+          icono: Icons.lock_outline,
+          esClave: true,
+          pista: 'Al menos 8 caracteres',
+          mensajeError: errores['password'] ??
+              (_clave.text.isNotEmpty && _clave.text.length < 8
+                  ? 'Al menos 8 caracteres'
+                  : null),
+          accionTeclado: TextInputAction.next,
+          alEnviar: (_) => FocusScope.of(context).nextFocus(),
+        ),
 
-                  // ---- Usuario ----
-                  CampoTexto(
-                    etiqueta: 'Usuario',
-                    controlador: _usuario,
-                    icono: Icons.person_outline,
-                    mensajeError: errores['username'],
-                    accionTeclado: TextInputAction.next,
-                    alEnviar: (_) => FocusScope.of(context).nextFocus(),
-                  ),
-                  const SizedBox(height: Espacio.md),
+        // ---- WhatsApp (solo propietario) ----
+        if (widget.rol == Rol.propietario) ...[
+          const SizedBox(height: Espacio.md),
+          CampoTexto(
+            etiqueta: 'WhatsApp',
+            controlador: _whatsapp,
+            icono: Icons.chat_outlined,
+            tipoTeclado: TextInputType.phone,
+            formateadores: [FilteringTextInputFormatter.digitsOnly],
+            pista: '70011122',
+            mensajeError: errores['whatsapp'],
+            accionTeclado: TextInputAction.done,
+            alEnviar: (_) => _crearCuenta(),
+          ),
+          const SizedBox(height: Espacio.sm),
+          const Aviso(
+            icono: Icons.lock_outline,
+            mensaje:
+                'No aparece en tus anuncios. Se libera solo cuando aprobás una visita.',
+            tipo: TipoAviso.info,
+          ),
+        ],
 
-                  // ---- Contraseña ----
-                  CampoTexto(
-                    etiqueta: 'Contraseña',
-                    controlador: _clave,
-                    icono: Icons.lock_outline,
-                    ocultarTexto: !_verClave,
-                    pista: 'Al menos 8 caracteres',
-                    mensajeError: errores['password'] ??
-                        (_clave.text.isNotEmpty && _clave.text.length < 8
-                            ? 'Al menos 8 caracteres'
-                            : null),
-                    accionTeclado: TextInputAction.next,
-                    alEnviar: (_) => FocusScope.of(context).nextFocus(),
-                    sufijo: IconButton(
-                      icon: Icon(
-                        _verClave
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        size: 20,
-                        color: AppColors.text.withValues(alpha: 0.5),
-                      ),
-                      onPressed: () =>
-                          setState(() => _verClave = !_verClave),
-                    ),
-                  ),
+        // ---- Error general del backend ----
+        if (auth.error != null) ...[
+          const SizedBox(height: Espacio.md),
+          Aviso(
+            icono: Icons.error_outline,
+            mensaje: auth.error!,
+            tipo: TipoAviso.error,
+          ),
+        ],
 
-                  // ---- WhatsApp (solo propietario) ----
-                  if (widget.rol == Rol.propietario) ...[
-                    const SizedBox(height: Espacio.md),
-                    CampoTexto(
-                      etiqueta: 'WhatsApp',
-                      controlador: _whatsapp,
-                      icono: Icons.chat_outlined,
-                      tipoTeclado: TextInputType.phone,
-                      formateadores: [FilteringTextInputFormatter.digitsOnly],
-                      pista: '70011122',
-                      mensajeError: errores['whatsapp'],
-                      accionTeclado: TextInputAction.done,
-                      alEnviar: (_) => _crearCuenta(),
-                    ),
-                    const SizedBox(height: Espacio.sm),
-                    const Aviso(
-                      icono: Icons.lock_outline,
-                      mensaje:
-                          'No aparece en tus anuncios. Se libera solo cuando aprobás una visita.',
-                      tipo: TipoAviso.info,
-                    ),
-                  ],
-
-                  // ---- Error general del backend ----
-                  if (auth.error != null) ...[
-                    const SizedBox(height: Espacio.md),
-                    Aviso(
-                      icono: Icons.error_outline,
-                      mensaje: auth.error!,
-                      tipo: TipoAviso.error,
-                    ),
-                  ],
-
-                  const SizedBox(height: Espacio.xl),
-
-                  // ---- Botón crear cuenta ----
-                  BotonPrincipal(
-                    etiqueta: 'CREAR CUENTA',
-                    etiquetaCargando: 'CREANDO...',
-                    alTocar: auth.ocupado ? null : _crearCuenta,
-                    cargando: auth.ocupado,
-                  ),
-
-                  const SizedBox(height: Espacio.md),
-                  Text(
-                    'Vas a poder cambiar de rol creando otra cuenta.',
-                    textAlign: TextAlign.center,
-                    style: AppText.caption(context).copyWith(
-                      color: AppColors.text.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        const SizedBox(height: Espacio.xl),
+        BotonPrincipal(
+          etiqueta: 'CREAR CUENTA',
+          etiquetaCargando: 'CREANDO...',
+          alTocar: auth.ocupado ? null : _crearCuenta,
+          cargando: auth.ocupado,
+        ),
+        const SizedBox(height: Espacio.md),
+        Text(
+          'Vas a poder cambiar de rol creando otra cuenta.',
+          textAlign: TextAlign.center,
+          style: AppText.caption(context).copyWith(
+            color: AppColors.text.withValues(alpha: 0.6),
           ),
         ),
-      ),
+      ],
     );
   }
 }

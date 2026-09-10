@@ -5,12 +5,16 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
+import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/aviso.dart';
+import '../../../shared/widgets/bloque.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
 import '../../../shared/widgets/casilla.dart';
-import '../../../shared/widgets/encabezado.dart';
-import '../../../shared/widgets/interruptor.dart';
+import '../../../shared/widgets/controles.dart';
+import '../../../shared/widgets/fila_condicion.dart';
+import '../../../shared/widgets/icono_circulo.dart';
+import '../../../shared/widgets/titulo_seccion.dart';
 import '../data/anuncio.dart';
 import '../providers/mis_anuncios_provider.dart';
 import '../providers/publicar_provider.dart';
@@ -73,9 +77,8 @@ class _PublicarScreenState extends State<PublicarScreen> {
       _errorAlquiler = (n == null || n <= 0) ? 'Poné un monto válido' : null;
       if (!_todoIncluido) {
         final s = double.tryParse(_costoServicios.text.replaceAll(',', '.'));
-        _errorCostoServicios = (s == null || s < 0)
-            ? 'Estimá cuánto paga aparte'
-            : null;
+        _errorCostoServicios =
+            (s == null || s < 0) ? 'Estimá cuánto paga aparte' : null;
       } else {
         _errorCostoServicios = null;
       }
@@ -86,7 +89,11 @@ class _PublicarScreenState extends State<PublicarScreen> {
       return;
     }
     if (!provider.hayUbicacion) {
-      Aviso.mostrarToast(context, mensaje: 'Falta marcar la ubicación del inmueble.', tipo: TipoAviso.error);
+      Aviso.mostrarToast(
+        context,
+        mensaje: 'Falta marcar la ubicación del inmueble.',
+        tipo: TipoAviso.error,
+      );
       return;
     }
     FocusScope.of(context).unfocus();
@@ -111,8 +118,9 @@ class _PublicarScreenState extends State<PublicarScreen> {
     context.read<MisAnunciosProvider>().cargar();
     Navigator.of(context).pop(anuncio);
     Aviso.mostrarToast(
-      context, 
-      mensaje: 'Publicado. Está a ${anuncio.minutosCaminando} min caminando de la UAGRM.',
+      context,
+      mensaje:
+          'Publicado. Está a ${anuncio.minutosCaminando} min caminando de la UAGRM.',
       tipo: TipoAviso.exito,
     );
   }
@@ -120,374 +128,344 @@ class _PublicarScreenState extends State<PublicarScreen> {
   @override
   Widget build(BuildContext context) {
     final publicar = context.watch<PublicarProvider>();
+    final tenue = AppColors.text.withValues(alpha: 0.7);
+    const teclado = TextInputType.numberWithOptions(decimal: true);
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: const Encabezado(titulo: 'Publicar'),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(Espacio.lg, Espacio.sm, Espacio.lg, Espacio.lg),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (publicar.error != null) ...[
-                Aviso(
-                  icono: Icons.error_outline,
-                  mensaje: publicar.error!,
-                  tipo: TipoAviso.error,
-                ),
-                const SizedBox(height: Espacio.xl),
-              ],
-              BotonPrincipal(
-                etiqueta: 'PUBLICAR',
-                etiquetaCargando: 'PUBLICANDO...',
-                alTocar: publicar.publicando ? null : _publicar,
-                cargando: publicar.publicando,
+    // CONSTRAINTS: un formulario de una columna, en el orden de Figma, que en
+    // un monitor no pasa de 480 y queda centrado.
+    return Pagina(
+      titulo: 'Publicar',
+      ancho: AnchoPagina.formulario,
+      pie: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (publicar.error != null) ...[
+            Aviso(mensaje: publicar.error!, tipo: TipoAviso.error),
+            const SizedBox(height: Espacio.md),
+          ],
+          BotonPrincipal(
+            etiqueta: 'PUBLICAR',
+            etiquetaCargando: 'PUBLICANDO...',
+            alTocar: publicar.publicando ? null : _publicar,
+            cargando: publicar.publicando,
+          ),
+          const SizedBox(height: Espacio.sm),
+          Center(
+            child: FilaCondicion(
+              enLinea: true,
+              icono: Icons.lock_outline,
+              colorIcono: AppColors.text.withValues(alpha: 0.5),
+              texto: 'Tu WhatsApp no aparece en el anuncio',
+              estilo: AppText.caption(context)
+                  .copyWith(color: AppColors.text.withValues(alpha: 0.6)),
+            ),
+          ),
+        ],
+      ),
+      hijos: [
+        // 1. Qué estás alquilando
+        const TituloSeccion('1. Qué estás alquilando'),
+        const SizedBox(height: Espacio.sm),
+        // FLEXBOX: la misma Opcion que en Buscar. Mide lo que su palabra y
+        // baja de fila si no entra.
+        Wrap(
+          spacing: Espacio.md,
+          runSpacing: Espacio.sm,
+          children: [
+            for (final t in TipoEspacio.values)
+              Opcion(
+                etiqueta: t.etiqueta,
+                seleccionada: _tipo == t,
+                alTocar: () => setState(() => _tipo = t),
               ),
-              const SizedBox(height: Espacio.sm),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.lock_outline,
-                    size: 16,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                  ),
-                  const SizedBox(width: Espacio.sm),
-                  Text(
-                    'Tu WhatsApp no aparece en el anuncio',
-                    style: AppText.caption(context).copyWith(
-                      color: AppColors.text.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
+          ],
+        ),
+        const SizedBox(height: Espacio.lg),
+        CampoTexto(
+          etiqueta: 'Título del anuncio',
+          controlador: _titulo,
+          pista: 'Habitación con baño privado',
+          mensajeError: _errorTitulo ?? publicar.erroresPorCampo['titulo'],
+        ),
+
+        // 2. Precio final
+        const SizedBox(height: Espacio.xxl),
+        const TituloSeccion('2. Precio final'),
+        const SizedBox(height: Espacio.sm),
+        Text(
+          'El dato n.º 1 para descartar. Declararlo acá te evita '
+          'repetirlo por WhatsApp.',
+          style: AppText.caption(context).copyWith(color: tenue),
+        ),
+        const SizedBox(height: Espacio.lg),
+        CampoTexto(
+          etiqueta: 'Alquiler mensual',
+          controlador: _alquiler,
+          tipoTeclado: teclado,
+          pista: '0',
+          unidad: 'Bs',
+          mensajeError:
+              _errorAlquiler ?? publicar.erroresPorCampo['precio_alquiler'],
+        ),
+        const SizedBox(height: Espacio.lg),
+        Text(
+          'Qué servicios incluye',
+          style: AppText.body(context).copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.text.withValues(alpha: 0.8),
+          ),
+        ),
+        const SizedBox(height: Espacio.xs),
+        // FLEXBOX: las tres casillas reparten el ancho por partes iguales.
+        Row(
+          children: [
+            Expanded(
+              child: Casilla(
+                etiqueta: 'Agua',
+                marcado: _agua,
+                alCambiar: (v) => setState(() => _agua = v ?? false),
+              ),
+            ),
+            Expanded(
+              child: Casilla(
+                etiqueta: 'Luz',
+                marcado: _luz,
+                alCambiar: (v) => setState(() => _luz = v ?? false),
+              ),
+            ),
+            Expanded(
+              child: Casilla(
+                etiqueta: 'Internet',
+                marcado: _internet,
+                alCambiar: (v) => setState(() => _internet = v ?? false),
+              ),
+            ),
+          ],
+        ),
+        if (!_todoIncluido) ...[
+          const SizedBox(height: Espacio.lg),
+          CampoTexto(
+            etiqueta: 'Cuánto paga aparte por los servicios',
+            controlador: _costoServicios,
+            tipoTeclado: teclado,
+            pista: '0',
+            unidad: 'Bs',
+            mensajeError: _errorCostoServicios ??
+                publicar.erroresPorCampo['costo_servicios_estimado'],
+          ),
+        ],
+        const SizedBox(height: Espacio.lg),
+        Bloque(
+          tono: TonoBloque.primario,
+          // FLEXBOX: la etiqueta toma el espacio libre y la cifra queda a la
+          // derecha.
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Precio final',
+                  style: AppText.button(context)
+                      .copyWith(color: AppColors.surface),
+                ),
+              ),
+              Text(
+                '${NumberFormat.decimalPattern('es').format(_precioFinal)} Bs',
+                style: AppText.cifra(context).copyWith(color: AppColors.surface),
               ),
             ],
           ),
         ),
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(Espacio.lg),
-          children: [
-            // 1. Qué estás alquilando
-            _Titulo('1. Qué estás alquilando'),
-            Row(
-              children: TipoEspacio.values.map((t) {
-                final seleccionado = _tipo == t;
-                return Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      right: t != TipoEspacio.values.last ? Espacio.sm : 0.0,
-                    ),
-                    child: InkWell(
-                      onTap: () => setState(() => _tipo = t),
-                      borderRadius: BorderRadius.circular(Medida.radioSm),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: seleccionado
-                              ? AppColors.primary.withValues(alpha: 0.1)
-                              : Colors.transparent,
-                          border: Border.all(
-                            color: seleccionado
-                                ? AppColors.primary
-                                : AppColors.text.withValues(alpha: 0.2),
-                          ),
-                          borderRadius: BorderRadius.circular(Medida.radioSm),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          t.etiqueta,
-                          style: AppText.caption(context).copyWith(
-                            fontWeight: seleccionado ? FontWeight.bold : FontWeight.normal,
-                            color: seleccionado ? AppColors.primary : AppColors.text.withValues(alpha: 0.7),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: Espacio.lg),
-            CampoTexto(
-              etiqueta: 'Título del anuncio',
-              controlador: _titulo,
-              pista: 'Habitación con baño privado',
-              mensajeError: _errorTitulo ?? publicar.erroresPorCampo['titulo'],
-            ),
 
-            // 2. Precio final
-            const SizedBox(height: Espacio.xxl),
-            _Titulo('2. Precio final'),
-            Text(
-              'El dato n.º 1 para descartar. Declararlo acá te evita '
-              'repetirlo por WhatsApp.',
-              style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
-            ),
-            const SizedBox(height: Espacio.lg),
-            CampoTexto(
-              etiqueta: 'Alquiler mensual',
-              controlador: _alquiler,
-              tipoTeclado: const TextInputType.numberWithOptions(decimal: true),
-              pista: '0',
-              sufijo: Padding(
-                padding: const EdgeInsets.only(right: Espacio.md),
-                child: Text(
-                  'Bs',
-                  style: AppText.body(context).copyWith(
-                    color: AppColors.text.withValues(alpha: 0.7),
-                  ),
-                ),
-              ),
-              mensajeError:
-                  _errorAlquiler ?? publicar.erroresPorCampo['precio_alquiler'],
-            ),
-            const SizedBox(height: Espacio.lg),
-            Text(
-              'Qué servicios incluye',
-              style: AppText.body(context).copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.text.withValues(alpha: 0.8),
-              ),
-            ),
-            const SizedBox(height: Espacio.xs),
-            Row(
-              children: [
-                Expanded(child: Casilla(etiqueta: 'Agua', marcado: _agua, alCambiar: (v) => setState(() => _agua = v ?? false))),
-                Expanded(child: Casilla(etiqueta: 'Luz', marcado: _luz, alCambiar: (v) => setState(() => _luz = v ?? false))),
-                Expanded(child: Casilla(etiqueta: 'Internet', marcado: _internet, alCambiar: (v) => setState(() => _internet = v ?? false))),
-              ],
-            ),
-            
-            if (!_todoIncluido) ...[
-              const SizedBox(height: Espacio.lg),
-              CampoTexto(
-                etiqueta: 'Cuánto paga aparte por los servicios',
-                controlador: _costoServicios,
-                tipoTeclado: const TextInputType.numberWithOptions(decimal: true),
-                pista: '0',
-                sufijo: Padding(
-                  padding: const EdgeInsets.only(right: Espacio.md),
-                  child: Text(
-                    'Bs',
-                    style: AppText.body(context).copyWith(
-                      color: AppColors.text.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-                mensajeError:
-                    _errorCostoServicios ??
-                    publicar.erroresPorCampo['costo_servicios_estimado'],
-              ),
-            ],
-            const SizedBox(height: Espacio.lg),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: Espacio.lg, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(Medida.radio),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // 3. Reglas
+        const SizedBox(height: Espacio.xxl),
+        const TituloSeccion('3. Reglas'),
+        const SizedBox(height: Espacio.md),
+        Interruptor(
+          etiqueta: 'Acepto mascotas',
+          encendido: _mascotas,
+          alCambiar: (v) => setState(() => _mascotas = v),
+        ),
+        const SizedBox(height: Espacio.lg),
+        CampoTexto(
+          etiqueta: 'Reglas (opcional)',
+          controlador: _restricciones,
+          pista: 'Solo señoritas, sin fiestas...',
+        ),
+
+        // 4. Ubicación + 5. Fotos
+        const SizedBox(height: Espacio.xxl),
+        // FLEXBOX: las dos secciones reparten el ancho por partes iguales.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Precio final',
-                    style: AppText.button(context).copyWith(color: AppColors.surface),
+                  const TituloSeccion('4. Ubicación'),
+                  const SizedBox(height: Espacio.sm),
+                  _BotonSeccion(
+                    icono: publicar.hayUbicacion
+                        ? Icons.place
+                        : Icons.my_location,
+                    etiqueta: publicar.hayUbicacion
+                        ? '${publicar.lat!.toStringAsFixed(4)},\n'
+                            '${publicar.lng!.toStringAsFixed(4)}'
+                        : 'Usar GPS',
+                    cargando: publicar.buscandoUbicacion,
+                    alTocar: () => publicar.tomarUbicacion(),
                   ),
-                  Text(
-                    '${NumberFormat.decimalPattern('es').format(_precioFinal)} Bs',
-                    style: AppText.heading(context).copyWith(color: AppColors.surface, fontSize: 20),
+                  if (publicar.errorUbicacion != null) ...[
+                    const SizedBox(height: Espacio.xs),
+                    Text(
+                      publicar.errorUbicacion!,
+                      style: AppText.caption(context)
+                          .copyWith(color: AppColors.error),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: Espacio.lg),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const TituloSeccion('5. Fotos'),
+                  const SizedBox(height: Espacio.sm),
+                  _BotonSeccion(
+                    icono: Icons.photo_camera_outlined,
+                    etiqueta: publicar.fotos.isEmpty
+                        ? 'Tomar foto'
+                        : '${publicar.fotos.length} foto(s)',
+                    cargando: false,
+                    alTocar: () => publicar.agregarFoto(),
                   ),
                 ],
               ),
             ),
-
-            // 3. Reglas
-            const SizedBox(height: Espacio.xxl),
-            _Titulo('3. Reglas'),
-            Interruptor(
-              etiqueta: 'Acepto mascotas',
-              marcado: _mascotas,
-              alCambiar: (v) => setState(() => _mascotas = v),
-            ),
-            const SizedBox(height: Espacio.sm),
-            CampoTexto(
-              etiqueta: 'Reglas (opcional)',
-              controlador: _restricciones,
-              pista: 'Solo señoritas, sin fiestas...',
-            ),
-
-            // 4. Ubicación + 5. Fotos
-            const SizedBox(height: Espacio.xxl),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _Titulo('4. Ubicación'),
-                      _BotonSeccion(
-                        icono: publicar.hayUbicacion
-                            ? Icons.place
-                            : Icons.my_location,
-                        label: publicar.hayUbicacion
-                            ? '${publicar.lat!.toStringAsFixed(4)},\n'
-                                  '${publicar.lng!.toStringAsFixed(4)}'
-                            : 'Usar GPS',
-                        cargando: publicar.buscandoUbicacion,
-                        onTap: () => publicar.tomarUbicacion(),
-                      ),
-                      if (publicar.errorUbicacion != null) ...[
-                        const SizedBox(height: Espacio.xs),
-                        Text(
-                          publicar.errorUbicacion!,
-                          style: AppText.caption(context).copyWith(
-                            color: AppColors.error,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(width: Espacio.lg),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _Titulo('5. Fotos'),
-                      _BotonSeccion(
-                        icono: Icons.photo_camera_outlined,
-                        label: publicar.fotos.isEmpty
-                            ? 'Tomar foto'
-                            : '${publicar.fotos.length} foto(s)',
-                        cargando: false,
-                        onTap: () => publicar.agregarFoto(),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            if (publicar.fotos.isNotEmpty) ...[
-              const SizedBox(height: Espacio.lg),
-              SizedBox(
-                height: 72,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: publicar.fotos.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: Espacio.sm),
-                  itemBuilder: (_, i) {
-                    final f = publicar.fotos[i];
-                    return Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(Medida.radioSm),
-                          child: Image.file(
-                            File(f.ruta),
-                            width: 72,
-                            height: 72,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Positioned(
-                          top: 2,
-                          right: 2,
-                          child: GestureDetector(
-                            onTap: () => publicar.quitarFoto(i),
-                            child: CircleAvatar(
-                              radius: 10,
-                              backgroundColor: AppColors.error,
-                              child: const Icon(
-                                Icons.close,
-                                size: 12,
-                                color: AppColors.surface,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
-            const SizedBox(height: Espacio.lg),
           ],
         ),
-      ),
+
+        if (publicar.fotos.isNotEmpty) ...[
+          const SizedBox(height: Espacio.lg),
+          SizedBox(
+            height: _MiniaturaLocal.lado,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: publicar.fotos.length,
+              separatorBuilder: (_, _) => const SizedBox(width: Espacio.sm),
+              itemBuilder: (_, i) => _MiniaturaLocal(
+                ruta: publicar.fotos[i].ruta,
+                alQuitar: () => publicar.quitarFoto(i),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
 
-class _Titulo extends StatelessWidget {
-  const _Titulo(this.texto);
-
-  final String texto;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: Espacio.sm),
-      child: Text(
-        texto,
-        style: AppText.heading(context).copyWith(color: AppColors.text, fontSize: 18),
-      ),
-    );
-  }
-}
-
+/// Una accion de seccion: marcar la ubicacion o tomar una foto.
+///
+/// AUTO LAYOUT: alto minimo de 88, no fijo. Si la etiqueta ocupa dos lineas,
+/// como las coordenadas, el bloque crece en vez de cortarla.
 class _BotonSeccion extends StatelessWidget {
   const _BotonSeccion({
     required this.icono,
-    required this.label,
+    required this.etiqueta,
     required this.cargando,
-    required this.onTap,
+    required this.alTocar,
   });
 
   final IconData icono;
-  final String label;
+  final String etiqueta;
   final bool cargando;
-  final VoidCallback onTap;
+  final VoidCallback alTocar;
+
+  /// 88 menos el relleno de arriba y de abajo del Bloque.
+  static const double _altoMinimo = 56;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: cargando ? null : onTap,
-      borderRadius: BorderRadius.circular(Medida.radio),
-      child: Container(
-        height: 88,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        decoration: BoxDecoration(
-          color: AppColors.text.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(Medida.radio),
-          border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
-        ),
+    return Bloque(
+      tono: TonoBloque.suave,
+      alTocar: cargando ? null : alTocar,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: _altoMinimo),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (cargando)
               const SizedBox(
                 height: 24,
                 width: 24,
-                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
               )
             else
               Icon(icono, size: 24, color: AppColors.primary),
             const SizedBox(height: Espacio.xs),
             Text(
-              label,
+              etiqueta,
               textAlign: TextAlign.center,
-              style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+              style: AppText.caption(context)
+                  .copyWith(color: AppColors.text.withValues(alpha: 0.7)),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Una foto recien tomada, con la cruz para quitarla.
+class _MiniaturaLocal extends StatelessWidget {
+  const _MiniaturaLocal({required this.ruta, required this.alQuitar});
+
+  final String ruta;
+  final VoidCallback alQuitar;
+
+  static const double lado = 72;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(Medida.radioSm),
+          child: Image.file(
+            File(ruta),
+            width: lado,
+            height: lado,
+            fit: BoxFit.cover,
+          ),
+        ),
+        Positioned(
+          top: Espacio.xs,
+          right: Espacio.xs,
+          child: Semantics(
+            button: true,
+            label: 'Quitar foto',
+            child: GestureDetector(
+              onTap: alQuitar,
+              child: const IconoCirculo(
+                Icons.close,
+                diametro: 20,
+                tono: TonoIcono.error,
+                relleno: true,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

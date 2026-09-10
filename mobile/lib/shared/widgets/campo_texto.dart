@@ -41,7 +41,9 @@ class CampoTexto extends StatefulWidget {
     this.mensajeError,
     this.icono,
     this.sufijo,
+    this.unidad,
     this.ocultarTexto = false,
+    this.esClave = false,
     this.tipoTeclado,
     this.formateadores,
     this.accionTeclado,
@@ -65,11 +67,21 @@ class CampoTexto extends StatefulWidget {
 
   final IconData? icono;
 
-  /// Widget en la derecha (ej. botón del ojito de la contraseña).
+  /// Widget en la derecha.
   final Widget? sufijo;
 
-  /// Si es `true` oculta el texto (contraseñas).
+  /// Texto fijo a la derecha, como la moneda "Bs". Es parte de la caja: la
+  /// unidad no se escribe, se lee.
+  final String? unidad;
+
+  /// Si es `true` oculta el texto siempre.
   final bool ocultarTexto;
+
+  /// Campo de contraseña: oculta el texto y trae su propio ojito para verlo.
+  ///
+  /// Antes cada pantalla armaba el ojito a mano, con su propio estado. Ahora
+  /// vive en la pieza y se ve igual en el login y en el registro.
+  final bool esClave;
 
   final TextInputType? tipoTeclado;
   final List<TextInputFormatter>? formateadores;
@@ -82,6 +94,7 @@ class CampoTexto extends StatefulWidget {
 
 class _CampoTextoState extends State<CampoTexto> {
   final _foco = FocusNode();
+  bool _verClave = false;
 
   @override
   void initState() {
@@ -123,15 +136,37 @@ class _CampoTextoState extends State<CampoTexto> {
     final actual = estado;
 
     // Lo unico que distingue los estados es el borde. La forma se conserva.
-    // Estado relleno → borde verde suave: confirma que el dato fue recibido.
-    // Estado foco → borde verde completo: "estás escribiendo aquí".
-    // Estado error → borde rojo: "esto hay que corregirlo".
+    // Estado relleno: borde verde suave, confirma que el dato fue recibido.
+    // Estado foco: borde verde completo, "estás escribiendo aquí".
+    // Estado error: borde rojo, "esto hay que corregirlo".
     final (Color borde, double grosor) = switch (actual) {
       EstadoCampo.reposo => (esquema.outline.withValues(alpha: 0.4), 1.0),
       EstadoCampo.relleno => (esquema.primary.withValues(alpha: 0.6), 1.5),
       EstadoCampo.foco => (esquema.primary, 2.0),
       EstadoCampo.error => (esquema.error, 2.0),
     };
+
+    final sufijo = widget.sufijo ??
+        (widget.unidad == null
+            ? null
+            : Text(
+                widget.unidad!,
+                style: texto.bodyLarge
+                    ?.copyWith(color: esquema.onSurfaceVariant),
+              )) ??
+        (widget.esClave
+            ? IconButton(
+                tooltip: _verClave ? 'Ocultar contraseña' : 'Mostrar contraseña',
+                icon: Icon(
+                  _verClave
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  size: 20,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+                onPressed: () => setState(() => _verClave = !_verClave),
+              )
+            : null);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,21 +219,28 @@ class _CampoTextoState extends State<CampoTexto> {
                     focusNode: _foco,
                     keyboardType: widget.tipoTeclado,
                     inputFormatters: widget.formateadores,
-                    obscureText: widget.ocultarTexto,
+                    obscureText:
+                        widget.ocultarTexto || (widget.esClave && !_verClave),
                     textInputAction: widget.accionTeclado,
                     onSubmitted: widget.alEnviar,
                     style: texto.bodyLarge,
                     decoration: InputDecoration(
                       hintText: widget.pista,
                       border: InputBorder.none,
+                      // La caja (fondo y borde) la dibuja el AnimatedContainer
+                      // de arriba. Sin esto el TextField pinta ademas su propio
+                      // relleno y queda un rectangulo gris dentro del campo.
+                      filled: false,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                 ),
-                if (widget.sufijo != null) ...[
-                  widget.sufijo!,
-                  const SizedBox(width: Espacio.sm),
+                if (sufijo != null) ...[
+                  sufijo,
+                  SizedBox(
+                    width: widget.unidad == null ? Espacio.sm : Espacio.md,
+                  ),
                 ] else ...[
                   const SizedBox(width: Espacio.md),
                 ],

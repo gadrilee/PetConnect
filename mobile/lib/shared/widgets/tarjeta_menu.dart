@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
-import '../../core/theme.dart';
 
+import '../../core/theme.dart';
+import 'bloque.dart';
+import 'icono_circulo.dart';
+import 'pastilla.dart';
+
+/// Una opcion del menu de inicio.
+///
+/// REGLA DE LA PIEZA
+/// -----------------
+/// Icono, titulo, detalle y a donde lleva, siempre en ese orden. Si todavia
+/// no esta disponible, no se puede tocar y lo dice con una pastilla.
+///
+/// AUTO LAYOUT: alto minimo de 88, no fijo. Si el detalle ocupa dos lineas en
+/// un telefono angosto, la tarjeta crece en vez de cortarlo.
 class TarjetaMenu extends StatelessWidget {
   const TarjetaMenu({
     super.key,
@@ -13,71 +26,63 @@ class TarjetaMenu extends StatelessWidget {
   final String titulo;
   final String detalle;
   final IconData icono;
+
+  /// `null` la muestra como todavia no disponible.
   final VoidCallback? alTocar;
+
+  /// Alto minimo del contenido: 88 menos el relleno de arriba y de abajo.
+  static const double _altoMinimo = 56;
 
   @override
   Widget build(BuildContext context) {
-    final enabled = alTocar != null;
-    final colorIcono = enabled ? AppColors.primary : AppColors.text.withValues(alpha: 0.38);
-    final colorTitulo = enabled ? AppColors.text : AppColors.text.withValues(alpha: 0.38);
+    final habilitada = alTocar != null;
 
-    return InkWell(
-      onTap: alTocar,
-      borderRadius: BorderRadius.circular(Medida.radio),
-      child: Container(
-        height: 88,
-        padding: const EdgeInsets.symmetric(horizontal: Espacio.md),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(Medida.radio),
-          border: Border.all(color: AppColors.text.withValues(alpha: 0.1)),
-        ),
+    return Bloque(
+      alTocar: alTocar,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: _altoMinimo),
+        // FLEXBOX: icono fijo, textos flexibles y la flecha anclada a la
+        // derecha.
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: enabled ? AppColors.primary.withValues(alpha: 0.1) : AppColors.text.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icono, color: colorIcono, size: 24),
+            IconoCirculo(
+              icono,
+              tono: habilitada ? TonoIcono.primario : TonoIcono.neutro,
             ),
             const SizedBox(width: Espacio.md),
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     titulo,
-                    style: AppText.button(context).copyWith(color: colorTitulo),
+                    style: AppText.button(context).copyWith(
+                      color: habilitada
+                          ? AppColors.text
+                          : AppColors.text.withValues(alpha: 0.38),
+                    ),
                   ),
                   const SizedBox(height: Espacio.xs),
                   Text(
                     detalle,
-                    style: AppText.caption(context).copyWith(
-                          color: AppColors.text.withValues(alpha: 0.6),
-                        ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                    style: AppText.caption(context).copyWith(
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
                   ),
                 ],
               ),
             ),
-            if (enabled) ...[
-              const SizedBox(width: Espacio.md),
-              Icon(Icons.chevron_right, color: AppColors.text.withValues(alpha: 0.4)),
-            ] else ...[
-              const SizedBox(width: Espacio.sm),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: Espacio.sm, vertical: Espacio.xs),
-                decoration: BoxDecoration(
-                  color: AppColors.text.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(Medida.radioSm),
-                ),
-                child: Text('Pendiente', style: AppText.caption(context).copyWith(color: AppColors.text.withValues(alpha: 0.5))),
-              ),
-            ]
+            const SizedBox(width: Espacio.md),
+            if (habilitada)
+              Icon(
+                Icons.chevron_right,
+                color: AppColors.text.withValues(alpha: 0.4),
+              )
+            else
+              const Pastilla('Pendiente'),
           ],
         ),
       ),
