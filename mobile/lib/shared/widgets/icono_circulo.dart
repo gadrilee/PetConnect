@@ -28,11 +28,21 @@ class IconoCirculo extends StatelessWidget {
   /// `true` llena el circulo; `false` lo deja con un tinte suave.
   final bool relleno;
 
+  /// El color del icono y del circulo relleno.
   static Color colorDe(TonoIcono tono) => switch (tono) {
         TonoIcono.primario => AppColors.primary,
-        TonoIcono.neutro => AppColors.text.withValues(alpha: 0.5),
+        TonoIcono.neutro => AppColors.text50,
         TonoIcono.exito => AppColors.success,
         TonoIcono.error => AppColors.error,
+      };
+
+  /// El fondo del circulo suave: el tinte de 10 % del color del tono, tomado
+  /// de AppColors y no calculado aca.
+  static Color fondoSuaveDe(TonoIcono tono) => switch (tono) {
+        TonoIcono.primario => AppColors.primary10,
+        TonoIcono.neutro => AppColors.text10,
+        TonoIcono.exito => AppColors.success10,
+        TonoIcono.error => AppColors.error10,
       };
 
   @override
@@ -43,7 +53,7 @@ class IconoCirculo extends StatelessWidget {
       width: diametro,
       height: diametro,
       decoration: BoxDecoration(
-        color: relleno ? color : color.withValues(alpha: 0.1),
+        color: relleno ? color : fondoSuaveDe(tono),
         shape: BoxShape.circle,
       ),
       child: Icon(

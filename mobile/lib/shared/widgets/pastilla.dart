@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 
 /// Los tonos de una pastilla.
-enum TonoPastilla { neutro, primario, exito, error, advertencia, sobreImagen }
+enum TonoPastilla { neutro, primario, exito, error, advertencia }
 
-/// Una etiqueta chica con fondo, como un estado o la fecha sobre una foto.
+/// Una etiqueta chica con fondo, como un estado o la fecha de una foto.
 ///
 /// REGLA DE LA PIEZA
 /// -----------------
@@ -22,30 +22,11 @@ class Pastilla extends StatelessWidget {
   /// Fondo y texto de cada tono.
   static (Color fondo, Color texto) coloresDe(TonoPastilla tono) =>
       switch (tono) {
-        TonoPastilla.neutro => (
-            AppColors.text.withValues(alpha: 0.06),
-            AppColors.text.withValues(alpha: 0.7),
-          ),
-        TonoPastilla.primario => (
-            AppColors.primary.withValues(alpha: 0.12),
-            AppColors.primary,
-          ),
-        TonoPastilla.exito => (
-            AppColors.success.withValues(alpha: 0.12),
-            AppColors.success,
-          ),
-        TonoPastilla.error => (
-            AppColors.error.withValues(alpha: 0.12),
-            AppColors.error,
-          ),
-        TonoPastilla.advertencia => (
-            AppColors.warning.withValues(alpha: 0.12),
-            AppColors.warning,
-          ),
-        TonoPastilla.sobreImagen => (
-            AppColors.text.withValues(alpha: 0.7),
-            AppColors.surface,
-          ),
+        TonoPastilla.neutro => (AppColors.text06, AppColors.text70),
+        TonoPastilla.primario => (AppColors.primary12, AppColors.primary),
+        TonoPastilla.exito => (AppColors.success12, AppColors.success),
+        TonoPastilla.error => (AppColors.error12, AppColors.error),
+        TonoPastilla.advertencia => (AppColors.warning12, AppColors.warning),
       };
 
   @override

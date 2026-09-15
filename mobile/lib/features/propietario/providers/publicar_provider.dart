@@ -35,6 +35,15 @@ class PublicarProvider extends ChangeNotifier {
 
   bool get publicando => _publicando;
 
+  /// Lo que se dice cuando se intenta publicar sin ubicacion. La pantalla lo
+  /// muestra como advertencia, no como error: falta un paso, no fallo nada.
+  static const String faltaUbicacion = 'Falta marcar la ubicación del inmueble.';
+
+  /// Una vez marcada la ubicacion, la advertencia de que faltaba ya no vale.
+  void _olvidarFaltaUbicacion() {
+    if (error == faltaUbicacion) error = null;
+  }
+
   /// Toma la ubicacion del GPS. Se espera que el propietario este parado en el
   /// inmueble: de esa coordenada sale el calculo de minutos caminando.
   Future<void> tomarUbicacion() async {
@@ -68,6 +77,7 @@ class PublicarProvider extends ChangeNotifier {
       );
       lat = posicion.latitude;
       lng = posicion.longitude;
+      _olvidarFaltaUbicacion();
     } catch (e) {
       errorUbicacion = 'No se pudo obtener la ubicación. Intentá de nuevo.';
     } finally {
@@ -81,6 +91,7 @@ class PublicarProvider extends ChangeNotifier {
     lat = nuevaLat;
     lng = nuevoLng;
     errorUbicacion = null;
+    _olvidarFaltaUbicacion();
     notifyListeners();
   }
 
@@ -121,7 +132,7 @@ class PublicarProvider extends ChangeNotifier {
     String direccionReferencia = '',
   }) async {
     if (!hayUbicacion) {
-      error = 'Falta marcar la ubicación del inmueble.';
+      error = faltaUbicacion;
       notifyListeners();
       return null;
     }

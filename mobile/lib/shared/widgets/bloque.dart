@@ -59,18 +59,9 @@ class Bloque extends StatelessWidget {
   /// Fondo y borde de cada tono.
   static (Color fondo, Color? borde) coloresDe(TonoBloque tono) =>
       switch (tono) {
-        TonoBloque.borde => (
-            AppColors.surface,
-            AppColors.text.withValues(alpha: 0.1),
-          ),
-        TonoBloque.suave => (
-            AppColors.text.withValues(alpha: 0.05),
-            AppColors.text.withValues(alpha: 0.1),
-          ),
-        TonoBloque.destacado => (
-            AppColors.primary.withValues(alpha: 0.1),
-            AppColors.primary.withValues(alpha: 0.3),
-          ),
+        TonoBloque.borde => (AppColors.surface, AppColors.text10),
+        TonoBloque.suave => (AppColors.text05, AppColors.text10),
+        TonoBloque.destacado => (AppColors.primary10, AppColors.primary12),
         TonoBloque.primario => (AppColors.primary, null),
       };
 

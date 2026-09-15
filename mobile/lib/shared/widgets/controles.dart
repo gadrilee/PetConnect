@@ -41,9 +41,7 @@ class Opcion extends StatelessWidget {
             color: seleccionada ? AppColors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(Medida.radioSm),
             border: Border.all(
-              color: seleccionada
-                  ? AppColors.primary
-                  : AppColors.text.withValues(alpha: 0.2),
+              color: seleccionada ? AppColors.primary : AppColors.text12,
             ),
           ),
           child: Text(
@@ -51,9 +49,7 @@ class Opcion extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppText.caption(context).copyWith(
-              color: seleccionada
-                  ? AppColors.surface
-                  : AppColors.text.withValues(alpha: 0.7),
+              color: seleccionada ? AppColors.surface : AppColors.text70,
             ),
           ),
         ),
@@ -92,9 +88,7 @@ class Interruptor extends StatelessWidget {
           height: 24,
           padding: const EdgeInsets.all(Espacio.xs),
           decoration: BoxDecoration(
-            color: encendido
-                ? AppColors.primary
-                : AppColors.text.withValues(alpha: 0.1),
+            color: encendido ? AppColors.primary : AppColors.text10,
             borderRadius: BorderRadius.circular(Medida.radio),
           ),
           child: AnimatedAlign(
@@ -105,9 +99,7 @@ class Interruptor extends StatelessWidget {
               width: 16,
               height: 16,
               decoration: BoxDecoration(
-                color: encendido
-                    ? AppColors.surface
-                    : AppColors.text.withValues(alpha: 0.5),
+                color: encendido ? AppColors.surface : AppColors.text50,
                 shape: BoxShape.circle,
               ),
             ),
@@ -163,9 +155,9 @@ class Deslizador extends StatelessWidget {
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
           overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
           activeTrackColor: AppColors.primary,
-          inactiveTrackColor: AppColors.text.withValues(alpha: 0.1),
+          inactiveTrackColor: AppColors.text10,
           thumbColor: AppColors.primary,
-          overlayColor: AppColors.primary.withValues(alpha: 0.1),
+          overlayColor: AppColors.primary10,
         ),
         child: Slider(value: valor, min: min, max: max, onChanged: alCambiar),
       ),

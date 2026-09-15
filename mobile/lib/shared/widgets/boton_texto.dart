@@ -26,9 +26,7 @@ class BotonTexto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = alTocar == null
-        ? AppColors.text.withValues(alpha: 0.38)
-        : AppColors.primary;
+    final color = alTocar == null ? AppColors.text38 : AppColors.primary;
     final texto = Text(
       etiqueta,
       style: AppText.button(context).copyWith(color: color),

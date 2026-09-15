@@ -49,7 +49,8 @@ void main() {
     ) async {
       await tester.pumpWidget(_envolver(TarjetaAnuncio(anuncio: _anuncio())));
 
-      expect(find.text('1000 Bs / mes'), findsOneWidget);
+      // La cifra la escribe PrecioFinal: punto de miles, como en Figma.
+      expect(find.text('1.000 Bs / mes'), findsOneWidget);
       expect(find.text('todo incluido'), findsOneWidget);
       expect(find.text('9 min caminando a la UAGRM'), findsOneWidget);
     });
@@ -63,7 +64,7 @@ void main() {
         ),
       );
 
-      expect(find.text('1000 Bs / mes · todo incluido'), findsOneWidget);
+      expect(find.text('1.000 Bs / mes · todo incluido'), findsOneWidget);
     });
 
     testWidgets('la flecha solo aparece si se puede entrar', (tester) async {

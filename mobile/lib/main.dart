@@ -64,9 +64,17 @@ class _Puerta extends StatelessWidget {
         ),
       EstadoSesion.sinSesion => const LoginScreen(),
       EstadoSesion.autenticado => Builder(builder: (context) {
-          final perfil = context.watch<AuthProvider>().perfil;
+          final auth = context.watch<AuthProvider>();
+          final perfil = auth.perfil;
           if (perfil == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-          return perfil.esPropietario ? const InicioPropietarioScreen() : const InicioInquilinaScreen();
+          // Lo que hay que contar al entrar ("Cuenta creada con éxito") viaja
+          // por el provider: no hay ruta por donde pasarlo, porque esta puerta
+          // reemplaza la raiz. El inicio lo muestra en su pie y lo da por
+          // visto cuando la persona sigue a otra pantalla.
+          final aviso = auth.avisoInicial;
+          return perfil.esPropietario
+              ? InicioPropietarioScreen(avisoInicial: aviso)
+              : InicioInquilinaScreen(avisoInicial: aviso);
         }),
     };
   }

@@ -10,6 +10,8 @@ import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/boton_secundario.dart';
 import '../../../shared/widgets/casilla.dart';
 import '../../../shared/widgets/fila_condicion.dart';
+import '../../../shared/widgets/pie_acciones.dart';
+import '../../../shared/widgets/precio_final.dart';
 import '../../propietario/data/anuncio.dart';
 import '../providers/solicitud_provider.dart';
 import 'solicitud_estado_screen.dart';
@@ -37,14 +39,9 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
 
     if (!mounted) return;
 
-    if (!ok) {
-      Aviso.mostrarToast(
-        context,
-        mensaje: provider.error ?? 'No se pudo enviar la solicitud.',
-        tipo: TipoAviso.error,
-      );
-      return;
-    }
+    // Si fallo, `provider.error` ya se muestra en el pie: la pantalla lo
+    // observa. No hace falta un toast.
+    if (!ok) return;
 
     // Navega a la pantalla de estado reemplazando esta para que el botón
     // "volver" no regrese aquí sino a los resultados.
@@ -58,12 +55,23 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
     );
   }
 
+  /// Que decir en el pie: primero el resultado del envio, si lo hubo; si no,
+  /// lo que falta para poder enviar.
+  Aviso? _aviso(SolicitudProvider provider) {
+    final error = provider.error;
+    if (error != null) return Aviso(tipo: TipoAviso.error, mensaje: error);
+    if (_condicionesAceptadas) return null;
+    return const Aviso(
+      tipo: TipoAviso.error,
+      mensaje: 'Marcá que aceptás las condiciones.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SolicitudProvider>();
     final anuncio = widget.anuncio;
-    final tenue = AppText.caption(context)
-        .copyWith(color: AppColors.text.withValues(alpha: 0.7));
+    final tenue = AppText.caption(context).copyWith(color: AppColors.text70);
 
     final servicios = [
       if (anuncio.serviciosIncluidos['agua'] == true) 'Agua',
@@ -90,26 +98,21 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
 
     return Pagina(
       titulo: 'Solicitar visita',
-      pie: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // La salida secundaria va arriba, como en el wireframe: la accion
-          // principal queda al alcance del pulgar.
-          BotonSecundario(
-            etiqueta: 'CANCELAR',
-            alTocar:
-                provider.cargando ? null : () => Navigator.of(context).pop(),
-          ),
-          const SizedBox(height: Espacio.sm),
-          BotonPrincipal(
-            etiqueta: 'ENVIAR SOLICITUD',
-            etiquetaCargando: 'ENVIANDO...',
-            // null deshabilita: es como la pieza expresa "falta algo".
-            alTocar: _condicionesAceptadas ? _enviar : null,
-            cargando: provider.cargando,
-            motivoDeshabilitado: 'Marcá que aceptás las condiciones.',
-          ),
-        ],
+      pie: PieAcciones(
+        aviso: _aviso(provider),
+        // La salida secundaria va arriba, como en el wireframe: la accion
+        // principal queda al alcance del pulgar.
+        botonSecundarioArriba: BotonSecundario(
+          etiqueta: 'CANCELAR',
+          alTocar: provider.cargando ? null : () => Navigator.of(context).pop(),
+        ),
+        botonPrincipal: BotonPrincipal(
+          etiqueta: 'ENVIAR SOLICITUD',
+          etiquetaCargando: 'ENVIANDO...',
+          // null deshabilita: es como la pieza expresa "falta algo".
+          alTocar: _condicionesAceptadas ? _enviar : null,
+          cargando: provider.cargando,
+        ),
       ),
       hijos: [
         // GRID: lo que se acepta ocupa 8 columnas; el aviso y el precio, 4.
@@ -161,24 +164,16 @@ class _SolicitarVisitaScreenState extends State<SolicitarVisitaScreen> {
                 children: [
                   // ---- Aviso del contacto ----
                   const Aviso(
-                    icono: Icons.lock_clock_outlined,
+                    tipo: TipoAviso.info,
                     mensaje:
-                        'Cuando el propietario apruebe tu solicitud, recibirás su contacto de WhatsApp.',
+                        'Cuando el propietario apruebe, vas a recibir su contacto.',
                   ),
                   const SizedBox(height: Espacio.lg),
 
                   // ---- Resumen de precio ----
-                  Bloque(
-                    tono: TonoBloque.suave,
-                    hijos: [
-                      Text('Precio final', style: tenue),
-                      const SizedBox(height: Espacio.sm),
-                      Text(
-                        '${anuncio.precioFinal} Bs / mes',
-                        style: AppText.cifra(context)
-                            .copyWith(color: AppColors.primary),
-                      ),
-                    ],
+                  PrecioFinal(
+                    monto: anuncio.precioFinal,
+                    estilo: EstiloPrecio.resumen,
                   ),
                 ],
               ),

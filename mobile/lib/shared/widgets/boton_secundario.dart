@@ -62,8 +62,8 @@ class _BotonSecundarioState extends State<BotonSecundario> {
       ),
       EstadoBotonSecundario.presionado => (acento, acento),
       EstadoBotonSecundario.deshabilitado => (
-        esquema.onSurface.withValues(alpha: 0.12),
-        esquema.onSurface.withValues(alpha: 0.38),
+        AppColors.text12,
+        AppColors.text38,
       ),
     };
 
@@ -91,11 +91,13 @@ class _BotonSecundarioState extends State<BotonSecundario> {
           width: double.infinity,
           height: widget.compacto ? Medida.campo : Medida.boton,
           decoration: BoxDecoration(
+            // Presionado se tine apenas del acento: un tinte de AppColors,
+            // no calculado aca.
             color: actual == EstadoBotonSecundario.presionado
-                ? acento.withValues(alpha: 0.08)
+                ? (widget.destructiva ? AppColors.error08 : AppColors.primary10)
                 : Colors.transparent,
             border: Border.all(color: borde),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(Medida.radio),
           ),
           alignment: Alignment.center,
           child: widget.icono == null

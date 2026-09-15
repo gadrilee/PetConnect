@@ -67,9 +67,8 @@ class ResultadosScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Ordenados por cercanía a la UAGRM',
-                    style: AppText.caption(context).copyWith(
-                      color: AppColors.text.withValues(alpha: 0.7),
-                    ),
+                    style: AppText.caption(context)
+                        .copyWith(color: AppColors.text70),
                   ),
                   for (var i = 0; i < resultados.length; i++) ...[
                     SizedBox(height: i == 0 ? Espacio.lg : Espacio.md),

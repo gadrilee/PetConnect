@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
 import '../../../shared/layout/grilla.dart';
 import '../../../shared/layout/pagina.dart';
+import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/bloque.dart';
 import '../../../shared/widgets/boton_flotante.dart';
 import '../../../shared/widgets/boton_secundario.dart';
@@ -12,6 +12,8 @@ import '../../../shared/widgets/boton_texto.dart';
 import '../../../shared/widgets/estado_vacio.dart';
 import '../../../shared/widgets/etiqueta_estado.dart';
 import '../../../shared/widgets/fila_condicion.dart';
+import '../../../shared/widgets/pie_acciones.dart';
+import '../../../shared/widgets/precio_final.dart';
 import '../data/anuncio.dart';
 import '../providers/mis_anuncios_provider.dart';
 import '../providers/publicar_provider.dart';
@@ -30,6 +32,10 @@ class MisAnunciosScreen extends StatefulWidget {
 }
 
 class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
+  /// El resultado de la ultima publicacion, para contarlo en el pie. Se va
+  /// al refrescar la lista: ya se leyo.
+  String? _publicado;
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +48,7 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
     // El provider del formulario se crea nuevo en cada publicacion, para no
     // arrastrar fotos ni ubicacion del anuncio anterior.
     final repo = context.read<MisAnunciosProvider>();
-    await Navigator.of(context).push(
+    final publicado = await Navigator.of(context).push<Anuncio>(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider(
           create: (ctx) => PublicarProvider(ctx.read()),
@@ -50,7 +56,35 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
         ),
       ),
     );
-    if (mounted) repo.cargar();
+    if (!mounted) return;
+    repo.cargar();
+    if (publicado != null) {
+      setState(() {
+        _publicado = 'Publicado. Está a ${publicado.minutosCaminando} min '
+            'caminando de la UAGRM.';
+      });
+    }
+  }
+
+  Future<void> _refrescar() {
+    setState(() => _publicado = null);
+    return context.read<MisAnunciosProvider>().cargar();
+  }
+
+  /// El pie solo cuenta resultados: que se publico, o el ultimo error del
+  /// provider —no se pudo cargar, o no se pudo cambiar el estado de un
+  /// anuncio— mientras la lista sigue a la vista. Nunca un toast suelto.
+  PieAcciones? _pie(MisAnunciosProvider estado) {
+    final error = estado.anuncios.isEmpty ? null : estado.error;
+    if (error != null) {
+      return PieAcciones(aviso: Aviso(mensaje: error, tipo: TipoAviso.error));
+    }
+    if (_publicado != null) {
+      return PieAcciones(
+        aviso: Aviso(mensaje: _publicado!, tipo: TipoAviso.exito),
+      );
+    }
+    return null;
   }
 
   @override
@@ -80,16 +114,17 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
 
     return Pagina(
       titulo: 'Mis anuncios',
-      alRefrescar: estado.cargar,
+      alRefrescar: _refrescar,
       botonFlotante: BotonFlotante(
         etiqueta: 'Publicar',
         icono: Icons.add,
         alTocar: _publicar,
       ),
+      pie: _pie(estado),
       cuerpo: cuerpo,
       hijos: [
         // GRID: un anuncio por fila en movil, dos en tablet y tres en
-        // escritorio.
+        // escritorio, con 16 entre tarjetas (el medianil de la grilla).
         Grilla12(
           celdas: [
             for (final anuncio in anuncios)
@@ -114,8 +149,7 @@ class _TarjetaGestion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final precio = NumberFormat.decimalPattern('es')
-        .format(double.tryParse(anuncio.precioFinal) ?? 0);
+    final precio = PrecioFinal.formatear(anuncio.precioFinal);
     void alternar() =>
         context.read<MisAnunciosProvider>().alternarEstado(anuncio);
 
@@ -160,9 +194,9 @@ class _TarjetaGestion extends StatelessWidget {
                   enLinea: true,
                   icono: icono,
                   texto: texto,
-                  colorIcono: AppColors.text.withValues(alpha: 0.5),
-                  estilo: AppText.caption(context)
-                      .copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+                  colorIcono: AppColors.text50,
+                  estilo:
+                      AppText.caption(context).copyWith(color: AppColors.text70),
                 ),
             ],
           ),

@@ -136,14 +136,16 @@ class _CampoTextoState extends State<CampoTexto> {
     final actual = estado;
 
     // Lo unico que distingue los estados es el borde. La forma se conserva.
-    // Estado relleno: borde verde suave, confirma que el dato fue recibido.
-    // Estado foco: borde verde completo, "estás escribiendo aquí".
+    // Estado reposo: borde gris, "se puede escribir aca".
+    // Estado relleno: borde verde fino, confirma que el dato fue recibido.
+    // Estado foco: borde verde grueso, "estás escribiendo aquí".
     // Estado error: borde rojo, "esto hay que corregirlo".
+    // Los colores son constantes de AppColors: la pieza no calcula tintes.
     final (Color borde, double grosor) = switch (actual) {
-      EstadoCampo.reposo => (esquema.outline.withValues(alpha: 0.4), 1.0),
-      EstadoCampo.relleno => (esquema.primary.withValues(alpha: 0.6), 1.5),
-      EstadoCampo.foco => (esquema.primary, 2.0),
-      EstadoCampo.error => (esquema.error, 2.0),
+      EstadoCampo.reposo => (AppColors.text38, 1.0),
+      EstadoCampo.relleno => (AppColors.primary, 1.5),
+      EstadoCampo.foco => (AppColors.primary, 2.0),
+      EstadoCampo.error => (AppColors.error, 2.0),
     };
 
     final sufijo = widget.sufijo ??
@@ -162,7 +164,7 @@ class _CampoTextoState extends State<CampoTexto> {
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                   size: 20,
-                  color: AppColors.text.withValues(alpha: 0.5),
+                  color: AppColors.text50,
                 ),
                 onPressed: () => setState(() => _verClave = !_verClave),
               )
@@ -193,7 +195,7 @@ class _CampoTextoState extends State<CampoTexto> {
             height: Medida.campo, // constante en los cuatro estados
             decoration: BoxDecoration(
               color: esquema.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(Medida.radio),
               border: Border.all(color: borde, width: grosor),
             ),
             child: Row(
