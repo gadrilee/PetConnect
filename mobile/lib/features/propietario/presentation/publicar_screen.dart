@@ -20,11 +20,19 @@ import '../providers/publicar_provider.dart';
 
 /// Publicar un anuncio: las cuatro condiciones de descarte, GPS y fotos.
 ///
-/// Todo lo que sale mal se cuenta en el pie, que siempre esta a la vista:
-/// el aviso (no se pudo publicar, falta la ubicacion), el motivo en rojo
-/// (cuantos campos corregir) y el candado del WhatsApp. El exito no se
-/// cuenta aca: la pantalla devuelve el anuncio y quien la abrio lo muestra
-/// en su propio pie.
+/// El boton PUBLICAR esta apagado hasta que el anuncio se puede publicar: el
+/// titulo y los montos con un valor que sirve y la ubicacion marcada (Figma
+/// "02 Publicar · vacío"). Cada campo se pone en rojo apenas lo que tiene
+/// escrito no sirve, y el pie cuenta cuantos hay que corregir ("03 Datos con
+/// error"). Con los campos bien pero sin ubicacion, el pie avisa en naranja
+/// que falta ese paso ("04 Falta la ubicación"); si el envio falla, avisa en
+/// rojo y deja el boton prendido para reintentar ("05 No se pudo publicar").
+/// Lo que el backend objeta de un campo va debajo de ese campo y se cuenta
+/// como uno mas en rojo, igual que en Crear cuenta; el aviso rojo queda para
+/// la conexion, el servidor y lo que no tiene campo. Todo eso se cuenta en el
+/// pie, que siempre esta a la vista y nunca tapa el boton. El exito no se
+/// cuenta aca: la pantalla devuelve el anuncio y quien la abrio lo muestra en
+/// su propio pie.
 class PublicarScreen extends StatefulWidget {
   const PublicarScreen({super.key});
 
@@ -38,9 +46,9 @@ class _PublicarScreenState extends State<PublicarScreen> {
   final _costoServicios = TextEditingController(text: '0');
   final _restricciones = TextEditingController();
 
-  String? _errorTitulo;
-  String? _errorAlquiler;
-  String? _errorCostoServicios;
+  /// Los campos que la persona ya edito. Un campo vacio que todavia no toco
+  /// no esta en rojo: el rojo aparece cuando lo que escribio no sirve.
+  final _editados = <TextEditingController>{};
 
   TipoEspacio _tipo = TipoEspacio.habitacion;
   bool _agua = true;
@@ -51,11 +59,27 @@ class _PublicarScreenState extends State<PublicarScreen> {
   @override
   void initState() {
     super.initState();
-    _alquiler.addListener(_refrescar);
-    _costoServicios.addListener(_refrescar);
+    _vigilar(_titulo, campoApi: 'titulo');
+    _vigilar(_alquiler, campoApi: 'precio_alquiler');
+    _vigilar(_costoServicios, campoApi: 'costo_servicios_estimado');
   }
 
-  void _refrescar() => setState(() {});
+  /// Reacciona a lo que se escribe en [controlador]: lo marca como editado,
+  /// vuelve a validar y descarta lo que el backend habia objetado de ese
+  /// campo, que ya no describe lo que hay escrito. Solo al cambiar el texto:
+  /// mover el cursor no es editar.
+  void _vigilar(
+    TextEditingController controlador, {
+    required String campoApi,
+  }) {
+    var anterior = controlador.text;
+    controlador.addListener(() {
+      if (!mounted || controlador.text == anterior) return;
+      anterior = controlador.text;
+      setState(() => _editados.add(controlador));
+      context.read<PublicarProvider>().olvidarErrorDeCampo(campoApi);
+    });
+  }
 
   @override
   void dispose() {
@@ -68,36 +92,66 @@ class _PublicarScreenState extends State<PublicarScreen> {
 
   bool get _todoIncluido => _agua && _luz && _internet;
 
-  double get _precioFinal {
-    final a = double.tryParse(_alquiler.text.replaceAll(',', '.')) ?? 0;
-    final s = double.tryParse(_costoServicios.text.replaceAll(',', '.')) ?? 0;
-    return a + s;
+  static double? _numero(String texto) =>
+      double.tryParse(texto.trim().replaceAll(',', '.'));
+
+  /// Lo mismo que se publica: con todo incluido, los servicios no suman,
+  /// igual que el `'0'` que manda [_publicar]. La barra que ve el propietario
+  /// no puede decir una cifra distinta de la que va a leer la inquilina.
+  double get _precioFinal =>
+      (_numero(_alquiler.text) ?? 0) +
+      (_todoIncluido ? 0 : (_numero(_costoServicios.text) ?? 0));
+
+  /// Los campos de la API que esta pantalla pinta en rojo. Lo que el backend
+  /// objete de otra cosa —una foto, la ubicacion— no tiene campo donde ir y
+  /// se dice en el aviso del pie.
+  static const _camposApi = {
+    'titulo',
+    'precio_alquiler',
+    'costo_servicios_estimado',
+  };
+
+  /// La objecion del backend que no cae debajo de ningun campo, si la hay.
+  static String? _objecionSuelta(PublicarProvider publicar) => publicar
+      .erroresPorCampo
+      .entries
+      .where((e) => !_camposApi.contains(e.key))
+      .map((e) => e.value)
+      .firstOrNull;
+
+  // Que le falta a cada campo, con las palabras de Figma "03 Datos con
+  // error". `null` es que el valor sirve.
+
+  static String? _validarTitulo(String texto) =>
+      texto.trim().isEmpty ? 'Poné un título' : null;
+
+  static String? _validarAlquiler(String texto) {
+    final monto = _numero(texto);
+    return monto == null || monto <= 0 ? 'Poné un monto válido' : null;
   }
+
+  /// Igual que el alquiler: un monto, aunque puede ser 0 si paga poco aparte.
+  static String? _validarServicios(String texto) {
+    final monto = _numero(texto);
+    return monto == null || monto < 0 ? 'Estimá cuánto paga aparte' : null;
+  }
+
+  /// Lo que se ve en rojo debajo de un campo: la validacion local, solo si la
+  /// persona ya lo edito, o lo que objeto el backend.
+  String? _errorDe(
+    TextEditingController controlador,
+    String? Function(String) validar,
+    String? delBackend,
+  ) =>
+      (_editados.contains(controlador) ? validar(controlador.text) : null) ??
+      delBackend;
 
   Future<void> _publicar() async {
     final provider = context.read<PublicarProvider>();
-
-    setState(() {
-      _errorTitulo = _titulo.text.trim().isEmpty ? 'Ponele un título' : null;
-      final n = double.tryParse(_alquiler.text.replaceAll(',', '.'));
-      _errorAlquiler = (n == null || n <= 0) ? 'Poné un monto válido' : null;
-      if (!_todoIncluido) {
-        final s = double.tryParse(_costoServicios.text.replaceAll(',', '.'));
-        _errorCostoServicios =
-            (s == null || s < 0) ? 'Estimá cuánto paga aparte' : null;
-      } else {
-        _errorCostoServicios = null;
-      }
-    });
-    // Con campos en rojo no se envia nada: el motivo del pie dice cuantos.
-    if (_errorTitulo != null ||
-        _errorAlquiler != null ||
-        _errorCostoServicios != null) {
-      return;
-    }
     FocusScope.of(context).unfocus();
 
-    // Sin ubicacion el provider no envia y deja el aviso; el pie lo muestra.
+    // El boton solo se prende con todo listo, asi que aca no se valida nada:
+    // los campos se validaron mientras se escribian y la ubicacion ya esta.
     final anuncio = await provider.publicar(
       titulo: _titulo.text.trim(),
       tipoEspacio: _tipo,
@@ -120,20 +174,33 @@ class _PublicarScreenState extends State<PublicarScreen> {
     Navigator.of(context).pop(anuncio);
   }
 
-  /// El aviso del pie: que la publicacion fallo (error) o que falta un paso
-  /// para poder publicar, como marcar la ubicacion (advertencia).
-  Aviso? _avisoDelPie(PublicarProvider publicar) {
-    final mensaje = publicar.error ?? publicar.errorUbicacion;
-    if (mensaje == null) return null;
-    final faltaUnPaso = publicar.error == null ||
-        publicar.error == PublicarProvider.faltaUbicacion;
-    return Aviso(
-      mensaje: mensaje,
-      tipo: faltaUnPaso ? TipoAviso.advertencia : TipoAviso.error,
-    );
+  /// El aviso del pie.
+  ///
+  /// Rojo (error) cuando algo fallo, el envio o la camara, o el backend objeto
+  /// algo que no es un campo de aca: el boton queda prendido para reintentar.
+  /// Lo que objeto de un campo no va aca: va debajo del campo y lo cuenta el
+  /// motivo. Naranja (advertencia) cuando falta un paso: el GPS no respondio,
+  /// o los campos ya estan bien pero la ubicacion no esta marcada. Con el
+  /// formulario a medias no dice nada: el boton apagado y los campos en rojo
+  /// ya cuentan lo que falta.
+  Aviso? _avisoDelPie(
+    PublicarProvider publicar, {
+    required bool camposValidos,
+  }) {
+    final fallo = publicar.error ?? _objecionSuelta(publicar);
+    if (fallo != null && fallo != PublicarProvider.faltaUbicacion) {
+      return Aviso(mensaje: fallo, tipo: TipoAviso.error);
+    }
+    final faltaUnPaso = publicar.errorUbicacion ??
+        (!publicar.hayUbicacion && (camposValidos || fallo != null)
+            ? PublicarProvider.faltaUbicacion
+            : null);
+    if (faltaUnPaso == null) return null;
+    return Aviso(mensaje: faltaUnPaso, tipo: TipoAviso.advertencia);
   }
 
-  /// Cuantos campos hay que corregir, dicho debajo del boton.
+  /// Cuantos campos hay que corregir, dicho debajo del boton apagado. Con
+  /// ninguno en rojo no se dice nada: un formulario vacio no es un error.
   static String? _motivo(int enRojo) => switch (enRojo) {
         0 => null,
         1 => 'Corregí el campo marcado en rojo para poder publicar.',
@@ -148,15 +215,37 @@ class _PublicarScreenState extends State<PublicarScreen> {
 
     // Lo que se ve en rojo: la validacion local o la del backend, campo por
     // campo. El pie cuenta cuantos son.
-    final errorTitulo = _errorTitulo ?? publicar.erroresPorCampo['titulo'];
-    final errorAlquiler =
-        _errorAlquiler ?? publicar.erroresPorCampo['precio_alquiler'];
+    final errorTitulo = _errorDe(
+      _titulo,
+      _validarTitulo,
+      publicar.erroresPorCampo['titulo'],
+    );
+    final errorAlquiler = _errorDe(
+      _alquiler,
+      _validarAlquiler,
+      publicar.erroresPorCampo['precio_alquiler'],
+    );
     final errorCostoServicios = _todoIncluido
         ? null
-        : _errorCostoServicios ??
-            publicar.erroresPorCampo['costo_servicios_estimado'];
+        : _errorDe(
+            _costoServicios,
+            _validarServicios,
+            publicar.erroresPorCampo['costo_servicios_estimado'],
+          );
     final enRojo =
         [errorTitulo, errorAlquiler, errorCostoServicios].nonNulls.length;
+
+    // Se puede publicar cuando los valores sirven —los haya tocado o no—, el
+    // backend no objeto ninguno y la ubicacion esta marcada. Mientras tanto
+    // el boton queda apagado: `null` es como la pieza dice "falta algo".
+    final camposValidos = enRojo == 0 &&
+        _validarTitulo(_titulo.text) == null &&
+        _validarAlquiler(_alquiler.text) == null &&
+        (_todoIncluido || _validarServicios(_costoServicios.text) == null);
+    final listo = camposValidos && publicar.hayUbicacion;
+
+    final aviso = _avisoDelPie(publicar, camposValidos: camposValidos);
+    final motivo = _motivo(enRojo);
 
     // CONSTRAINTS: un formulario de una columna, en el orden de Figma, que en
     // un monitor no pasa de 480 y queda centrado.
@@ -166,26 +255,30 @@ class _PublicarScreenState extends State<PublicarScreen> {
       titulo: 'Publicar',
       ancho: AnchoPagina.formulario,
       pie: PieAcciones(
-        aviso: _avisoDelPie(publicar),
+        aviso: aviso,
         botonPrincipal: BotonPrincipal(
           etiqueta: 'PUBLICAR',
           etiquetaCargando: 'PUBLICANDO...',
-          alTocar: publicar.publicando ? null : _publicar,
+          alTocar: listo && !publicar.publicando ? _publicar : null,
           cargando: publicar.publicando,
+          // Lo visible lo dicen el motivo y el aviso; esto es para quien no
+          // ve la pantalla.
+          pistaDeshabilitado: motivo ??
+              aviso?.mensaje ??
+              'Completá los datos del anuncio para poder publicar.',
         ),
-        motivo: _motivo(enRojo),
+        motivo: motivo,
         notaWhatsApp: true,
       ),
       hijos: [
         // 1. Qué estás alquilando
         const TituloSeccion('1. Qué estás alquilando'),
         const SizedBox(height: Espacio.md),
-        // FLEXBOX: la misma Opcion que en Buscar. Mide lo que su palabra y
-        // baja de fila si no entra.
-        Wrap(
-          spacing: Espacio.md,
-          runSpacing: Espacio.sm,
-          children: [
+        // La misma Opcion que en Buscar, en su otro modo: las tres reparten
+        // la fila por partes iguales, como en Figma "02 Publicar". Como se
+        // reparten y se centran lo sabe la pieza, no esta pantalla.
+        FilaOpciones(
+          opciones: [
             for (final t in TipoEspacio.values)
               Opcion(
                 etiqueta: t.etiqueta,

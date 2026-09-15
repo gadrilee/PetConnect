@@ -29,53 +29,87 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final _whatsapp = TextEditingController();
 
   // Mensajes de error locales por campo: null = válido. Se calculan al
-  // enviar, como en el login, no mientras se escribe.
-  String? _errorUsuario;
+  // enviar, como en el login, no mientras se escribe. El usuario no tiene
+  // uno: lo unico que puede fallarle lo sabe el backend.
   String? _errorClave;
   String? _errorWhatsapp;
+
+  /// Los motivos de cada campo, con el texto de Figma (Crear cuenta · datos
+  /// con error). El del usuario ("Ese nombre de usuario ya está tomado.") no
+  /// esta aca: solo lo sabe el backend, y llega por `erroresPorCampo`.
+  static const _claveCorta =
+      'Asegurate de que este campo tenga al menos 8 caracteres.';
+  static const _whatsappInvalido = 'Escribí un número de 8 dígitos.';
+
+  /// Un WhatsApp de Bolivia: exactamente 8 digitos, ni uno mas ni uno menos.
+  static final _ochoDigitos = RegExp(r'^\d{8}$');
 
   /// El WhatsApp se pide solo al propietario: es lo que libera al aprobar.
   bool get _pideWhatsapp => widget.rol == Rol.propietario;
 
+  /// Si todos los campos que se ven tienen texto (Figma: Crear cuenta ·
+  /// vacío / completo). Decide si el boton se prende; que lo escrito sirva
+  /// se revisa recien al tocar, en [_validar].
+  bool get _completo =>
+      _usuario.text.trim().isNotEmpty &&
+      _clave.text.isNotEmpty &&
+      (!_pideWhatsapp || _whatsapp.text.trim().isNotEmpty);
+
+  @override
+  void initState() {
+    super.initState();
+    // El estado del boton se deriva de lo escrito: hay que rearmar la
+    // pantalla con cada tecla, no solo al enviar.
+    for (final controlador in [_usuario, _clave, _whatsapp]) {
+      controlador.addListener(_rearmar);
+    }
+  }
+
   @override
   void dispose() {
-    _usuario.dispose();
-    _clave.dispose();
-    _whatsapp.dispose();
+    for (final controlador in [_usuario, _clave, _whatsapp]) {
+      controlador
+        ..removeListener(_rearmar)
+        ..dispose();
+    }
     super.dispose();
   }
 
-  /// Revisa lo que se puede revisar sin backend. Devuelve si se puede enviar.
+  void _rearmar() {
+    if (mounted) setState(() {});
+  }
+
+  /// Revisa lo que se puede revisar sin backend, al enviar. Devuelve si se
+  /// puede enviar. Aca ya no llega ningun campo vacio: [_crearCuenta] no
+  /// pasa sin [_completo].
   bool _validar() {
     bool ok = true;
     setState(() {
-      _errorUsuario =
-          _usuario.text.trim().isEmpty ? 'Escribí un usuario' : null;
-      _errorClave = _clave.text.isEmpty
-          ? 'Escribí una contraseña'
-          : _clave.text.length < 8
-              ? 'Al menos 8 caracteres'
+      _errorClave = _clave.text.length < 8 ? _claveCorta : null;
+      _errorWhatsapp =
+          _pideWhatsapp && !_ochoDigitos.hasMatch(_whatsapp.text.trim())
+              ? _whatsappInvalido
               : null;
-      _errorWhatsapp = _pideWhatsapp && _whatsapp.text.trim().isEmpty
-          ? 'Escribí tu WhatsApp'
-          : null;
-      ok = _errorUsuario == null &&
-          _errorClave == null &&
-          _errorWhatsapp == null;
+      ok = _errorClave == null && _errorWhatsapp == null;
     });
     return ok;
   }
 
+  /// La unica compuerta para crear la cuenta, la toque el boton o el "listo"
+  /// del teclado: con un campo vacio, o con la cuenta ya creandose, no pasa
+  /// nada, igual que el boton apagado. Sin esto el teclado saltaba el boton.
   Future<void> _crearCuenta() async {
     FocusScope.of(context).unfocus();
+    final auth = context.read<AuthProvider>();
+    if (auth.ocupado || !_completo) return;
     if (!_validar()) return;
 
-    final ok = await context.read<AuthProvider>().registro(
-          username: _usuario.text.trim(),
-          password: _clave.text,
-          rol: widget.rol,
-          whatsapp: _whatsapp.text.trim(),
-        );
+    final ok = await auth.registro(
+      username: _usuario.text.trim(),
+      password: _clave.text,
+      rol: widget.rol,
+      whatsapp: _whatsapp.text.trim(),
+    );
 
     // Con exito el provider ya dejo la sesion iniciada y guardo el aviso
     // "Cuenta creada con éxito" en `avisoInicial`: _Puerta reemplaza el login
@@ -91,19 +125,22 @@ class _RegistroScreenState extends State<RegistroScreen> {
     final auth = context.watch<AuthProvider>();
     final errores = auth.erroresPorCampo;
 
-    // Lo local manda sobre lo del backend: es lo mas reciente.
-    final errorUsuario = _errorUsuario ?? errores['username'];
+    // Lo local manda sobre lo del backend: es lo mas reciente. El usuario
+    // solo tiene lo del backend.
+    final errorUsuario = errores['username'];
     final errorClave = _errorClave ?? errores['password'];
     final errorWhatsapp =
         _pideWhatsapp ? _errorWhatsapp ?? errores['whatsapp'] : null;
 
     // Cuantos campos quedaron en rojo: el resumen de arriba del boton cuenta
-    // los mismos que la persona ve marcados.
+    // los mismos que la persona ve marcados, vengan de aca o del backend
+    // (el usuario tomado tambien es un campo en rojo).
     final camposConError =
         [errorUsuario, errorClave, errorWhatsapp].whereType<String>().length;
 
-    // El aviso de arriba del boton: el resumen de los campos en rojo o, si no
-    // hay ninguno marcado, el error general (sin conexion, servidor caido).
+    // El aviso de arriba del boton (Figma: Crear cuenta · datos con error):
+    // el resumen de los campos en rojo o, si no hay ninguno marcado, el error
+    // general con su propio mensaje (sin conexion, servidor caido).
     final String? mensajeError = switch (camposConError) {
       0 => auth.error,
       1 => 'Corregí el campo marcado en rojo para crear la cuenta.',
@@ -116,6 +153,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
     // acciones: el aviso de error, 16, el boton. Sin pie: el boton va en el
     // contenido, como en Figma. El resumen de errores es un Aviso arriba del
     // boton, igual que el de "sin conexión"; nunca un texto suelto debajo.
+    // El boton pasa por sus estados: apagado con algun campo vacio (Crear
+    // cuenta · vacío), prendido con los tres llenos (· completo) y cargando
+    // mientras se crea la cuenta.
     return Pagina(
       titulo: 'Crear cuenta',
       ancho: AnchoPagina.formulario,
@@ -177,8 +217,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
         BotonPrincipal(
           etiqueta: 'CREAR CUENTA',
           etiquetaCargando: 'CREANDO...',
-          alTocar: auth.ocupado ? null : _crearCuenta,
+          // `null` apaga el boton: falta texto en algun campo, o ya se esta
+          // creando la cuenta (y entonces `cargando` es lo que se ve).
+          alTocar: auth.ocupado || !_completo ? null : _crearCuenta,
           cargando: auth.ocupado,
+          pistaDeshabilitado: 'Completá todos los campos para crear la cuenta',
         ),
       ],
     );

@@ -348,6 +348,43 @@ void main() {
     expect(depto.height, casa.height);
   });
 
+  testWidgets('FilaOpciones: reparten el ancho por partes iguales, con 8 entre '
+      'ellas y la etiqueta centrada', (tester) async {
+    await tester.pumpWidget(
+      _enCaja(
+        FilaOpciones(
+          opciones: [
+            Opcion(etiqueta: 'Habitación', seleccionada: true, alTocar: () {}),
+            Opcion(etiqueta: 'Departamento', seleccionada: false, alTocar: () {}),
+            Opcion(etiqueta: 'Casa', seleccionada: false, alTocar: () {}),
+          ],
+        ),
+      ),
+    );
+
+    final opciones = find.byType(Opcion);
+    final rects = [for (var i = 0; i < 3; i++) tester.getRect(opciones.at(i))];
+    final fila = tester.getRect(find.byType(FilaOpciones));
+
+    // Tres anchos iguales que llenan la caja de 320, con 8 entre uno y otro:
+    // "Casa" ya no mide lo que su palabra.
+    expect(rects[0].width, closeTo((320 - 2 * Espacio.sm) / 3, 0.01));
+    expect(rects[1].width, closeTo(rects[0].width, 0.01));
+    expect(rects[2].width, closeTo(rects[0].width, 0.01));
+    expect(rects[0].left, fila.left);
+    expect(rects[2].right, closeTo(fila.right, 0.01));
+    expect(rects[1].left - rects[0].right, closeTo(Espacio.sm, 0.01));
+    expect(rects[2].left - rects[1].right, closeTo(Espacio.sm, 0.01));
+
+    // La palabra corta queda centrada en su pastilla, no pegada al borde.
+    expect(
+      tester.getCenter(find.text('Casa')).dx,
+      closeTo(rects[2].center.dx, 0.5),
+    );
+    // El alto es el mismo de la Opcion suelta: solo cambia el ancho.
+    expect(rects[0].height, rects[2].height);
+  });
+
   group('CampoTexto', () {
     testWidgets('esClave: oculta el texto y el ojito lo muestra', (
       tester,
