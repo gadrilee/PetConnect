@@ -4,6 +4,7 @@ import '../../core/theme.dart';
 import '../../features/propietario/data/anuncio.dart';
 import 'bloque.dart';
 import 'foto_inmueble.dart';
+import 'precio_final.dart';
 
 /// Cuanto espacio ocupa la tarjeta, segun el papel del anuncio en la pantalla.
 enum TamanoTarjeta {
@@ -84,10 +85,11 @@ class TarjetaAnuncio extends StatelessWidget {
                 const SizedBox(height: Espacio.sm),
 
                 // El precio y lo que cubre son un solo dato: separarlos fue
-                // lo que obligo a preguntar durante la prueba.
+                // lo que obligo a preguntar durante la prueba. La cifra la
+                // escribe PrecioFinal, igual que en el anuncio.
                 if (_esCompleta) ...[
                   Text(
-                    '${anuncio.precioFinal} Bs / mes',
+                    PrecioFinal.cifraDe(anuncio.precioFinal),
                     style: texto.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: esquema.onSurface,
@@ -106,7 +108,8 @@ class TarjetaAnuncio extends StatelessWidget {
                   // En la compacta no sobra alto, asi que van en una linea.
                   // Lo que no se hace es dejar el monto solo.
                   Text(
-                    '${anuncio.precioFinal} Bs / mes · ${cobertura(anuncio)}',
+                    '${PrecioFinal.cifraDe(anuncio.precioFinal)} · '
+                    '${cobertura(anuncio)}',
                     style: texto.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),

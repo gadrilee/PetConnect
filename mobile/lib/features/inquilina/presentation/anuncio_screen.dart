@@ -12,6 +12,8 @@ import '../../../shared/widgets/estado_vacio.dart';
 import '../../../shared/widgets/fila_condicion.dart';
 import '../../../shared/widgets/foto_inmueble.dart';
 import '../../../shared/widgets/pastilla.dart';
+import '../../../shared/widgets/pie_acciones.dart';
+import '../../../shared/widgets/precio_final.dart';
 import '../../propietario/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/solicitud_provider.dart';
@@ -116,7 +118,12 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
 
     return Pagina(
       titulo: _titulo,
-      pie: BotonPrincipal(etiqueta: 'SOLICITAR VISITA', alTocar: _irASolicitar),
+      pie: PieAcciones(
+        botonPrincipal: BotonPrincipal(
+          etiqueta: 'SOLICITAR VISITA',
+          alTocar: _irASolicitar,
+        ),
+      ),
       hijos: [
         // GRID: lo que decide (fotos, precio y condiciones) ocupa 8 columnas y
         // lo que acompana 4. En movil todo va a 12, en el orden del wireframe.
@@ -146,8 +153,6 @@ class _Principal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tenue = AppText.caption(context)
-        .copyWith(color: AppColors.text.withValues(alpha: 0.7));
     final restricciones = anuncio.restricciones.isNotEmpty
         ? ' · ${anuncio.restricciones}'
         : '';
@@ -177,42 +182,32 @@ class _Principal extends StatelessWidget {
           tono: TonoBloque.suave,
           hijos: [
             // El precio final es el criterio de descarte n.º 1 del brief,
-            // asi que se lee primero y con mas peso.
-            Text('Precio final', style: tenue),
-            const SizedBox(height: Espacio.sm),
-            Text(
-              '${anuncio.precioFinal} Bs / mes',
-              style: AppText.cifra(context).copyWith(color: AppColors.primary),
-            ),
+            // asi que se lee primero y con mas peso: la barra verde.
+            PrecioFinal(monto: anuncio.precioFinal),
 
             // ─── Corregido tras la prueba con usuaria (27/08) ───
             //
             // Ella leyo el precio destacado y IGUAL pregunto "¿cuanto es con
             // luz?". Por eso los servicios van pegados a la cifra y lo que NO
-            // esta incluido aparece explicito en vez de omitirse.
-            const SizedBox(height: Espacio.sm),
-            // FLEXBOX: los servicios van en fila y bajan si no entran.
-            Wrap(
-              spacing: Espacio.md,
-              runSpacing: Espacio.sm,
-              children: [
-                for (final (clave, nombre) in const [
-                  ('agua', 'Agua'),
-                  ('luz', 'Luz'),
-                  ('internet', 'Internet'),
-                ])
-                  _servicio(
-                    context,
-                    nombre,
-                    anuncio.serviciosIncluidos[clave] == true,
-                  ),
-              ],
-            ),
+            // esta incluido aparece explicito en vez de omitirse: una fila
+            // por servicio, con el check verde o el bloqueo gris.
+            for (final (clave, nombre) in const [
+              ('agua', 'Agua'),
+              ('luz', 'Luz'),
+              ('internet', 'Internet'),
+            ]) ...[
+              const SizedBox(height: Espacio.sm),
+              _servicio(
+                context,
+                nombre,
+                anuncio.serviciosIncluidos[clave] == true,
+              ),
+            ],
 
             // El divisor es una linea de 1 px que vive DENTRO del hueco de 16:
             // 8 de cada lado. No es un bloque de contenido.
             const SizedBox(height: Espacio.sm),
-            Divider(height: 1, color: AppColors.text.withValues(alpha: 0.1)),
+            Divider(height: 1, color: AppColors.text12),
             const SizedBox(height: Espacio.sm),
 
             // Los otros tres datos comparten peso entre si.
@@ -239,20 +234,31 @@ class _Principal extends StatelessWidget {
   }
 }
 
-/// La galeria de fotos, cada una con su fecha de captura.
-class _Galeria extends StatelessWidget {
+/// La galeria de fotos, cada una con su fecha de captura debajo.
+///
+/// La fecha no va sobre la foto sino en una pastilla debajo, como en Figma:
+/// se lee sobre el fondo de la pagina y no depende de lo que tenga la imagen.
+class _Galeria extends StatefulWidget {
   const _Galeria({required this.anuncio});
 
   final Anuncio anuncio;
 
   @override
+  State<_Galeria> createState() => _GaleriaState();
+}
+
+class _GaleriaState extends State<_Galeria> {
+  /// Que foto se esta mirando: la pastilla de la fecha la sigue.
+  int _actual = 0;
+
+  @override
   Widget build(BuildContext context) {
-    final fotos = anuncio.fotos;
+    final fotos = widget.anuncio.fotos;
     String dos(int n) => n.toString().padLeft(2, '0');
 
     // CONSTRAINTS: la galeria guarda la proporcion 16:9. En un telefono mide
     // 176 de alto, como en el wireframe, y en un monitor crece con su columna.
-    return AspectRatio(
+    final imagen = AspectRatio(
       aspectRatio: 16 / 9,
       child: fotos.isEmpty
           ? const FotoInmueble(url: null)
@@ -260,35 +266,34 @@ class _Galeria extends StatelessWidget {
               borderRadius: BorderRadius.circular(Medida.radioSm),
               child: PageView.builder(
                 itemCount: fotos.length,
-                itemBuilder: (_, i) {
-                  final fecha = fotos[i].fechaCaptura;
-                  return Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      FotoInmueble(url: fotos[i].imagen, radio: 0),
-                      // Fecha de captura (evidencia 4)
-                      Positioned(
-                        left: Espacio.sm,
-                        bottom: Espacio.sm,
-                        child: Pastilla(
-                          'Foto ${dos(fecha.day)}/${dos(fecha.month)}/${fecha.year}',
-                          tono: TonoPastilla.sobreImagen,
-                        ),
-                      ),
-                      if (fotos.length > 1)
-                        Positioned(
-                          right: Espacio.sm,
-                          bottom: Espacio.sm,
-                          child: Pastilla(
-                            '${i + 1}/${fotos.length}',
-                            tono: TonoPastilla.sobreImagen,
-                          ),
-                        ),
-                    ],
-                  );
-                },
+                onPageChanged: (i) => setState(() => _actual = i),
+                itemBuilder: (_, i) =>
+                    FotoInmueble(url: fotos[i].imagen, radio: 0),
               ),
             ),
+    );
+
+    if (fotos.isEmpty) return imagen;
+
+    final fecha = fotos[_actual].fechaCaptura;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        imagen,
+        const SizedBox(height: Espacio.sm),
+        // FLEXBOX: la fecha a la izquierda y, si hay varias fotos, el
+        // contador anclado a la derecha.
+        Row(
+          children: [
+            // Fecha de captura (evidencia 4)
+            Pastilla('Foto ${dos(fecha.day)}/${dos(fecha.month)}/${fecha.year}'),
+            const Spacer(),
+            if (fotos.length > 1) Pastilla('${_actual + 1}/${fotos.length}'),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -311,16 +316,13 @@ class _Acompana extends StatelessWidget {
               'El contacto del propietario está protegido. Se libera solo cuando aprobás una solicitud.',
         ),
         const SizedBox(height: Espacio.lg),
-        Bloque(
-          tono: TonoBloque.suave,
-          child: Text(
-            anuncio.direccionReferencia.isNotEmpty
-                ? anuncio.direccionReferencia
-                : 'Ubicación aproximada — visible al aprobar la solicitud',
-            textAlign: TextAlign.center,
-            style: AppText.caption(context)
-                .copyWith(color: AppColors.text.withValues(alpha: 0.7)),
-          ),
+        // La ubicacion exacta no se publica: el aviso lo dice, no un bloque.
+        Aviso(
+          tipo: TipoAviso.info,
+          icono: Icons.place_outlined,
+          mensaje: anuncio.direccionReferencia.isNotEmpty
+              ? anuncio.direccionReferencia
+              : 'Ubicación aproximada — visible al aprobar la solicitud',
         ),
       ],
     );
@@ -330,16 +332,15 @@ class _Acompana extends StatelessWidget {
 /// Un servicio del precio final, tal como se lee junto a la cifra.
 ///
 /// Muestra tanto los incluidos como los que NO lo estan: si no aparece, no se
-/// sabe si esta o no esta.
+/// sabe si esta o no esta. El check verde dice "incluido"; el bloqueo gris,
+/// "se paga aparte".
 Widget _servicio(BuildContext context, String nombre, bool incluido) {
   return FilaCondicion(
-    enLinea: true,
-    icono: incluido ? Icons.check_circle : Icons.cancel_outlined,
-    colorIcono:
-        incluido ? AppColors.success : AppColors.text.withValues(alpha: 0.3),
+    icono: incluido ? Icons.check_circle : Icons.block,
+    colorIcono: incluido ? AppColors.success : AppColors.text40,
     texto: incluido ? nombre : '$nombre no',
     estilo: AppText.caption(context).copyWith(
-      color: incluido ? AppColors.text : AppColors.text.withValues(alpha: 0.5),
+      color: incluido ? AppColors.text : AppColors.text50,
       fontWeight: incluido ? FontWeight.w600 : FontWeight.normal,
     ),
   );

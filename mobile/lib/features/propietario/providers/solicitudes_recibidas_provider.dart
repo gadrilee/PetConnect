@@ -16,6 +16,12 @@ class SolicitudesRecibidasProvider extends ChangeNotifier {
   /// Las solicitudes que se estan aprobando o rechazando en este momento.
   final Set<int> _enCurso = {};
 
+  /// Por que fallo la ultima decision sobre cada solicitud, por id. Va aparte
+  /// de [error]: un refresco de la bandeja que fallo no es el resultado de
+  /// una solicitud que nadie toco, y no tiene que aparecer en su detalle.
+  final Map<int, String> _erroresDecision = {};
+
+  /// Por que no se pudo cargar la bandeja, o `null` si cargo.
   String? error;
 
   /// Las pendientes primero, porque son las unicas que piden una decision.
@@ -34,6 +40,10 @@ class SolicitudesRecibidasProvider extends ChangeNotifier {
   /// Si la solicitud [id] se esta enviando. Mientras tanto sus acciones se
   /// apagan, para que un doble toque no mande dos pedidos.
   bool procesando(int id) => _enCurso.contains(id);
+
+  /// Por que fallo aprobar o rechazar la solicitud [id], o `null` si no
+  /// fallo. Se borra al volver a intentarlo.
+  String? errorDecision(int id) => _erroresDecision[id];
 
   SolicitudVisita? porId(int id) {
     for (final s in _solicitudes) {
@@ -73,7 +83,7 @@ class SolicitudesRecibidasProvider extends ChangeNotifier {
     String siFalla,
   ) async {
     if (!_enCurso.add(id)) return false;
-    error = null;
+    _erroresDecision.remove(id);
     notifyListeners();
 
     try {
@@ -82,10 +92,10 @@ class SolicitudesRecibidasProvider extends ChangeNotifier {
       if (i >= 0) _solicitudes[i] = actualizada;
       return true;
     } on ApiException catch (e) {
-      error = e.mensaje;
+      _erroresDecision[id] = e.mensaje;
       return false;
     } catch (_) {
-      error = siFalla;
+      _erroresDecision[id] = siFalla;
       return false;
     } finally {
       _enCurso.remove(id);

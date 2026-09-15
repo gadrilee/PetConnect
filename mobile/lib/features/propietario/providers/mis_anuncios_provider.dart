@@ -36,6 +36,11 @@ class MisAnunciosProvider extends ChangeNotifier {
   /// Cambiar el estado tiene que costar un solo toque, o no va a pasar.
   /// Por eso el cambio se refleja en la lista sin recargarla entera.
   Future<void> alternarEstado(Anuncio anuncio) async {
+    // Un intento nuevo borra el error del anterior: si este sale bien, el pie
+    // no tiene que seguir diciendo que no se pudo.
+    error = null;
+    notifyListeners();
+
     try {
       final actualizado = anuncio.estaDisponible
           ? await _repo.marcarAlquilado(anuncio.id)

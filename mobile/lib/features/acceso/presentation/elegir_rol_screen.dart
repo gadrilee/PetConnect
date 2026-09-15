@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/boton_principal.dart';
+import '../../../shared/widgets/pie_acciones.dart';
 import '../../../shared/widgets/tarjeta_rol.dart';
 import '../data/perfil.dart';
 import 'registro_screen.dart';
@@ -26,21 +27,27 @@ class _ElegirRolScreenState extends State<ElegirRolScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // CONSTRAINTS: una columna con el ancho de un formulario y la accion fija
-    // al pie. AUTO LAYOUT: las dos tarjetas se apilan con 16 entre ellas.
+    // CONSTRAINTS: una columna con el ancho de un formulario y el pie fijo
+    // abajo, armado con PieAcciones: solo CONTINUAR, apagado hasta elegir un
+    // rol (Figma, Elegir rol · sin elegir: sin motivo debajo).
+    // AUTO LAYOUT: la pregunta en Heading, 24 hasta las tarjetas (la regla de
+    // espaciado: 24 entre bloques de la pantalla; 48 no es un rol de la
+    // escala) y 16 entre las dos tarjetas (una lista de tarjetas).
     return Pagina(
-      titulo: '',
+      titulo: 'Elegir rol',
       ancho: AnchoPagina.formulario,
-      pie: BotonPrincipal(
-        etiqueta: 'CONTINUAR',
-        alTocar: _rol == null ? null : _continuar,
+      pie: PieAcciones(
+        botonPrincipal: BotonPrincipal(
+          etiqueta: 'CONTINUAR',
+          alTocar: _rol == null ? null : _continuar,
+        ),
       ),
       hijos: [
         Text(
           '¿Qué vas a hacer\nen la app?',
           style: AppText.heading(context).copyWith(color: AppColors.text),
         ),
-        const SizedBox(height: Espacio.xxl),
+        const SizedBox(height: Espacio.lg),
         TarjetaRol(
           etiqueta: 'Busco dónde alquilar',
           descripcion: 'Filtrás por precio final, mascotas y ubicación.',

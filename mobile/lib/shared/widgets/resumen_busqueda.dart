@@ -23,8 +23,7 @@ class ResumenBusqueda extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final estilo = AppText.caption(context)
-        .copyWith(color: AppColors.text.withValues(alpha: 0.7));
+    final estilo = AppText.caption(context).copyWith(color: AppColors.text70);
     final precio = filtros.precioMax;
     final minutos = filtros.minutosMax;
     final mascotas = filtros.aceptaMascotas == true;

@@ -3,6 +3,7 @@ import 'package:alquilamatch/features/inquilina/data/solicitud.dart';
 import 'package:alquilamatch/features/inquilina/providers/buscar_provider.dart';
 import 'package:alquilamatch/features/propietario/data/anuncio.dart';
 import 'package:alquilamatch/shared/layout/pagina.dart';
+import 'package:alquilamatch/shared/widgets/aviso.dart';
 import 'package:alquilamatch/shared/widgets/bloque.dart';
 import 'package:alquilamatch/shared/widgets/boton_principal.dart';
 import 'package:alquilamatch/shared/widgets/boton_secundario.dart';
@@ -12,6 +13,8 @@ import 'package:alquilamatch/shared/widgets/controles.dart';
 import 'package:alquilamatch/shared/widgets/estado_vacio.dart';
 import 'package:alquilamatch/shared/widgets/etiqueta_estado.dart';
 import 'package:alquilamatch/shared/widgets/icono_circulo.dart';
+import 'package:alquilamatch/shared/widgets/pie_acciones.dart';
+import 'package:alquilamatch/shared/widgets/precio_final.dart';
 import 'package:alquilamatch/shared/widgets/resumen_busqueda.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,14 +95,56 @@ void main() {
         _app(
           Pagina(
             hijos: const [SizedBox(height: 40)],
-            pie: BotonPrincipal(etiqueta: 'SEGUIR', alTocar: () {}),
+            pie: PieAcciones(
+              botonPrincipal: BotonPrincipal(etiqueta: 'SEGUIR', alTocar: () {}),
+            ),
           ),
         ),
       );
 
       final boton = tester.getRect(find.byType(BotonPrincipal));
       expect(boton.width, AnchoPagina.formulario.maximo);
-      expect(boton.bottom, greaterThan(_escritorio.height - Espacio.xxl));
+      expect(boton.center.dx, _escritorio.width / 2);
+      expect(boton.bottom, _escritorio.height - Espacio.md);
+    });
+
+    testWidgets('el pie lleva borde arriba, fondo blanco y 16 de relleno', (
+      tester,
+    ) async {
+      // El marco del pie es de Pagina, no de la pantalla: en Figma es el
+      // marco "Pie" de cada pantalla, con su borde de 1 arriba.
+      _pantalla(tester, _telefono);
+      await tester.pumpWidget(
+        _app(
+          Pagina(
+            titulo: 'Prueba',
+            hijos: const [SizedBox(height: 40)],
+            pie: PieAcciones(
+              botonPrincipal: BotonPrincipal(etiqueta: 'SEGUIR', alTocar: () {}),
+            ),
+          ),
+        ),
+      );
+
+      final marco = find
+          .ancestor(
+            of: find.byType(PieAcciones),
+            matching: find.byType(DecoratedBox),
+          )
+          .first;
+      final decoracion =
+          tester.widget<DecoratedBox>(marco).decoration as BoxDecoration;
+      expect(decoracion.color, AppColors.surface);
+      expect((decoracion.border! as Border).top.color, AppColors.text12);
+
+      final pie = tester.getRect(marco);
+      final boton = tester.getRect(find.byType(BotonPrincipal));
+      // El borde va de punta a punta; el contenido, con el margen de la pagina.
+      expect(pie.width, _telefono.width);
+      expect(boton.left, Espacio.lg);
+      expect(boton.width, _telefono.width - Espacio.lg * 2);
+      expect(boton.top - pie.top, Espacio.md);
+      expect(pie.bottom - boton.bottom, Espacio.md);
     });
 
     testWidgets('sin nada que listar, el cuerpo queda en el centro', (
@@ -377,5 +422,159 @@ void main() {
     expect(find.text('Habitación'), findsOneWidget);
     expect(find.text('Acepta mascotas'), findsOneWidget);
     expect(find.text('3 anuncios encontrados'), findsOneWidget);
+  });
+
+  group('PieAcciones', () {
+    const aviso = 'No se pudo publicar. Revisá tu conexión.';
+    const nota = 'Coordiná la visita por WhatsApp antes de ir.';
+    const motivo = 'Corregí los 3 campos marcados en rojo para poder publicar.';
+
+    testWidgets('las ranuras salen en el orden de la pieza, con 8 entre ellas', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _enCaja(
+          PieAcciones(
+            aviso: const Aviso(mensaje: aviso, tipo: TipoAviso.error),
+            notaArriba: nota,
+            botonSecundarioArriba:
+                BotonSecundario(etiqueta: 'CANCELAR', alTocar: () {}),
+            botonPrincipal: BotonPrincipal(etiqueta: 'PUBLICAR', alTocar: () {}),
+            botonSecundarioAbajo: BotonSecundario(
+              etiqueta: 'Rechazar',
+              destructiva: true,
+              alTocar: () {},
+            ),
+            motivo: motivo,
+            notaWhatsApp: true,
+          ),
+        ),
+      );
+
+      // De arriba hacia abajo, siempre en este orden.
+      final textos = [
+        aviso,
+        nota,
+        'CANCELAR',
+        'PUBLICAR',
+        'Rechazar',
+        motivo,
+        PieAcciones.textoNotaWhatsApp,
+      ];
+      final altos = [for (final t in textos) tester.getTopLeft(find.text(t)).dy];
+      for (var i = 1; i < altos.length; i++) {
+        expect(
+          altos[i],
+          greaterThan(altos[i - 1]),
+          reason: '"${textos[i]}" va debajo de "${textos[i - 1]}"',
+        );
+      }
+
+      // 8 entre ranuras, tambien entre los botones.
+      final cancelar = tester.getRect(find.widgetWithText(BotonSecundario, 'CANCELAR'));
+      final principal = tester.getRect(find.byType(BotonPrincipal));
+      final rechazar = tester.getRect(find.widgetWithText(BotonSecundario, 'Rechazar'));
+      expect(principal.top - cancelar.bottom, Espacio.sm);
+      expect(rechazar.top - principal.bottom, Espacio.sm);
+      expect(principal.width, cancelar.width);
+
+      // Las notas van centradas y con el color que les toca.
+      final textoMotivo = tester.widget<Text>(find.text(motivo));
+      expect(textoMotivo.textAlign, TextAlign.center);
+      expect(textoMotivo.style?.color, AppColors.error);
+      expect(tester.widget<Text>(find.text(nota)).style?.color, AppColors.text70);
+      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+    });
+
+    testWidgets('las ranuras vacias no ocupan lugar', (tester) async {
+      // Solo el boton: el pie mide lo que el boton.
+      await tester.pumpWidget(
+        _enCaja(
+          PieAcciones(
+            botonPrincipal: BotonPrincipal(etiqueta: 'CONTINUAR', alTocar: () {}),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(PieAcciones)).height, Medida.boton);
+      expect(find.byType(Aviso), findsNothing);
+      expect(find.byType(BotonSecundario), findsNothing);
+      expect(find.byIcon(Icons.lock_outline), findsNothing);
+
+      // Solo el aviso, como el inicio despues de publicar: sin boton
+      // principal, el pie es el aviso y nada mas.
+      await tester.pumpWidget(
+        _enCaja(
+          const PieAcciones(
+            aviso: Aviso(mensaje: 'Publicado.', tipo: TipoAviso.exito),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(PieAcciones)).height, 64);
+      expect(find.byType(BotonPrincipal), findsNothing);
+      expect(find.text('Publicado.'), findsOneWidget);
+    });
+  });
+
+  group('PrecioFinal', () {
+    const monto = '1250.00';
+    final cifra = PrecioFinal.cifraDe(monto);
+
+    Widget conAncho(double ancho, Widget hijo) =>
+        _app(Scaffold(body: Center(child: SizedBox(width: ancho, child: hijo))));
+
+    testWidgets('barra: etiqueta a la izquierda y cifra a la derecha, en una '
+        'linea, a todo el ancho', (tester) async {
+      await tester.pumpWidget(
+        conAncho(720, const PrecioFinal(monto: monto)),
+      );
+
+      final barra = tester.getRect(find.byType(PrecioFinal));
+      final etiqueta = tester.getRect(find.text(PrecioFinal.etiqueta));
+      final numero = tester.getRect(find.text(cifra));
+
+      // La barra no se achica a su contenido aunque nadie la estire.
+      expect(barra.width, 720);
+      expect(numero.left, greaterThan(etiqueta.right));
+      expect(numero.center.dy, closeTo(etiqueta.center.dy, 1));
+      expect(etiqueta.left, barra.left + Espacio.md);
+      expect(numero.right, barra.right - Espacio.md);
+      expect(
+        tester.widget<Text>(find.text(cifra)).style?.color,
+        AppColors.surface,
+      );
+    });
+
+    testWidgets('barra angosta: la cifra baja entera a la linea siguiente, '
+        'sin cortarse ni desbordar', (tester) async {
+      // Entra la cifra sola, pero no al lado de la etiqueta: como en un
+      // telefono con la barra dentro del resumen del anuncio.
+      await tester.pumpWidget(
+        conAncho(480, const PrecioFinal(monto: monto)),
+      );
+
+      expect(tester.takeException(), isNull);
+      final etiqueta = tester.getRect(find.text(PrecioFinal.etiqueta));
+      final numero = tester.getRect(find.text(cifra));
+      expect(numero.top, greaterThanOrEqualTo(etiqueta.bottom));
+      expect(numero.left, etiqueta.left);
+      expect(numero.height, lessThan(numero.width), reason: 'una sola linea');
+    });
+
+    testWidgets('resumen: la etiqueta arriba y la cifra en verde', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _enCaja(const PrecioFinal(monto: monto, estilo: EstiloPrecio.resumen)),
+      );
+
+      final etiqueta = tester.getRect(find.text(PrecioFinal.etiqueta));
+      final numero = tester.getRect(find.text(cifra));
+      expect(numero.top - etiqueta.bottom, Espacio.sm);
+      expect(numero.left, etiqueta.left);
+      expect(
+        tester.widget<Text>(find.text(cifra)).style?.color,
+        AppColors.primary,
+      );
+    });
   });
 }

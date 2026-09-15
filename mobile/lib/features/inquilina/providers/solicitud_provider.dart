@@ -45,10 +45,12 @@ class SolicitudProvider extends ChangeNotifier {
 
   /// Refresca el estado de la solicitud desde el servidor.
   ///
-  /// Sirve para que el inquilino vea cuando el propietario la aprobo.
+  /// Sirve para que el inquilino vea cuando el propietario la aprobo. Si
+  /// falla, [error] lo cuenta; la siguiente actualizacion lo limpia.
   Future<void> refrescar() async {
     if (_solicitud == null) return;
     _cargando = true;
+    error = null;
     notifyListeners();
 
     try {

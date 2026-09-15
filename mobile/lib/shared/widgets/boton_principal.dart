@@ -31,7 +31,9 @@ enum EstadoBoton {
 /// no salte cuando el estado cambia.
 ///
 /// Por eso el ancho es fijo al del contenedor y el alto es constante en los
-/// cuatro estados, incluido el de carga.
+/// cuatro estados, incluido el de carga. Y el boton es solo el boton: por que
+/// no se puede seguir lo dice el pie, en `PieAcciones.motivo`, nunca un texto
+/// colgado debajo del boton.
 class BotonPrincipal extends StatefulWidget {
   const BotonPrincipal({
     super.key,
@@ -39,7 +41,7 @@ class BotonPrincipal extends StatefulWidget {
     required this.alTocar,
     this.cargando = false,
     this.etiquetaCargando,
-    this.motivoDeshabilitado,
+    this.pistaDeshabilitado,
     this.compacto = false,
   });
 
@@ -59,11 +61,12 @@ class BotonPrincipal extends StatefulWidget {
   /// "BUSCANDO..." informa, un spinner solo entretiene.
   final String? etiquetaCargando;
 
-  /// Por que no se puede tocar. Se muestra debajo del boton.
+  /// Lo que anuncia el lector de pantalla cuando el boton esta apagado.
   ///
-  /// Un boton apagado sin explicacion deja a la persona adivinando. Este texto
-  /// es el que convierte "no anda" en "ya se que me falta".
-  final String? motivoDeshabilitado;
+  /// No se ve. Lo visible —"Corregí los 3 campos marcados en rojo..."— va en
+  /// `PieAcciones.motivo`, que es la unica ranura para eso. Aca queda solo la
+  /// pista para quien no ve la pantalla, que sin ella toca el boton en vano.
+  final String? pistaDeshabilitado;
 
   /// Version de 48 de alto para las acciones dentro de una tarjeta. Es el
   /// mismo boton con los mismos estados; solo cambia el alto.
@@ -90,113 +93,83 @@ class _BotonPrincipalState extends State<BotonPrincipal> {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
     final texto = Theme.of(context).textTheme;
     final actual = estado;
 
     // El color es lo unico que distingue los estados. La forma se conserva.
+    // Cada color es una constante de AppColors: la pieza no calcula tintes.
     final (Color fondo, Color contenido) = switch (actual) {
-      EstadoBoton.reposo => (esquema.primary, esquema.onPrimary),
-      EstadoBoton.presionado => (
-        Color.alphaBlend(Colors.black.withValues(alpha: 0.18), esquema.primary),
-        esquema.onPrimary,
-      ),
-      EstadoBoton.cargando => (
-        esquema.primary.withValues(alpha: 0.75),
-        esquema.onPrimary,
-      ),
-      EstadoBoton.deshabilitado => (
-        esquema.onSurface.withValues(alpha: 0.12),
-        esquema.onSurface.withValues(alpha: 0.38),
-      ),
+      EstadoBoton.reposo => (AppColors.primary, AppColors.surface),
+      EstadoBoton.presionado => (AppColors.primaryPresionado, AppColors.surface),
+      EstadoBoton.cargando => (AppColors.primaryCargando, AppColors.surface),
+      EstadoBoton.deshabilitado => (AppColors.text12, AppColors.text38),
     };
 
     final habilitado =
         actual == EstadoBoton.reposo || actual == EstadoBoton.presionado;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Semantics(
-          button: true,
-          enabled: habilitado,
-          label: widget.etiqueta,
-          // Sin esto, un lector de pantalla anuncia el boton igual estando
-          // deshabilitado o cargando, y la persona lo toca en vano.
-          hint: switch (actual) {
-            EstadoBoton.cargando => 'Buscando, esperá un momento',
-            EstadoBoton.deshabilitado =>
-              widget.motivoDeshabilitado ?? 'No disponible',
-            _ => null,
-          },
-          child: GestureDetector(
-            onTapDown: habilitado
-                ? (_) => setState(() => _presionado = true)
-                : null,
-            onTapUp: habilitado
-                ? (_) => setState(() => _presionado = false)
-                : null,
-            onTapCancel: habilitado
-                ? () => setState(() => _presionado = false)
-                : null,
-            onTap: habilitado ? widget.alTocar : null,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              curve: Curves.easeOut,
-              width: double.infinity,
-              // Constante en los cuatro estados.
-              height: widget.compacto ? Medida.campo : Medida.boton,
-              decoration: BoxDecoration(
-                color: fondo,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              alignment: Alignment.center,
-              child: actual == EstadoBoton.cargando
-                  ? Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: contenido,
-                          ),
-                        ),
-                        const SizedBox(width: Espacio.sm),
-                        Text(
-                          widget.etiquetaCargando ?? widget.etiqueta,
-                          style: texto.labelLarge?.copyWith(
-                            color: contenido,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Text(
-                      widget.etiqueta,
+    return Semantics(
+      button: true,
+      enabled: habilitado,
+      label: widget.etiqueta,
+      // Sin esto, un lector de pantalla anuncia el boton igual estando
+      // deshabilitado o cargando, y la persona lo toca en vano.
+      hint: switch (actual) {
+        EstadoBoton.cargando => 'Buscando, esperá un momento',
+        EstadoBoton.deshabilitado =>
+          widget.pistaDeshabilitado ?? 'No disponible',
+        _ => null,
+      },
+      child: GestureDetector(
+        onTapDown:
+            habilitado ? (_) => setState(() => _presionado = true) : null,
+        onTapUp: habilitado ? (_) => setState(() => _presionado = false) : null,
+        onTapCancel:
+            habilitado ? () => setState(() => _presionado = false) : null,
+        onTap: habilitado ? widget.alTocar : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          width: double.infinity,
+          // Constante en los cuatro estados.
+          height: widget.compacto ? Medida.campo : Medida.boton,
+          decoration: BoxDecoration(
+            color: fondo,
+            borderRadius: BorderRadius.circular(Medida.radio),
+          ),
+          alignment: Alignment.center,
+          child: actual == EstadoBoton.cargando
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: contenido,
+                      ),
+                    ),
+                    const SizedBox(width: Espacio.sm),
+                    Text(
+                      widget.etiquetaCargando ?? widget.etiqueta,
                       style: texto.labelLarge?.copyWith(
                         color: contenido,
                         letterSpacing: 1,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
-            ),
-          ),
+                  ],
+                )
+              : Text(
+                  widget.etiqueta,
+                  style: texto.labelLarge?.copyWith(
+                    color: contenido,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
-
-        // El motivo sólo aparece cuando hace falta: si el botón se puede tocar,
-        // explicar por qué no se puede sería ruido.
-        if (actual == EstadoBoton.deshabilitado &&
-            widget.motivoDeshabilitado != null) ...[
-          const SizedBox(height: Espacio.sm),
-          Text(
-            widget.motivoDeshabilitado!,
-            textAlign: TextAlign.center,
-            style: texto.bodySmall?.copyWith(color: esquema.error),
-          ),
-        ],
-      ],
+      ),
     );
   }
 }

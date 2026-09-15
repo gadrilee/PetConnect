@@ -58,6 +58,12 @@ const _vigilados = [
   'lib/shared/widgets/tarjeta_menu.dart',
   'lib/shared/widgets/tarjeta_perfil.dart',
   'lib/shared/widgets/titulo_seccion.dart',
+  // El pie de acciones (Figma "Pie de acciones") y las piezas que faltaban.
+  'lib/shared/widgets/pie_acciones.dart',
+  'lib/shared/widgets/tarjeta_rol.dart',
+  'lib/shared/widgets/encabezado.dart',
+  'lib/shared/widgets/logo_alquilamatch.dart',
+  'lib/shared/widgets/precio_final.dart',
 ];
 
 /// `SizedBox(height: 12)` y `SizedBox(width: 12)` en una sola linea.

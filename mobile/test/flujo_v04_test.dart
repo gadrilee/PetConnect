@@ -253,7 +253,7 @@ void main() {
 
       expect(find.text('Rechazada'), findsOneWidget);
       expect(find.text('Rechazar'), findsNothing);
-      expect(find.text('Gestionar Solicitudes'), findsOneWidget);
+      expect(find.text('Gestionar solicitudes'), findsOneWidget);
     });
 
     testWidgets('sin solicitudes lo dice (pantalla 4)', (tester) async {

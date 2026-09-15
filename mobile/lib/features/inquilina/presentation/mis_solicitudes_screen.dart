@@ -82,7 +82,7 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
     }
 
     return Pagina(
-      titulo: 'Estado de Solicitudes',
+      titulo: 'Estado de solicitudes',
       alRefrescar: provider.cargar,
       cuerpo: cuerpo,
       hijos: [
@@ -147,17 +147,14 @@ class _TarjetaHistorial extends StatelessWidget {
                   texto:
                       'Enviada: ${solicitud.creadaEn.day}/${solicitud.creadaEn.month}',
                   estilo: AppText.caption(context)
-                      .copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+                      .copyWith(color: AppColors.text70),
                 ),
                 const SizedBox(height: Espacio.sm),
                 EtiquetaEstado.solicitud(solicitud.estado),
               ],
             ),
           ),
-          Icon(
-            Icons.chevron_right,
-            color: AppColors.text.withValues(alpha: 0.5),
-          ),
+          Icon(Icons.chevron_right, color: AppColors.text50),
         ],
       ),
     );

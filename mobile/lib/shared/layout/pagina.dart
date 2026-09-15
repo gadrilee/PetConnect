@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
 import '../widgets/encabezado.dart';
+import '../widgets/pie_acciones.dart';
 import 'grilla.dart';
 
 /// Hasta donde puede estirarse el contenido de una pagina.
@@ -29,6 +30,10 @@ enum AnchoPagina {
 /// mismo lugar para la accion principal. **Ninguna pantalla arma su propio
 /// Scaffold**: cambiar el margen o el ancho maximo aca lo cambia en toda la
 /// app, y una prueba impide volver a escribirlo a mano en una pantalla.
+/// **Ninguna pantalla arma su propia Column para el pie**: el [pie] es
+/// siempre un [PieAcciones], que ordena el aviso, los botones y las notas. Lo
+/// garantiza el tipo de la ranura, no una convencion: una Column o un boton
+/// suelto no compilan.
 ///
 /// - CONSTRAINTS: el contenido queda centrado y se detiene en [ancho]. El
 ///   [pie] queda anclado abajo, fuera del scroll, y no pasa el ancho de un
@@ -64,8 +69,10 @@ class Pagina extends StatelessWidget {
   /// error. Queda centrado en el espacio libre.
   final Widget? cuerpo;
 
-  /// Las acciones fijas al pie, como la accion principal.
-  final Widget? pie;
+  /// El pie fijo de la pantalla: siempre un [PieAcciones], y el tipo no deja
+  /// pasar otra cosa. El borde, el relleno y el ancho maximo los pone la
+  /// pagina; la pieza solo ordena lo que va adentro.
+  final PieAcciones? pie;
 
   /// Si se pasa, la pagina se actualiza tirando hacia abajo.
   final Future<void> Function()? alRefrescar;
@@ -132,7 +139,9 @@ class Pagina extends StatelessWidget {
   }
 }
 
-/// Las acciones fijas al pie de la pagina.
+/// Las acciones fijas al pie de la pagina. En Figma es el marco "Pie" de cada
+/// pantalla: fondo blanco, un borde de 1 arriba, 16 de relleno arriba y abajo
+/// y el margen de la pagina a los lados.
 class _Pie extends StatelessWidget {
   const _Pie({required this.child});
 
@@ -140,23 +149,32 @@ class _Pie extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // CONSTRAINTS: anclado abajo y nunca mas ancho que un formulario, en
-    // cualquier pagina: en un monitor el boton no se estira de punta a punta.
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          Espacio.lg,
-          Espacio.sm,
-          Espacio.lg,
-          Espacio.md,
-        ),
-        child: Align(
-          alignment: Alignment.topCenter,
-          heightFactor: 1,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: AnchoPagina.formulario.maximo),
-            child: child,
+    // CONSTRAINTS: anclado abajo, separado del contenido por el borde de
+    // arriba, y nunca mas ancho que un formulario, en cualquier pagina: en un
+    // monitor el boton no se estira de punta a punta. El borde y el fondo si
+    // van de punta a punta, tambien debajo del area segura.
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.text12)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            Espacio.lg,
+            Espacio.md,
+            Espacio.lg,
+            Espacio.md,
+          ),
+          child: Align(
+            alignment: Alignment.topCenter,
+            heightFactor: 1,
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(maxWidth: AnchoPagina.formulario.maximo),
+              child: child,
+            ),
           ),
         ),
       ),

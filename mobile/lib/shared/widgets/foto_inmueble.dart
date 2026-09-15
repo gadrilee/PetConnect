@@ -39,13 +39,9 @@ class FotoInmueble extends StatelessWidget {
     Widget marcador(IconData icono) => Container(
           width: ancho,
           height: alto,
-          color: AppColors.text.withValues(alpha: 0.05),
+          color: AppColors.text05,
           alignment: Alignment.center,
-          child: Icon(
-            icono,
-            size: tamanoIcono,
-            color: AppColors.text.withValues(alpha: 0.5),
-          ),
+          child: Icon(icono, size: tamanoIcono, color: AppColors.text50),
         );
 
     final direccion = url;

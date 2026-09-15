@@ -56,11 +56,18 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
 
-    // Si el backend devuelve error general, lo pasamos al campo de contraseña
+    // Un error general del backend ("Usuario o contraseña incorrectos") va
+    // en el campo de contraseña: en Figma (Ingresar · datos incorrectos) el
+    // login no tiene bloque de Feedback, el motivo queda pegado al campo.
     final errorBackend = auth.error;
 
     // CONSTRAINTS: la Pagina centra el formulario en los dos ejes y lo deja
-    // con el ancho de formulario, igual que en el registro.
+    // con el ancho de formulario, igual que en el registro. Es la unica
+    // pantalla sin encabezado y sin pie: ENTRAR y "No tengo cuenta" van en
+    // el contenido, centrados.
+    // AUTO LAYOUT (Figma, Ingresar): tres bloques —logo y lema, campos,
+    // acciones— con 32 entre ellos; 16 entre los dos campos y entre el boton
+    // y el enlace.
     return Pagina(
       ancho: AnchoPagina.formulario,
       centrarVertical: true,
@@ -70,11 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           'Alquiler con las condiciones por delante.',
           textAlign: TextAlign.center,
-          style: AppText.body(context).copyWith(
-            color: AppColors.text.withValues(alpha: 0.7),
-          ),
+          style: AppText.body(context).copyWith(color: AppColors.text70),
         ),
-        const SizedBox(height: Espacio.xxl),
+        const SizedBox(height: Espacio.xl),
         CampoTexto(
           etiqueta: 'Usuario',
           controlador: _usuario,

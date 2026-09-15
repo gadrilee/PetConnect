@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
+import '../layout/pagina.dart';
 
 enum TipoAviso {
   info,
@@ -21,6 +22,11 @@ enum TipoAviso {
 ///
 /// Con [titulo] cuenta un resultado en dos partes, qué pasó y qué significa.
 /// Ese no tiene alto fijo. AUTO LAYOUT: crece con el texto.
+///
+/// **Un aviso nunca queda suelto ni alineado a la derecha.** Si la pantalla
+/// tiene pie, el aviso va en `PieAcciones.aviso`; si no lo tiene, va en el
+/// contenido o, cuando es pasajero, como [mostrarToast], que ocupa el margen
+/// de la pagina igual que cualquier otro aviso.
 class Aviso extends StatelessWidget {
   const Aviso({
     super.key,
@@ -51,23 +57,13 @@ class Aviso extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Fondo y contenido de cada tipo (Figma: Feedback Info / Éxito / Error /
+    // Advertencia). Los fondos son tintes de AppColors, no se calculan aca.
     final (Color fondo, Color contenido) = switch (tipo) {
-      TipoAviso.info => (
-          AppColors.text.withValues(alpha: 0.05),
-          AppColors.text
-        ),
-      TipoAviso.exito => (
-          AppColors.success.withValues(alpha: 0.1),
-          AppColors.success
-        ),
-      TipoAviso.error => (
-          AppColors.error.withValues(alpha: 0.1),
-          AppColors.error
-        ),
-      TipoAviso.advertencia => (
-          AppColors.warning.withValues(alpha: 0.1),
-          AppColors.warning
-        ),
+      TipoAviso.info => (AppColors.text05, AppColors.text),
+      TipoAviso.exito => (AppColors.success10, AppColors.success),
+      TipoAviso.error => (AppColors.error08, AppColors.error),
+      TipoAviso.advertencia => (AppColors.warning12, AppColors.warning),
     };
 
     final decoracion = BoxDecoration(
@@ -134,10 +130,14 @@ class Aviso extends StatelessWidget {
     );
   }
 
-  /// Muestra este componente como un aviso flotante, abajo de la pantalla.
+  /// Aviso pasajero para pantallas SIN pie, abajo de la pantalla.
   ///
-  /// Es la unica forma de avisar algo pasajero en la app: las pantallas no
-  /// arman su propio SnackBar.
+  /// Si la pantalla tiene pie, el aviso va en `PieAcciones.aviso`, nunca
+  /// flotando. Las pantallas no arman su propio SnackBar.
+  ///
+  /// CONSTRAINTS: ocupa el mismo margen que el contenido de la pagina (24 a
+  /// cada lado), centrado y sin pasar el ancho de un formulario, para que se
+  /// vea igual que cualquier otro aviso y no como una burbuja suelta.
   static void mostrarToast(
     BuildContext context, {
     required String mensaje,
@@ -150,14 +150,15 @@ class Aviso extends StatelessWidget {
     entry = OverlayEntry(
       builder: (context) => Positioned(
         bottom: MediaQuery.of(context).padding.bottom + Espacio.md,
-        right: Espacio.md,
-        left: Espacio.md,
+        right: Espacio.lg,
+        left: Espacio.lg,
         child: Material(
           color: Colors.transparent,
           child: Align(
-            alignment: Alignment.bottomRight,
+            alignment: Alignment.bottomCenter,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 360),
+              constraints:
+                  BoxConstraints(maxWidth: AnchoPagina.formulario.maximo),
               child: Aviso(icono: icono, mensaje: mensaje, tipo: tipo),
             ),
           ),

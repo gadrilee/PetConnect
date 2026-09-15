@@ -52,9 +52,7 @@ class EstadoVacio extends StatelessWidget {
               Icon(
                 icono,
                 size: 64,
-                color: esError
-                    ? AppColors.error
-                    : AppColors.text.withValues(alpha: 0.5),
+                color: esError ? AppColors.error : AppColors.text50,
               ),
               const SizedBox(height: Espacio.md),
               Text(
@@ -67,8 +65,7 @@ class EstadoVacio extends StatelessWidget {
                 Text(
                   detalle!,
                   textAlign: TextAlign.center,
-                  style: AppText.body(context)
-                      .copyWith(color: AppColors.text.withValues(alpha: 0.6)),
+                  style: AppText.body(context).copyWith(color: AppColors.text60),
                 ),
               ],
               if (accion != null) ...[

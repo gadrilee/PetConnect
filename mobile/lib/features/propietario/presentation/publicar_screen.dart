@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme.dart';
@@ -12,13 +11,20 @@ import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
 import '../../../shared/widgets/casilla.dart';
 import '../../../shared/widgets/controles.dart';
-import '../../../shared/widgets/fila_condicion.dart';
 import '../../../shared/widgets/icono_circulo.dart';
+import '../../../shared/widgets/pie_acciones.dart';
+import '../../../shared/widgets/precio_final.dart';
 import '../../../shared/widgets/titulo_seccion.dart';
 import '../data/anuncio.dart';
-import '../providers/mis_anuncios_provider.dart';
 import '../providers/publicar_provider.dart';
 
+/// Publicar un anuncio: las cuatro condiciones de descarte, GPS y fotos.
+///
+/// Todo lo que sale mal se cuenta en el pie, que siempre esta a la vista:
+/// el aviso (no se pudo publicar, falta la ubicacion), el motivo en rojo
+/// (cuantos campos corregir) y el candado del WhatsApp. El exito no se
+/// cuenta aca: la pantalla devuelve el anuncio y quien la abrio lo muestra
+/// en su propio pie.
 class PublicarScreen extends StatefulWidget {
   const PublicarScreen({super.key});
 
@@ -83,21 +89,15 @@ class _PublicarScreenState extends State<PublicarScreen> {
         _errorCostoServicios = null;
       }
     });
+    // Con campos en rojo no se envia nada: el motivo del pie dice cuantos.
     if (_errorTitulo != null ||
         _errorAlquiler != null ||
         _errorCostoServicios != null) {
       return;
     }
-    if (!provider.hayUbicacion) {
-      Aviso.mostrarToast(
-        context,
-        mensaje: 'Falta marcar la ubicación del inmueble.',
-        tipo: TipoAviso.error,
-      );
-      return;
-    }
     FocusScope.of(context).unfocus();
 
+    // Sin ubicacion el provider no envia y deja el aviso; el pie lo muestra.
     final anuncio = await provider.publicar(
       titulo: _titulo.text.trim(),
       tipoEspacio: _tipo,
@@ -115,58 +115,71 @@ class _PublicarScreenState extends State<PublicarScreen> {
 
     if (!mounted || anuncio == null) return;
 
-    context.read<MisAnunciosProvider>().cargar();
+    // El exito lo cuenta la pantalla que vuelve a verse, en su pie; y es ella
+    // la que recarga la lista al recibir el anuncio, no esta.
     Navigator.of(context).pop(anuncio);
-    Aviso.mostrarToast(
-      context,
-      mensaje:
-          'Publicado. Está a ${anuncio.minutosCaminando} min caminando de la UAGRM.',
-      tipo: TipoAviso.exito,
+  }
+
+  /// El aviso del pie: que la publicacion fallo (error) o que falta un paso
+  /// para poder publicar, como marcar la ubicacion (advertencia).
+  Aviso? _avisoDelPie(PublicarProvider publicar) {
+    final mensaje = publicar.error ?? publicar.errorUbicacion;
+    if (mensaje == null) return null;
+    final faltaUnPaso = publicar.error == null ||
+        publicar.error == PublicarProvider.faltaUbicacion;
+    return Aviso(
+      mensaje: mensaje,
+      tipo: faltaUnPaso ? TipoAviso.advertencia : TipoAviso.error,
     );
   }
+
+  /// Cuantos campos hay que corregir, dicho debajo del boton.
+  static String? _motivo(int enRojo) => switch (enRojo) {
+        0 => null,
+        1 => 'Corregí el campo marcado en rojo para poder publicar.',
+        _ => 'Corregí los $enRojo campos marcados en rojo para poder publicar.',
+      };
 
   @override
   Widget build(BuildContext context) {
     final publicar = context.watch<PublicarProvider>();
-    final tenue = AppColors.text.withValues(alpha: 0.7);
+    final tenue = AppColors.text70;
     const teclado = TextInputType.numberWithOptions(decimal: true);
+
+    // Lo que se ve en rojo: la validacion local o la del backend, campo por
+    // campo. El pie cuenta cuantos son.
+    final errorTitulo = _errorTitulo ?? publicar.erroresPorCampo['titulo'];
+    final errorAlquiler =
+        _errorAlquiler ?? publicar.erroresPorCampo['precio_alquiler'];
+    final errorCostoServicios = _todoIncluido
+        ? null
+        : _errorCostoServicios ??
+            publicar.erroresPorCampo['costo_servicios_estimado'];
+    final enRojo =
+        [errorTitulo, errorAlquiler, errorCostoServicios].nonNulls.length;
 
     // CONSTRAINTS: un formulario de una columna, en el orden de Figma, que en
     // un monitor no pasa de 480 y queda centrado.
+    // AUTO LAYOUT: 32 entre secciones numeradas, 16 entre el titulo de una
+    // seccion y su primer campo y entre campo y campo.
     return Pagina(
       titulo: 'Publicar',
       ancho: AnchoPagina.formulario,
-      pie: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (publicar.error != null) ...[
-            Aviso(mensaje: publicar.error!, tipo: TipoAviso.error),
-            const SizedBox(height: Espacio.md),
-          ],
-          BotonPrincipal(
-            etiqueta: 'PUBLICAR',
-            etiquetaCargando: 'PUBLICANDO...',
-            alTocar: publicar.publicando ? null : _publicar,
-            cargando: publicar.publicando,
-          ),
-          const SizedBox(height: Espacio.sm),
-          Center(
-            child: FilaCondicion(
-              enLinea: true,
-              icono: Icons.lock_outline,
-              colorIcono: AppColors.text.withValues(alpha: 0.5),
-              texto: 'Tu WhatsApp no aparece en el anuncio',
-              estilo: AppText.caption(context)
-                  .copyWith(color: AppColors.text.withValues(alpha: 0.6)),
-            ),
-          ),
-        ],
+      pie: PieAcciones(
+        aviso: _avisoDelPie(publicar),
+        botonPrincipal: BotonPrincipal(
+          etiqueta: 'PUBLICAR',
+          etiquetaCargando: 'PUBLICANDO...',
+          alTocar: publicar.publicando ? null : _publicar,
+          cargando: publicar.publicando,
+        ),
+        motivo: _motivo(enRojo),
+        notaWhatsApp: true,
       ),
       hijos: [
         // 1. Qué estás alquilando
         const TituloSeccion('1. Qué estás alquilando'),
-        const SizedBox(height: Espacio.sm),
+        const SizedBox(height: Espacio.md),
         // FLEXBOX: la misma Opcion que en Buscar. Mide lo que su palabra y
         // baja de fila si no entra.
         Wrap(
@@ -181,42 +194,43 @@ class _PublicarScreenState extends State<PublicarScreen> {
               ),
           ],
         ),
-        const SizedBox(height: Espacio.lg),
+        const SizedBox(height: Espacio.md),
         CampoTexto(
           etiqueta: 'Título del anuncio',
           controlador: _titulo,
           pista: 'Habitación con baño privado',
-          mensajeError: _errorTitulo ?? publicar.erroresPorCampo['titulo'],
+          mensajeError: errorTitulo,
         ),
 
         // 2. Precio final
-        const SizedBox(height: Espacio.xxl),
+        const SizedBox(height: Espacio.xl),
         const TituloSeccion('2. Precio final'),
-        const SizedBox(height: Espacio.sm),
+        const SizedBox(height: Espacio.md),
         Text(
           'El dato n.º 1 para descartar. Declararlo acá te evita '
           'repetirlo por WhatsApp.',
           style: AppText.caption(context).copyWith(color: tenue),
         ),
-        const SizedBox(height: Espacio.lg),
+        const SizedBox(height: Espacio.md),
         CampoTexto(
           etiqueta: 'Alquiler mensual',
           controlador: _alquiler,
           tipoTeclado: teclado,
           pista: '0',
           unidad: 'Bs',
-          mensajeError:
-              _errorAlquiler ?? publicar.erroresPorCampo['precio_alquiler'],
+          mensajeError: errorAlquiler,
         ),
-        const SizedBox(height: Espacio.lg),
+        const SizedBox(height: Espacio.md),
         Text(
           'Qué servicios incluye',
           style: AppText.body(context).copyWith(
             fontWeight: FontWeight.w600,
-            color: AppColors.text.withValues(alpha: 0.8),
+            color: tenue,
           ),
         ),
-        const SizedBox(height: Espacio.xs),
+        // La etiqueta y sus casillas se leen juntas: 8, como dentro de un
+        // campo.
+        const SizedBox(height: Espacio.sm),
         // FLEXBOX: las tres casillas reparten el ancho por partes iguales.
         Row(
           children: [
@@ -244,41 +258,24 @@ class _PublicarScreenState extends State<PublicarScreen> {
           ],
         ),
         if (!_todoIncluido) ...[
-          const SizedBox(height: Espacio.lg),
+          const SizedBox(height: Espacio.md),
           CampoTexto(
             etiqueta: 'Cuánto paga aparte por los servicios',
             controlador: _costoServicios,
             tipoTeclado: teclado,
             pista: '0',
             unidad: 'Bs',
-            mensajeError: _errorCostoServicios ??
-                publicar.erroresPorCampo['costo_servicios_estimado'],
+            mensajeError: errorCostoServicios,
           ),
         ],
-        const SizedBox(height: Espacio.lg),
-        Bloque(
-          tono: TonoBloque.primario,
-          // FLEXBOX: la etiqueta toma el espacio libre y la cifra queda a la
-          // derecha.
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Precio final',
-                  style: AppText.button(context)
-                      .copyWith(color: AppColors.surface),
-                ),
-              ),
-              Text(
-                '${NumberFormat.decimalPattern('es').format(_precioFinal)} Bs',
-                style: AppText.cifra(context).copyWith(color: AppColors.surface),
-              ),
-            ],
-          ),
-        ),
+        const SizedBox(height: Espacio.md),
+        // La barra "Precio final" de Figma: el unico bloque primario de la
+        // pantalla. Es la misma pieza que ve la inquilina en el anuncio, y
+        // es ella la que escribe la cifra: aca va el monto crudo.
+        PrecioFinal(monto: '$_precioFinal'),
 
         // 3. Reglas
-        const SizedBox(height: Espacio.xxl),
+        const SizedBox(height: Espacio.xl),
         const TituloSeccion('3. Reglas'),
         const SizedBox(height: Espacio.md),
         Interruptor(
@@ -286,7 +283,7 @@ class _PublicarScreenState extends State<PublicarScreen> {
           encendido: _mascotas,
           alCambiar: (v) => setState(() => _mascotas = v),
         ),
-        const SizedBox(height: Espacio.lg),
+        const SizedBox(height: Espacio.md),
         CampoTexto(
           etiqueta: 'Reglas (opcional)',
           controlador: _restricciones,
@@ -294,8 +291,10 @@ class _PublicarScreenState extends State<PublicarScreen> {
         ),
 
         // 4. Ubicación + 5. Fotos
-        const SizedBox(height: Espacio.xxl),
-        // FLEXBOX: las dos secciones reparten el ancho por partes iguales.
+        const SizedBox(height: Espacio.xl),
+        // FLEXBOX: las dos secciones reparten el ancho por partes iguales, con
+        // el medianil de 16 entre las dos. Si el GPS falla, lo dice el aviso
+        // del pie, no un texto suelto debajo del boton.
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -305,7 +304,7 @@ class _PublicarScreenState extends State<PublicarScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const TituloSeccion('4. Ubicación'),
-                  const SizedBox(height: Espacio.sm),
+                  const SizedBox(height: Espacio.md),
                   _BotonSeccion(
                     icono: publicar.hayUbicacion
                         ? Icons.place
@@ -317,25 +316,17 @@ class _PublicarScreenState extends State<PublicarScreen> {
                     cargando: publicar.buscandoUbicacion,
                     alTocar: () => publicar.tomarUbicacion(),
                   ),
-                  if (publicar.errorUbicacion != null) ...[
-                    const SizedBox(height: Espacio.xs),
-                    Text(
-                      publicar.errorUbicacion!,
-                      style: AppText.caption(context)
-                          .copyWith(color: AppColors.error),
-                    ),
-                  ],
                 ],
               ),
             ),
-            const SizedBox(width: Espacio.lg),
+            const SizedBox(width: Espacio.md),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const TituloSeccion('5. Fotos'),
-                  const SizedBox(height: Espacio.sm),
+                  const SizedBox(height: Espacio.md),
                   _BotonSeccion(
                     icono: Icons.photo_camera_outlined,
                     etiqueta: publicar.fotos.isEmpty
@@ -351,7 +342,7 @@ class _PublicarScreenState extends State<PublicarScreen> {
         ),
 
         if (publicar.fotos.isNotEmpty) ...[
-          const SizedBox(height: Espacio.lg),
+          const SizedBox(height: Espacio.md),
           SizedBox(
             height: _MiniaturaLocal.lado,
             child: ListView.separated(
@@ -416,8 +407,7 @@ class _BotonSeccion extends StatelessWidget {
             Text(
               etiqueta,
               textAlign: TextAlign.center,
-              style: AppText.caption(context)
-                  .copyWith(color: AppColors.text.withValues(alpha: 0.7)),
+              style: AppText.caption(context).copyWith(color: AppColors.text70),
             ),
           ],
         ),
