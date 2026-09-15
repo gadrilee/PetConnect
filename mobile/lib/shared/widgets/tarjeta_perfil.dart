@@ -32,7 +32,7 @@ class TarjetaPerfil extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tenue = AppColors.text.withValues(alpha: 0.6);
+    final tenue = AppColors.text60;
 
     return Bloque(
       relleno: Espacio.lg,

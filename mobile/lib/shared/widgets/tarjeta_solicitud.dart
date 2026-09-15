@@ -55,8 +55,8 @@ class TarjetaSolicitud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tenue = AppColors.text.withValues(alpha: 0.6);
-    final gris = AppColors.text.withValues(alpha: 0.5);
+    final tenue = AppColors.text60;
+    final gris = AppColors.text50;
     final pendiente = estado == EstadoSolicitud.pendiente;
 
     return Bloque(

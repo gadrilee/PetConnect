@@ -9,6 +9,7 @@ import '../../../shared/widgets/aviso.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/campo_texto.dart';
 import '../../../shared/widgets/controles.dart';
+import '../../../shared/widgets/pie_acciones.dart';
 import '../../../shared/widgets/resumen_busqueda.dart';
 import '../../propietario/data/anuncio.dart';
 import '../data/solicitudes_repository.dart';
@@ -32,6 +33,9 @@ class _BuscarScreenState extends State<BuscarScreen> {
   bool _aceptaMascotas = false;
   double _minutosMax = 15;
   bool _cargando = false;
+
+  /// Por que fallo la ultima busqueda. Se muestra en el pie, no en un toast.
+  String? _errorBusqueda;
 
   @override
   void initState() {
@@ -71,22 +75,21 @@ class _BuscarScreenState extends State<BuscarScreen> {
       );
 
   Future<void> _buscar() async {
-    setState(() => _cargando = true);
+    setState(() {
+      _cargando = true;
+      _errorBusqueda = null;
+    });
 
     final provider = BuscarProvider(context.read<SolicitudesRepository>());
     await provider.buscar(_filtros);
 
     if (!mounted) return;
-    setState(() => _cargando = false);
+    setState(() {
+      _cargando = false;
+      _errorBusqueda = provider.error;
+    });
 
-    if (provider.error != null) {
-      Aviso.mostrarToast(
-        context,
-        mensaje: provider.error!,
-        tipo: TipoAviso.error,
-      );
-      return;
-    }
+    if (provider.error != null) return;
 
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -100,21 +103,27 @@ class _BuscarScreenState extends State<BuscarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tenue = AppText.caption(context)
-        .copyWith(color: AppColors.text.withValues(alpha: 0.7));
+    final tenue = AppText.caption(context).copyWith(color: AppColors.text70);
+    final errorBusqueda = _errorBusqueda;
 
     return Pagina(
       titulo: 'Buscar',
-      pie: BotonPrincipal(
-        etiqueta: 'BUSCAR',
-        etiquetaCargando: 'BUSCANDO...',
-        // null deshabilita: es como la pieza expresa "falta algo".
-        alTocar: _precioEsValido ? _buscar : null,
-        cargando: _cargando,
+      pie: PieAcciones(
+        // "No pudimos buscar...": el resultado va en el pie, no flotando.
+        aviso: errorBusqueda == null
+            ? null
+            : Aviso(tipo: TipoAviso.error, mensaje: errorBusqueda),
+        botonPrincipal: BotonPrincipal(
+          etiqueta: 'BUSCAR',
+          etiquetaCargando: 'BUSCANDO...',
+          // null deshabilita: es como la pieza expresa "falta algo".
+          alTocar: _precioEsValido ? _buscar : null,
+          cargando: _cargando,
+        ),
         // El detalle ya está junto al campo que lo provoca. Repetirlo acá
         // sería decir dos veces lo mismo a 600 px de distancia: basta con
         // señalar dónde mirar.
-        motivoDeshabilitado: 'Revisá el precio, arriba.',
+        motivo: _precioEsValido ? null : 'Revisá el precio, arriba.',
       ),
       hijos: [
         // GRID: los filtros en 8 columnas y "Tu búsqueda" en 4, como en Figma.
@@ -146,7 +155,9 @@ class _BuscarScreenState extends State<BuscarScreen> {
                         : 'Escribí un monto válido, como 800. O dejalo vacío '
                             'para no filtrar por precio.',
                   ),
-                  const SizedBox(height: Espacio.lg),
+                  // Entre campo y campo va 16: los filtros son una sola
+                  // seccion, no bloques distintos.
+                  const SizedBox(height: Espacio.md),
 
                   // ---- Tipo de espacio ----
                   Text('Tipo de espacio', style: tenue),
@@ -168,7 +179,7 @@ class _BuscarScreenState extends State<BuscarScreen> {
                         ),
                     ],
                   ),
-                  const SizedBox(height: Espacio.lg),
+                  const SizedBox(height: Espacio.md),
 
                   // ---- Acepta mascotas ----
                   Interruptor(
@@ -176,7 +187,7 @@ class _BuscarScreenState extends State<BuscarScreen> {
                     encendido: _aceptaMascotas,
                     alCambiar: (v) => setState(() => _aceptaMascotas = v),
                   ),
-                  const SizedBox(height: Espacio.lg),
+                  const SizedBox(height: Espacio.md),
 
                   // ---- Minutos caminando ----
                   // FLEXBOX: la etiqueta toma el espacio libre y el valor
@@ -193,7 +204,9 @@ class _BuscarScreenState extends State<BuscarScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: Espacio.md),
+                  // Etiqueta y control se leen juntos: 8, como en "Tipo de
+                  // espacio".
+                  const SizedBox(height: Espacio.sm),
                   Deslizador(
                     valor: _minutosMax,
                     min: 5,

@@ -52,7 +52,8 @@ class _SolicitudesRecibidasScreenState
     if (!ok && mounted) {
       Aviso.mostrarToast(
         context,
-        mensaje: provider.error ?? 'No se pudo rechazar la solicitud.',
+        mensaje:
+            provider.errorDecision(id) ?? 'No se pudo rechazar la solicitud.',
         tipo: TipoAviso.error,
       );
     }
@@ -87,13 +88,17 @@ class _SolicitudesRecibidasScreenState
       );
     }
 
+    // Esta pantalla no tiene pie, asi que el unico aviso pasajero (no se pudo
+    // rechazar) va como toast, que ocupa el margen de la pagina igual que
+    // cualquier otro aviso.
     return Pagina(
-      titulo: 'Gestionar Solicitudes',
+      titulo: 'Gestionar solicitudes',
       alRefrescar: provider.cargar,
       cuerpo: cuerpo,
       hijos: [
         // GRID: una tarjeta por fila en movil, dos en tablet y tres en
-        // escritorio. Las tarjetas no se achican: cambian de fila.
+        // escritorio, con 16 entre tarjetas (el medianil de la grilla). Las
+        // tarjetas no se achican: cambian de fila.
         Grilla12(
           celdas: [
             for (final s in solicitudes)

@@ -58,9 +58,7 @@ class TarjetaMenu extends StatelessWidget {
                   Text(
                     titulo,
                     style: AppText.button(context).copyWith(
-                      color: habilitada
-                          ? AppColors.text
-                          : AppColors.text.withValues(alpha: 0.38),
+                      color: habilitada ? AppColors.text : AppColors.text38,
                     ),
                   ),
                   const SizedBox(height: Espacio.xs),
@@ -68,19 +66,15 @@ class TarjetaMenu extends StatelessWidget {
                     detalle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppText.caption(context).copyWith(
-                      color: AppColors.text.withValues(alpha: 0.6),
-                    ),
+                    style: AppText.caption(context)
+                        .copyWith(color: AppColors.text60),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: Espacio.md),
             if (habilitada)
-              Icon(
-                Icons.chevron_right,
-                color: AppColors.text.withValues(alpha: 0.4),
-              )
+              Icon(Icons.chevron_right, color: AppColors.text40)
             else
               const Pastilla('Pendiente'),
           ],
