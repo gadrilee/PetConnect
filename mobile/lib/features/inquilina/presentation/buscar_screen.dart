@@ -162,21 +162,25 @@ class _BuscarScreenState extends State<BuscarScreen> {
                   // ---- Tipo de espacio ----
                   Text('Tipo de espacio', style: tenue),
                   const SizedBox(height: Espacio.sm),
-                  // FLEXBOX: cada opcion mide lo que su palabra y, si no
-                  // entran en una fila, pasan a la siguiente (flex-wrap).
-                  Wrap(
-                    spacing: Espacio.md,
-                    runSpacing: Espacio.sm,
+                  // FLEXBOX: las tres opciones reparten el ancho por partes
+                  // iguales, para que "Casa" no quede mas angosta que las
+                  // demas por tener una palabra mas corta.
+                  Row(
                     children: [
-                      for (final t in TipoEspacio.values)
-                        Opcion(
-                          etiqueta: t.etiqueta,
-                          seleccionada: _tipoSeleccionado == t,
-                          alTocar: () => setState(
-                            () => _tipoSeleccionado =
-                                _tipoSeleccionado == t ? null : t,
+                      for (final t in TipoEspacio.values) ...[
+                        if (t != TipoEspacio.values.first)
+                          const SizedBox(width: Espacio.md),
+                        Expanded(
+                          child: Opcion(
+                            etiqueta: t.etiqueta,
+                            seleccionada: _tipoSeleccionado == t,
+                            alTocar: () => setState(
+                              () => _tipoSeleccionado =
+                                  _tipoSeleccionado == t ? null : t,
+                            ),
                           ),
                         ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: Espacio.md),

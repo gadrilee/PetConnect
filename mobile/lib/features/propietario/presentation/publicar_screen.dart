@@ -180,18 +180,21 @@ class _PublicarScreenState extends State<PublicarScreen> {
         // 1. Qué estás alquilando
         const TituloSeccion('1. Qué estás alquilando'),
         const SizedBox(height: Espacio.md),
-        // FLEXBOX: la misma Opcion que en Buscar. Mide lo que su palabra y
-        // baja de fila si no entra.
-        Wrap(
-          spacing: Espacio.md,
-          runSpacing: Espacio.sm,
+        // FLEXBOX: las tres opciones reparten el ancho por partes iguales,
+        // igual que en Buscar, para que "Casa" no quede mas angosta.
+        Row(
           children: [
-            for (final t in TipoEspacio.values)
-              Opcion(
-                etiqueta: t.etiqueta,
-                seleccionada: _tipo == t,
-                alTocar: () => setState(() => _tipo = t),
+            for (final t in TipoEspacio.values) ...[
+              if (t != TipoEspacio.values.first)
+                const SizedBox(width: Espacio.md),
+              Expanded(
+                child: Opcion(
+                  etiqueta: t.etiqueta,
+                  seleccionada: _tipo == t,
+                  alTocar: () => setState(() => _tipo = t),
+                ),
               ),
+            ],
           ],
         ),
         const SizedBox(height: Espacio.md),

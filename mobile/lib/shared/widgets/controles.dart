@@ -9,9 +9,11 @@ import '../../core/theme.dart';
 /// Elegida va rellena del color principal; sin elegir, solo con borde. Se usa
 /// igual para el tipo de espacio en Buscar y en Publicar.
 ///
-/// AUTO LAYOUT: el ancho lo pone la etiqueta y el alto es 40, asi
-/// "Departamento" no se corta y "Casa" no queda con aire de sobra. Se ubican
-/// en un Wrap: si no entran en una fila, pasan a la siguiente.
+/// AUTO LAYOUT: el alto es 40 y el ancho lo da el padre. En Buscar y
+/// Publicar se usan tres en un Row con Expanded, para que "Casa" no quede
+/// mas angosta que "Departamento" por tener una palabra mas corta. La
+/// etiqueta va centrada y se achica con FittedBox si no entra, en vez de
+/// cortarse con puntos suspensivos.
 class Opcion extends StatelessWidget {
   const Opcion({
     super.key,
@@ -37,6 +39,7 @@ class Opcion extends StatelessWidget {
             horizontal: Espacio.md,
             vertical: Espacio.sm + Espacio.xs,
           ),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: seleccionada ? AppColors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(Medida.radioSm),
@@ -44,12 +47,14 @@ class Opcion extends StatelessWidget {
               color: seleccionada ? AppColors.primary : AppColors.text12,
             ),
           ),
-          child: Text(
-            etiqueta,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppText.caption(context).copyWith(
-              color: seleccionada ? AppColors.surface : AppColors.text70,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              etiqueta,
+              maxLines: 1,
+              style: AppText.caption(context).copyWith(
+                color: seleccionada ? AppColors.surface : AppColors.text70,
+              ),
             ),
           ),
         ),
