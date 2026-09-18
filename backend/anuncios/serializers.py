@@ -59,6 +59,20 @@ class AnuncioListSerializer(ServiciosIncluidosMixin, serializers.ModelSerializer
         }
 
 
+class AnuncioMioSerializer(AnuncioListSerializer):
+    """La tarjeta que ve la duena en Mis anuncios.
+
+    Suma cuantas solicitudes siguen esperando respuesta: marcar el cuarto como
+    alquilado las cierra, y eso no puede pasar sin avisarle antes. Es un dato
+    de ella sola, por eso no va en el listado publico de la busqueda.
+    """
+
+    solicitudes_pendientes = serializers.IntegerField(read_only=True, default=0)
+
+    class Meta(AnuncioListSerializer.Meta):
+        fields = AnuncioListSerializer.Meta.fields + ('solicitudes_pendientes',)
+
+
 class AnuncioDetailSerializer(ServiciosIncluidosMixin, serializers.ModelSerializer):
     """El anuncio completo. Es el momento en que el inquilino decide si descarta."""
 

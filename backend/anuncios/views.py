@@ -1,4 +1,4 @@
-from django.db.models import DecimalField, F
+from django.db.models import Count, DecimalField, F, Q
 from django.db.models.functions import Cast
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
@@ -12,6 +12,7 @@ from .permissions import EsDuenoDelAnuncio, EsPropietario
 from .serializers import (
     AnuncioDetailSerializer,
     AnuncioListSerializer,
+    AnuncioMioSerializer,
     AnuncioWriteSerializer,
     FotoAnuncioSerializer,
 )
@@ -37,7 +38,13 @@ class AnuncioViewSet(viewsets.ModelViewSet):
         ).prefetch_related('fotos')
 
         if self.action == 'mios':
-            return qs.filter(propietario=self.request.user)
+            # Cuantas siguen esperando respuesta: si hay alguna, marcar el
+            # cuarto como alquilado pide confirmacion antes de cerrarlas.
+            return qs.filter(propietario=self.request.user).annotate(
+                solicitudes_pendientes=Count(
+                    'solicitudes', filter=Q(solicitudes__estado='PENDIENTE'),
+                ),
+            )
         if self.action in ('list',):
             return qs.filter(estado=Anuncio.Estado.DISPONIBLE)
         return qs
@@ -45,7 +52,9 @@ class AnuncioViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):
             return AnuncioWriteSerializer
-        if self.action in ('list', 'mios'):
+        if self.action == 'mios':
+            return AnuncioMioSerializer
+        if self.action == 'list':
             return AnuncioListSerializer
         return AnuncioDetailSerializer
 
@@ -58,11 +67,16 @@ class AnuncioViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def marcar_alquilado(self, request, pk=None):
-        """Apagar el anuncio en un toque (Ev. 8)."""
+        """Apagar el anuncio en un toque (Ev. 8), cerrando las pendientes.
+
+        La respuesta dice cuantas solicitudes se cerraron: la app lo usa para
+        el aviso "Salio de la busqueda. Cerramos 2 solicitudes y les avisamos".
+        """
         anuncio = self.get_object()
         self.check_object_permissions(request, anuncio)
-        anuncio.marcar_alquilado()
-        return Response(AnuncioDetailSerializer(anuncio, context={'request': request}).data)
+        cerradas = anuncio.marcar_alquilado()
+        datos = AnuncioDetailSerializer(anuncio, context={'request': request}).data
+        return Response({**datos, 'solicitudes_cerradas': cerradas})
 
     @action(detail=True, methods=['post'])
     def marcar_disponible(self, request, pk=None):

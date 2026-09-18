@@ -18,6 +18,10 @@ class SolicitudVisita(models.Model):
         PENDIENTE = 'PENDIENTE', 'Pendiente'
         APROBADA = 'APROBADA', 'Aprobada'
         RECHAZADA = 'RECHAZADA', 'Rechazada'
+        # No es un rechazo: nadie dijo que no. El cuarto se alquilo mientras
+        # la solicitud esperaba, y el inquilino tiene que saberlo en vez de
+        # quedarse esperando una respuesta que nunca va a llegar (Ev. 5).
+        CERRADA = 'CERRADA', 'Cerrada'
 
     anuncio = models.ForeignKey(Anuncio, on_delete=models.CASCADE, related_name='solicitudes')
     inquilino = models.ForeignKey(
