@@ -95,7 +95,9 @@ grilla es una pieza reutilizable: `mobile/lib/shared/layout/grilla.dart`.
   notificado"*: va a ser cierto cuando exista ese aviso.
 - **Deshacer una aprobación.** No hay vuelta atrás, y es a propósito.
 - **Varias solicitudes para el mismo anuncio.** Aprobar una no cierra las
-  demás, y si el cuarto se marca alquilado, las pendientes siguen abiertas.
+  demás, y es a propósito: aprobar una visita no alquila el cuarto. Marcarlo
+  como alquilado sí las cierra, y a cada persona se le avisa — es el
+  [flujo v0.5](flujo-v0.5.md).
 
 ---
 

@@ -1,35 +1,13 @@
-# Wireframes — Flujo v0.2 · Andrea, la inquilina
+# Pantallas — Flujo v0.2 · Andrea busca y pide la visita
 
 **Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
-**Flujo:** [`flujo/flujo-v0.2.md`](../../flujo/flujo-v0.2.md) · **Reglas de dibujo:** [`_lenguaje-visual.md`](../_lenguaje-visual.md)
+**Flujo:** [`flujo/flujo-v0.2.md`](../../flujo/flujo-v0.2.md) · **Figma:** página *Flujos*, sección *Flujo v0.3 — Inquilina*
 
-Siete pantallas, 360 × 800, escala de grises, exportadas desde Figma.
+Ocho pantallas de 440 × 956, exportadas de la fila **Principal** del archivo de
+Figma. Los caminos completos (*Happy Path*) y los errores (*Validaciones*) están
+en las otras dos filas de la misma sección.
 
-Están en PNG: se ven directamente en GitHub, pero **no se pueden reimportar a
-Figma con capas editables**. Si hace falta volver a editarlas, la fuente es el
-archivo de Figma, no estos archivos.
-
-## El flujo completo de un vistazo
-
-![Las siete pantallas del flujo v0.2](flujo-completo.png)
-
-Las siete pantallas lado a lado, en el orden del flujo. Sirve para revisar el
-recorrido entero sin abrir Figma ni los SVG uno por uno.
-
-## Por qué casi no hay texto
-
-El contenido va como barras grises y **el único texto real es el título de cada
-pantalla**. Es deliberado, y responde a la pregunta que abre la Clase 5:
-
-> "La pregunta no es «¿qué color tendrá el botón?». La primera pregunta es
-> «¿María entiende qué puede hacer y qué ocurrirá después?»"
-
-Un wireframe que ya trae los textos definitivos invita a discutir la redacción
-antes de tiempo. Sin ellos, la revisión sólo puede ser sobre lo que importa en
-esta etapa: qué se reconoce primero, qué se agrupa con qué y cuál es la acción
-principal. El título se conserva porque orienta — es el paso 1 de la jerarquía.
-
-## Las pantallas
+![Las ocho pantallas del flujo](flujo-completo.png)
 
 | # | Archivo | Momento de la tarea |
 |---|---|---|
@@ -40,27 +18,23 @@ principal. El título se conserva porque orienta — es el paso 1 de la jerarqu�
 | 05 | [`05 Solicitar visita.png`](05%20Solicitar%20visita.png) | Acepta las condiciones y pide la visita |
 | 06 | [`06 Solicitud enviada.png`](06%20Solicitud%20enviada.png) | Queda a la espera de la respuesta |
 | 07 | [`07 Contacto liberado.png`](07%20Contacto%20liberado.png) | El propietario aprobó: aparece el contacto |
-
-La 01 es la **misma pantalla que abre el flujo v0.1**: lo único que cambia son
-los módulos que se le ofrecen a cada rol. Se documenta en los dos flujos porque
-en cada uno arranca una tarea distinta.
+| 08 | [`08 Solicitud cerrada.png`](08%20Solicitud%20cerrada.png) | El cuarto se alquiló mientras esperaba |
 
 ## Cómo leer la 04
 
 Es la pantalla que decide el producto, y ya incluye la corrección que salió de
 la prueba con una usuaria (ver [`docs/decision-clase-05.md`](../../docs/decision-clase-05.md)):
+el **precio final** domina, los servicios incluidos van pegados a él —también el
+que *no* está incluido, que fue lo que obligó a la usuaria a preguntar *"¿cuánto
+es con luz?"*— y **no hay ningún contacto**: el teléfono recién aparece en la 07,
+después de la aprobación.
 
-- La barra del **precio final** es más alta y más oscura que las demás: es el
-  criterio de descarte n.º 1, así que domina por tamaño y peso.
-- Los **tres servicios** van pegados a esa barra, y el que **no** está incluido
-  aparece con el círculo vacío en vez de omitirse. Omitirlo fue lo que obligó a
-  la usuaria a preguntar *"¿cuánto es con luz?"*.
-- Los otros tres datos comparten peso entre sí, agrupados en el mismo
-  contenedor porque se leen como una sola decisión.
-- **No hay ningún contacto.** El teléfono del propietario no existe en esta
-  pantalla: recién aparece en la 06, después de la aprobación.
+## La 08, nueva con el flujo v0.5
 
-## La fuente editable
+Antes, si Marta marcaba el cuarto como alquilado, la solicitud de Andrea quedaba
+*pendiente* para siempre: la evidencia 5 (*"uno ya estaba alquilado"*) pasando
+adentro de la app. Ahora se cierra sola y la pantalla lo dice. La etiqueta es
+**neutra, no roja**: nadie la rechazó, el cuarto se alquiló.
 
-Estas imágenes son una copia para revisar desde GitHub. Para editarlas hay que
-abrir el archivo de Figma, en la página *Flujo v0.2 — Inquilina ‑sin letters*.
+> **Numeración.** En el repositorio este es el flujo v0.2. En Figma está tercero,
+> porque ahí se ordenan como se viven.

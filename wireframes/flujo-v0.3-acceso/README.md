@@ -1,74 +1,49 @@
-# Wireframes — Flujo v0.3 · Entrar con el rol correcto
+# Pantallas — Flujo v0.3 · Entrar con el rol correcto
 
 **Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
-**Flujo:** [`flujo/flujo-v0.3.md`](../../flujo/flujo-v0.3.md) · **Reglas de dibujo:** [`_lenguaje-visual.md`](../_lenguaje-visual.md)
+**Flujo:** [`flujo/flujo-v0.3.md`](../../flujo/flujo-v0.3.md) · **Figma:** página *Flujos*, sección *Flujo v0.1 — Acceso*
 
-Seis pantallas, 360 × 800, escala de grises, exportadas desde Figma.
+Once pantallas de 440 × 956, exportadas de la fila **Principal** del archivo de
+Figma: cada pantalla del flujo en su estado normal, con los formularios vacíos.
+Los caminos completos con los datos puestos (*Happy Path*) y los errores
+(*Validaciones*) están en las otras dos filas de la misma sección.
 
-## El flujo completo de un vistazo
+![Las once pantallas del flujo](flujo-completo.png)
 
-![Las seis pantallas del flujo v0.3](flujo-completo.png)
-
-## Por qué casi no hay texto
-
-El contenido va como barras grises y **el único texto real es el título de cada
-pantalla**. Es deliberado, y responde a la pregunta que abre la Clase 5:
-
-> "La pregunta no es «¿qué color tendrá el botón?». La primera pregunta es
-> «¿María entiende qué puede hacer y qué ocurrirá después?»"
-
-Sin los textos definitivos, la revisión sólo puede ser sobre lo que importa en
-esta etapa: qué se reconoce primero, qué se agrupa con qué y cuál es la acción
-principal. El título se conserva porque orienta — es el paso 1 de la jerarquía.
-
-## Las pantallas
+## Las pantallas, en el orden en que pasan
 
 | # | Archivo | Momento de la tarea |
 |---|---|---|
-| 01 | [`01 Ingresar.png`](01%20Ingresar.png) | Ya tiene cuenta y entra |
-| 02 | [`02 No entra.png`](02%20No%20entra.png) | **Se equivocó**: el motivo va pegado al campo |
-| 03 | [`03 Elegir rol.png`](03%20Elegir%20rol.png) | **Sin rol elegido**: el botón está apagado y dice por qué |
-| 04 | [`04 Crear cuenta.png`](04%20Crear%20cuenta.png) | Eligió publicar → aparece el WhatsApp y su aviso |
-| 05 | [`05 Adentro — propietaria.png`](05%20Adentro%20%E2%80%94%20propietaria.png) | Cae con **tres** módulos: publicar, mis anuncios, solicitudes |
-| 06 | [`06 Adentro — inquilina.png`](06%20Adentro%20%E2%80%94%20inquilina.png) | Cae con **dos**: buscar y estado de solicitudes |
+| 01 | [`01 Ingresar.png`](01%20Ingresar.png) | Abre la app |
+| 02 | [`02 Olvidaste tu contraseña.png`](02%20Olvidaste%20tu%20contrase%C3%B1a.png) | No se acuerda la contraseña: pide el enlace |
+| 03 | [`03 Revisá tu correo.png`](03%20Revis%C3%A1%20tu%20correo.png) | Confirmación, sin decir si el correo tiene cuenta |
+| 04 | [`04 Nueva contraseña.png`](04%20Nueva%20contrase%C3%B1a.png) | Abre el enlace y pone una nueva; entra directo |
+| 05 | [`05 Elegir rol.png`](05%20Elegir%20rol.png) | No tiene cuenta: **elige si busca o publica** |
+| 06 | [`06 Crear cuenta - propietaria.png`](06%20Crear%20cuenta%20-%20propietaria.png) | Usuario, correo, contraseña y WhatsApp |
+| 07 | [`07 Crear cuenta - inquilina.png`](07%20Crear%20cuenta%20-%20inquilina.png) | Lo mismo, sin WhatsApp |
+| 08 | [`08 Adentro - propietaria.png`](08%20Adentro%20-%20propietaria.png) | Cae con **tres** módulos |
+| 09 | [`09 Adentro - inquilina.png`](09%20Adentro%20-%20inquilina.png) | Cae con **dos** |
+| 10 | [`10 Mi perfil - propietaria.png`](10%20Mi%20perfil%20-%20propietaria.png) | Sus datos, su WhatsApp editable y la salida |
+| 11 | [`11 Mi perfil - inquilina.png`](11%20Mi%20perfil%20-%20inquilina.png) | Sus datos y la salida: no tiene nada que proteger |
 
-**Las dos últimas son la misma pantalla.** Cambian sólo los módulos: es el
-resultado de haber elegido el rol, y verlas juntas es la única forma de
-entender qué se decidió en la `03`.
+**Recuperar la contraseña va pegado a Ingresar** porque sale de ahí: es lo que
+pasa cuando no se puede entrar. Mi perfil va al final porque pasa después de
+estar adentro.
 
-**Dos de las seis son estados de error.** Es a propósito: un flujo dibujado
-sólo en su camino feliz no sirve para revisar nada. La `02` y la `03` son
-justamente los dos momentos en que esto se rompe.
+## Cómo leer la 05
 
-## Cómo leer la 03
+Es la pantalla que decide el producto. Los dos roles se muestran **con lo que
+gana cada uno** (*"Busco dónde alquilar"*, no *"Inquilino"*), y el botón nace
+apagado: sin elegir, no se sigue. La elección decide todo lo que viene después
+— un formulario con WhatsApp o sin él, una app con tres módulos o con dos.
 
-Es la pantalla que decide el producto:
+## Cómo leer la 10 y la 11
 
-- Los dos roles se muestran **con lo que gana cada uno**, no con el nombre del
-  rol. Dice *"Busco dónde alquilar"*, no *"Inquilino"*.
-- El botón **nace deshabilitado**, y debajo explica qué falta. Un botón apagado
-  sin motivo deja a la persona adivinando.
-- El rol elegido se marca **con el fondo**, no sólo con el borde: tiene que
-  reconocerse de un vistazo cuál quedó seleccionado.
+Son la misma pantalla, y la diferencia es el argumento del flujo entero. Marta
+tiene algo que proteger —su WhatsApp, lo único editable, con la promesa de que
+no aparece en sus anuncios—. Andrea no publica: le quedan sus datos y la salida.
+*Cerrar sesión* vive acá y no en el inicio, para que una salida que no se
+deshace no quede a un toque de la primera pantalla.
 
-## Cómo leer la 04
-
-Al elegir *Quiero publicar* aparece un campo que antes no estaba: el **WhatsApp**,
-con el aviso de que *no aparece en tus anuncios*. Ese dato es la razón de ser del
-producto (evidencia 9: *"no pongo mi número porque después te escriben para
-cualquier cosa, pero si no lo pongo nadie te contacta"*), así que la promesa de
-protegerlo se hace en el momento exacto en que se lo pide.
-
-## La relación con los otros dos flujos
-
-Los flujos [v0.1](../flujo-v0.1-propietario/README.md) y
-[v0.2](../flujo-v0.2-inquilina/README.md) empiezan los dos en la pantalla de
-Inicio. **Este es el que explica cómo se llega ahí**, y por qué esa misma
-pantalla le muestra cosas distintas a cada una.
-
-## La fuente editable
-
-Estas imágenes son una copia para revisar desde GitHub. Para editarlas hay que
-abrir el archivo de Figma, en la página *Flujo v0.3 — Acceso*. Las cinco
-pantallas están armadas con **instancias** de los componentes de la página
-*Sistema visual*, no con formas sueltas.
+> **Numeración.** En el repositorio este es el flujo v0.3. En Figma está
+> primero, porque es por donde se entra a todo lo demás.
