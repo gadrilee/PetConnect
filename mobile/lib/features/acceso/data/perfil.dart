@@ -26,6 +26,7 @@ class Perfil {
     required this.rol,
     this.whatsapp = '',
     this.email = '',
+    this.foto,
   });
 
   final String username;
@@ -39,7 +40,13 @@ class Perfil {
   /// cambia desde ahi: cambiarlo pide confirmar la direccion nueva.
   final String email;
 
+  /// La direccion de la foto de perfil, ya lista para mostrar. `null` si no
+  /// puso ninguna: la app muestra el icono del rol.
+  final String? foto;
+
   bool get esPropietario => rol == Rol.propietario;
+
+  bool get tieneFoto => foto != null && foto!.isNotEmpty;
 
   factory Perfil.desdeJson(Map<String, dynamic> json) {
     return Perfil(
@@ -47,6 +54,7 @@ class Perfil {
       rol: Rol.desdeApi(json['rol'] as String? ?? 'INQUILINO'),
       whatsapp: json['whatsapp'] as String? ?? '',
       email: json['email'] as String? ?? '',
+      foto: json['foto'] as String?,
     );
   }
 }

@@ -51,6 +51,7 @@ class InicioInquilinaScreen extends StatelessWidget {
           nombre: perfil.username,
           rol: perfil.rol.etiqueta,
           icono: Icons.search,
+          foto: perfil.foto,
           alTocar: () => _abrir(context, const PerfilScreen()),
         ),
         // 24 entre bloques de la pantalla; 16 entre el titulo y su contenido.

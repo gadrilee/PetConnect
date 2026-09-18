@@ -63,6 +63,8 @@ const _vigilados = [
   'lib/shared/widgets/resumen_busqueda.dart',
   'lib/shared/widgets/tarjeta_menu.dart',
   'lib/shared/widgets/tarjeta_perfil.dart',
+  'lib/shared/widgets/avatar_perfil.dart',
+  'lib/shared/widgets/hoja_opciones.dart',
   'lib/shared/widgets/titulo_seccion.dart',
   // El pie de acciones (Figma "Pie de acciones") y las piezas que faltaban.
   'lib/shared/widgets/pie_acciones.dart',

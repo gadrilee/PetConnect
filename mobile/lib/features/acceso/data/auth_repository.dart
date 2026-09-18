@@ -63,6 +63,23 @@ class AuthRepository {
     return Perfil.desdeJson(datos);
   }
 
+  /// Pone o cambia la foto de perfil. El backend la guarda cuadrada, chica y
+  /// sin los datos de ubicacion que trae una foto del telefono.
+  Future<Perfil> subirFoto(String rutaArchivo) async {
+    final datos = await _api.postArchivo(
+      '/api/usuarios/yo/foto/',
+      campo: 'foto',
+      rutaArchivo: rutaArchivo,
+    ) as Map<String, dynamic>;
+    return Perfil.desdeJson(datos);
+  }
+
+  /// Quita la foto de perfil: vuelve el icono del rol.
+  Future<Perfil> quitarFoto() async {
+    final datos = await _api.delete('/api/usuarios/yo/foto/') as Map<String, dynamic>;
+    return Perfil.desdeJson(datos);
+  }
+
   /// Pide el enlace para poner una contrasena nueva. El backend responde lo
   /// mismo exista o no la cuenta, asi que aca no hay nada que devolver.
   Future<void> pedirRecuperacion(String email) async {

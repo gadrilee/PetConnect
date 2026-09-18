@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
+import 'avatar_perfil.dart';
 import 'bloque.dart';
 import 'fila_condicion.dart';
-import 'icono_circulo.dart';
 
 /// Quien entro a la app: el encabezado del inicio de los dos roles.
 ///
@@ -18,6 +18,9 @@ import 'icono_circulo.dart';
 /// pantalla que se ve al entrar. Mismo cambio que el componente de Figma.
 ///
 /// El rol y la nota del WhatsApp van en Text 70 %, el gris que se lee.
+///
+/// El avatar es la foto de la persona si puso una, o el icono del rol si no
+/// (AvatarPerfil). En Figma es la propiedad "Avatar" de la tarjeta.
 class TarjetaPerfil extends StatelessWidget {
   const TarjetaPerfil({
     super.key,
@@ -25,12 +28,18 @@ class TarjetaPerfil extends StatelessWidget {
     required this.rol,
     required this.icono,
     required this.alTocar,
+    this.foto,
     this.whatsappOculto = false,
   });
 
   final String nombre;
   final String rol;
+
+  /// El icono del rol: se ve cuando no hay foto.
   final IconData icono;
+
+  /// La direccion de la foto de perfil; `null` si no tiene.
+  final String? foto;
 
   /// Abre Mi perfil.
   final VoidCallback alTocar;
@@ -52,7 +61,7 @@ class TarjetaPerfil extends StatelessWidget {
       // FLEXBOX: avatar fijo, datos flexibles y el chevron anclado a la derecha.
       child: Row(
         children: [
-          IconoCirculo(icono),
+          AvatarPerfil(icono: icono, foto: foto),
           const SizedBox(width: Espacio.md),
           Expanded(
             child: Column(

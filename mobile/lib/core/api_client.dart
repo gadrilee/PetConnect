@@ -66,10 +66,15 @@ class ApiClient {
     return _enviar('PATCH', ruta, cuerpo: cuerpo);
   }
 
+  Future<dynamic> delete(String ruta) {
+    return _enviar('DELETE', ruta);
+  }
+
   /// Sube un archivo con `multipart/form-data`.
   ///
-  /// Lo usa la carga de fotos del anuncio, que ademas manda la fecha de
-  /// captura: lo que importa es cuando se saco la foto, no cuando se subio.
+  /// Lo usan las fotos del anuncio, que ademas mandan la fecha de captura (lo
+  /// que importa es cuando se saco la foto, no cuando se subio), y la foto de
+  /// perfil.
   Future<dynamic> postArchivo(
     String ruta, {
     required String campo,

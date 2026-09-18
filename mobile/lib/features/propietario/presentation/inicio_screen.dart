@@ -114,6 +114,7 @@ class _InicioPropietarioScreenState extends State<InicioPropietarioScreen> {
           nombre: perfil.username,
           rol: perfil.rol.etiqueta,
           icono: Icons.home_work_outlined,
+          foto: perfil.foto,
           // El propietario es quien tiene un WhatsApp que proteger: la fila
           // le recuerda que no aparece en ningun anuncio.
           whatsappOculto: true,

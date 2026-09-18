@@ -114,6 +114,29 @@ class AuthProvider extends ChangeNotifier {
     );
   }
 
+  /// Lo que se dice cuando la foto no llego al servidor (Figma, Validaciones
+  /// "08 Mi perfil · no se pudo subir la foto"). Si el servidor la recibio y
+  /// la rechazo (pesa mucho, no es una imagen), se dice su motivo, que queda
+  /// en `erroresPorCampo['foto']`.
+  static const String noSeSubioLaFoto =
+      'No se pudo subir la foto. Revisá tu conexión y probá de nuevo.';
+
+  /// Pone o cambia la foto de perfil desde Mi perfil.
+  Future<bool> subirFoto(String rutaArchivo) {
+    return _sinSesion(
+      () async => _perfil = await _repo.subirFoto(rutaArchivo),
+      fallo: noSeSubioLaFoto,
+    );
+  }
+
+  /// Quita la foto de perfil: vuelve el icono del rol.
+  Future<bool> quitarFoto() {
+    return _sinSesion(
+      () async => _perfil = await _repo.quitarFoto(),
+      fallo: 'No se pudo quitar la foto. Revisá tu conexión y probá de nuevo.',
+    );
+  }
+
   Future<void> logout() async {
     await _repo.logout();
     _perfil = null;
