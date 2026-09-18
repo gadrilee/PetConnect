@@ -111,18 +111,44 @@ Las cuatro condiciones de descarte del Brief v0.2.0 son **campos obligatorios** 
 
 **Dos valores pendientes de validar:** las coordenadas del campus y el factor 1.3 (es una referencia de planificación urbana, no una medición hecha en Santa Cruz).
 
+### Decisión: la foto de perfil se guarda procesada
+
+`Perfil.foto` es opcional: sin foto, la app muestra el ícono del rol. Lo que se
+sube nunca se guarda tal cual (`usuarios/serializers.py`, `preparar_foto`):
+
+- **Sin metadatos.** Una foto del teléfono puede traer las coordenadas GPS de
+  donde se sacó, y en esta app eso suele ser la casa de la persona. Se vuelve a
+  escribir como JPEG sin EXIF, después de enderezarla según la orientación que
+  anotó la cámara.
+- **Cuadrada y de 512 px**, recortada al centro: el avatar es un círculo y el
+  más grande mide 96.
+- **Un nombre nuevo cada vez** (`perfiles/<uuid>.jpg`): la dirección cambia y la
+  app no muestra la vieja que tenía guardada. La anterior se borra del disco
+  recién cuando la nueva quedó guardada, y borrar la cuenta borra la foto.
+- **Topes**: 5 MB y 40 megapíxeles. La app ya la achica antes de mandarla
+  (1024 px), así que sólo frenan a quien le pegue a la API directo.
+
+Por ahora la foto la ve sólo su dueña (Mi perfil y el inicio). Mostrarla del
+otro lado —a quién le aprueba Marta, quién publica para Andrea— es una decisión
+pendiente: es un dato personal más que se entregaría antes de la aprobación.
+
 ### Decisión: qué NO se modeló
 
 El campo *"con quién se comparte"* para habitaciones (Ev. 6) **no está**. El Brief v0.2.0 §8 lo tiene como pregunta abierta, no como requisito, y se decide después de las entrevistas reales.
 
 ## API
 
-Todos los endpoints exigen JWT salvo el registro. Se obtiene con `POST /api/auth/token/`.
+Todos los endpoints exigen JWT salvo el registro y recuperar la contraseña. Se obtiene con `POST /api/auth/token/`.
 
 | Metodo | Ruta | Quien | Que hace |
 |---|---|---|---|
 | POST | `/api/usuarios/registro/` | publico | Crear cuenta eligiendo rol |
-| GET | `/api/usuarios/yo/` | autenticado | Mi perfil |
+| GET | `/api/usuarios/yo/` | autenticado | Mi perfil (con la direccion de la foto, o `null`) |
+| PATCH | `/api/usuarios/yo/` | autenticado | Cambiar el WhatsApp |
+| POST | `/api/usuarios/yo/foto/` | autenticado | Poner o cambiar la foto de perfil (`multipart`, campo `foto`) |
+| DELETE | `/api/usuarios/yo/foto/` | autenticado | Quitar la foto de perfil |
+| POST | `/api/usuarios/recuperar/` | publico | Mandar el enlace para una contraseña nueva |
+| POST | `/api/usuarios/recuperar/confirmar/` | publico | Poner la contraseña nueva y entrar |
 | POST | `/api/auth/token/` | publico | Login (access + refresh) |
 | POST | `/api/anuncios/` | propietario | Publicar |
 | GET | `/api/anuncios/` | autenticado | Buscar — **solo DISPONIBLES** |

@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import generics, permissions, status
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -11,6 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Perfil
 from .serializers import (
     ConfirmarRecuperacionSerializer,
+    FotoPerfilSerializer,
     PerfilSerializer,
     RecuperarSerializer,
     RegistroSerializer,
@@ -46,6 +48,44 @@ class MiPerfilView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return Perfil.objects.select_related('usuario').get(usuario=self.request.user)
+
+
+class MiFotoView(APIView):
+    """POST y DELETE /api/usuarios/yo/foto/ — poner, cambiar o quitar la foto.
+
+    Va aparte del PATCH de /yo/ porque la foto viaja como archivo (multipart)
+    y el resto del perfil como JSON. Las dos respuestas devuelven el perfil
+    entero, como el PATCH: la app reemplaza el que tenia y listo.
+    """
+
+    parser_classes = [MultiPartParser, FormParser]
+
+    def _perfil(self):
+        return Perfil.objects.select_related('usuario').get(usuario=self.request.user)
+
+    def _responder(self, perfil):
+        return Response(PerfilSerializer(perfil, context={'request': self.request}).data)
+
+    def post(self, request):
+        perfil = self._perfil()
+        serializer = FotoPerfilSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        anterior = perfil.foto.name if perfil.foto else None
+        perfil.foto.save('foto.jpg', serializer.validated_data['foto'], save=False)
+        perfil.save(update_fields=['foto'])
+        # La vieja se borra recien con la nueva guardada: si algo falla antes,
+        # la persona conserva la que tenia.
+        if anterior:
+            perfil.foto.storage.delete(anterior)
+        return self._responder(perfil)
+
+    def delete(self, request):
+        perfil = self._perfil()
+        if perfil.foto:
+            perfil.foto.delete(save=False)
+            perfil.save(update_fields=['foto'])
+        return self._responder(perfil)
 
 
 class RecuperarView(APIView):
