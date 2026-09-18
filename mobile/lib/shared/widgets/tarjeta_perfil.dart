@@ -9,33 +9,38 @@ import 'icono_circulo.dart';
 ///
 /// REGLA DE LA PIEZA
 /// -----------------
-/// Nombre, rol y la salida, siempre en el mismo lugar. Estaba copiada en el
-/// inicio de la propietaria y en el de la inquilina; ahora es una sola.
+/// Nombre y rol, siempre en el mismo lugar. Estaba copiada en el inicio de la
+/// propietaria y en el de la inquilina; ahora es una sola.
 ///
-/// El rol y la nota del WhatsApp van en Text 70 %, el gris que se lee; la
-/// salida es un icono solo, asi que lleva su nombre ("Cerrar sesión") para el
-/// lector de pantalla y un blanco de 48, aunque el icono mida 24.
+/// Es la puerta a Mi perfil: toda la tarjeta se toca y termina en un chevron,
+/// como las tarjetas de modulo. Cerrar sesion no va aca sino adentro de Mi
+/// perfil, para que una salida que no se deshace no quede a un toque en la
+/// pantalla que se ve al entrar. Mismo cambio que el componente de Figma.
+///
+/// El rol y la nota del WhatsApp van en Text 70 %, el gris que se lee.
 class TarjetaPerfil extends StatelessWidget {
   const TarjetaPerfil({
     super.key,
     required this.nombre,
     required this.rol,
     required this.icono,
-    required this.alCerrarSesion,
+    required this.alTocar,
     this.whatsappOculto = false,
   });
 
   final String nombre;
   final String rol;
   final IconData icono;
-  final VoidCallback alCerrarSesion;
+
+  /// Abre Mi perfil.
+  final VoidCallback alTocar;
 
   /// Recuerda que el WhatsApp no aparece en los anuncios. Sólo la propietaria
   /// tiene uno que proteger.
   final bool whatsappOculto;
 
-  /// Lo que se anuncia al tocar la salida, para no repetirlo en las pruebas.
-  static const String etiquetaSalir = 'Cerrar sesión';
+  /// Lo que el lector de pantalla suma al nombre y el rol: a donde lleva.
+  static const String etiquetaIr = 'Mi perfil';
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +48,8 @@ class TarjetaPerfil extends StatelessWidget {
 
     return Bloque(
       relleno: Espacio.lg,
-      // FLEXBOX: avatar fijo, datos flexibles y la salida anclada a la derecha.
+      alTocar: alTocar,
+      // FLEXBOX: avatar fijo, datos flexibles y el chevron anclado a la derecha.
       child: Row(
         children: [
           IconoCirculo(icono),
@@ -74,16 +80,13 @@ class TarjetaPerfil extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.error),
-            onPressed: alCerrarSesion,
-            // El tooltip es el nombre del boton para el lector de pantalla y
-            // lo que se ve al dejar el mouse encima.
-            tooltip: etiquetaSalir,
-            constraints: const BoxConstraints(
-              minWidth: Medida.toque,
-              minHeight: Medida.toque,
-            ),
+          const SizedBox(width: Espacio.sm),
+          // Mismo gris que el chevron de las tarjetas de modulo: es una
+          // entrada, no una accion destructiva.
+          Icon(
+            Icons.chevron_right,
+            color: AppColors.text60,
+            semanticLabel: etiquetaIr,
           ),
         ],
       ),

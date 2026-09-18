@@ -9,6 +9,7 @@ import '../../../shared/widgets/campo_texto.dart';
 import '../../../shared/widgets/logo_alquilamatch.dart';
 import '../providers/auth_provider.dart';
 import 'elegir_rol_screen.dart';
+import 'recuperar_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -106,6 +107,19 @@ class _LoginScreenState extends State<LoginScreen> {
           cargando: auth.ocupado,
         ),
         const SizedBox(height: Espacio.md),
+        // Los dos enlaces van pegados: cada uno ya tiene su blanco de toque de
+        // 48, que es el aire entre ellos.
+        BotonTexto(
+          etiqueta: '¿Olvidaste tu contraseña?',
+          alTocar: auth.ocupado
+              ? null
+              : () {
+                  context.read<AuthProvider>().limpiarError();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const RecuperarScreen()),
+                  );
+                },
+        ),
         BotonTexto(
           etiqueta: 'No tengo cuenta',
           alTocar: auth.ocupado

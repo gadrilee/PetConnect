@@ -90,7 +90,7 @@ class RecuperarContrasenaTest(BaseAPITest):
         self.assertEqual(r.status_code, status.HTTP_200_OK)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['marta@uagrm.edu.bo'])
-        self.assertIn('alquilamatch://recuperar?uid=', mail.outbox[0].body)
+        self.assertIn('alquilamatch://app/recuperar?uid=', mail.outbox[0].body)
 
     def test_no_revela_si_el_correo_tiene_cuenta(self):
         con_cuenta = self.pedir().data

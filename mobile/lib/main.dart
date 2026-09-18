@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api_client.dart';
+import 'core/enlaces.dart';
 import 'core/theme.dart';
 import 'features/propietario/data/anuncios_repository.dart';
 import 'features/propietario/providers/mis_anuncios_provider.dart';
@@ -73,6 +74,9 @@ class AlquilaMatchApp extends StatelessWidget {
       supportedLocales: idiomas,
       localizationsDelegates: delegados,
       home: const _Puerta(),
+      // El enlace del correo de recuperacion abre "Nueva contraseña" encima
+      // de lo que haya: el login, o el inicio si ya habia sesion.
+      onGenerateRoute: rutaDesdeEnlace,
     );
   }
 }

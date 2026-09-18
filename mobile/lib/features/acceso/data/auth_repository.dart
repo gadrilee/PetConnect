@@ -54,6 +54,46 @@ class AuthRepository {
     return Perfil.desdeJson(datos);
   }
 
+  /// Cambia el WhatsApp: lo unico que se edita desde Mi perfil.
+  Future<Perfil> actualizarWhatsapp(String whatsapp) async {
+    final datos = await _api.patch(
+      '/api/usuarios/yo/',
+      cuerpo: {'whatsapp': whatsapp},
+    ) as Map<String, dynamic>;
+    return Perfil.desdeJson(datos);
+  }
+
+  /// Pide el enlace para poner una contrasena nueva. El backend responde lo
+  /// mismo exista o no la cuenta, asi que aca no hay nada que devolver.
+  Future<void> pedirRecuperacion(String email) async {
+    await _api.post(
+      '/api/usuarios/recuperar/',
+      cuerpo: {'email': email},
+      conToken: false,
+    );
+  }
+
+  /// Pone la contrasena nueva con el enlace del correo y deja la sesion
+  /// iniciada: el backend devuelve los tokens, asi que no hay que volver a
+  /// escribirla en Ingresar.
+  Future<Perfil> confirmarRecuperacion({
+    required String uid,
+    required String token,
+    required String password,
+  }) async {
+    final tokens = await _api.post(
+      '/api/usuarios/recuperar/confirmar/',
+      cuerpo: {'uid': uid, 'token': token, 'password': password},
+      conToken: false,
+    ) as Map<String, dynamic>;
+
+    await _api.guardarTokens(
+      access: tokens['access'] as String,
+      refresh: tokens['refresh'] as String,
+    );
+    return miPerfil();
+  }
+
   Future<void> logout() => _api.borrarTokens();
 
   Future<bool> haySesionGuardada() => _api.haySesion;

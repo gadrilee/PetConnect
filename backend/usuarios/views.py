@@ -16,8 +16,10 @@ from .serializers import (
     RegistroSerializer,
 )
 
-# La app abre este enlace directo en la pantalla "Nueva contrasena".
-ENLACE_RECUPERAR = 'alquilamatch://recuperar?uid={uid}&token={token}'
+# La app abre este enlace directo en la pantalla "Nueva contrasena". Va con el
+# host "app" porque Flutter arma la ruta con el path del enlace: en
+# alquilamatch://recuperar la palabra quedaria como host y se perderia.
+ENLACE_RECUPERAR = 'alquilamatch://app/recuperar?uid={uid}&token={token}'
 
 # Siempre la misma respuesta, exista o no la cuenta: si dijera "ese correo no
 # esta registrado", cualquiera podria averiguar quien usa la app probando

@@ -25,12 +25,14 @@ class RegistroScreen extends StatefulWidget {
 
 class _RegistroScreenState extends State<RegistroScreen> {
   final _usuario = TextEditingController();
+  final _correo = TextEditingController();
   final _clave = TextEditingController();
   final _whatsapp = TextEditingController();
 
   // Mensajes de error locales por campo: null = válido. Se calculan al
   // enviar, como en el login, no mientras se escribe. El usuario no tiene
   // uno: lo unico que puede fallarle lo sabe el backend.
+  String? _errorCorreo;
   String? _errorClave;
   String? _errorWhatsapp;
 
@@ -40,9 +42,15 @@ class _RegistroScreenState extends State<RegistroScreen> {
   static const _claveCorta =
       'Asegurate de que este campo tenga al menos 8 caracteres.';
   static const _whatsappInvalido = 'Escribí un número de 8 dígitos.';
+  static const _correoInvalido =
+      'Escribí un correo completo, como marta@uagrm.edu.bo.';
 
   /// Un WhatsApp de Bolivia: exactamente 8 digitos, ni uno mas ni uno menos.
   static final _ochoDigitos = RegExp(r'^\d{8}$');
+
+  /// Lo minimo para que un correo pueda recibir el enlace de recuperacion:
+  /// algo, una arroba, algo, un punto y algo. El resto lo decide el backend.
+  static final _pareceCorreo = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   /// El WhatsApp se pide solo al propietario: es lo que libera al aprobar.
   bool get _pideWhatsapp => widget.rol == Rol.propietario;
@@ -52,22 +60,26 @@ class _RegistroScreenState extends State<RegistroScreen> {
   /// se revisa recien al tocar, en [_validar].
   bool get _completo =>
       _usuario.text.trim().isNotEmpty &&
+      _correo.text.trim().isNotEmpty &&
       _clave.text.isNotEmpty &&
       (!_pideWhatsapp || _whatsapp.text.trim().isNotEmpty);
+
+  List<TextEditingController> get _controladores =>
+      [_usuario, _correo, _clave, _whatsapp];
 
   @override
   void initState() {
     super.initState();
     // El estado del boton se deriva de lo escrito: hay que rearmar la
     // pantalla con cada tecla, no solo al enviar.
-    for (final controlador in [_usuario, _clave, _whatsapp]) {
+    for (final controlador in _controladores) {
       controlador.addListener(_rearmar);
     }
   }
 
   @override
   void dispose() {
-    for (final controlador in [_usuario, _clave, _whatsapp]) {
+    for (final controlador in _controladores) {
       controlador
         ..removeListener(_rearmar)
         ..dispose();
@@ -85,12 +97,14 @@ class _RegistroScreenState extends State<RegistroScreen> {
   bool _validar() {
     bool ok = true;
     setState(() {
+      _errorCorreo =
+          _pareceCorreo.hasMatch(_correo.text.trim()) ? null : _correoInvalido;
       _errorClave = _clave.text.length < 8 ? _claveCorta : null;
       _errorWhatsapp =
           _pideWhatsapp && !_ochoDigitos.hasMatch(_whatsapp.text.trim())
               ? _whatsappInvalido
               : null;
-      ok = _errorClave == null && _errorWhatsapp == null;
+      ok = _errorCorreo == null && _errorClave == null && _errorWhatsapp == null;
     });
     return ok;
   }
@@ -106,6 +120,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
     final ok = await auth.registro(
       username: _usuario.text.trim(),
+      email: _correo.text.trim(),
       password: _clave.text,
       rol: widget.rol,
       whatsapp: _whatsapp.text.trim(),
@@ -128,6 +143,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
     // Lo local manda sobre lo del backend: es lo mas reciente. El usuario
     // solo tiene lo del backend.
     final errorUsuario = errores['username'];
+    // "Ya hay una cuenta con ese correo" solo lo sabe el backend.
+    final errorCorreo = _errorCorreo ?? errores['email'];
     final errorClave = _errorClave ?? errores['password'];
     final errorWhatsapp =
         _pideWhatsapp ? _errorWhatsapp ?? errores['whatsapp'] : null;
@@ -135,8 +152,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
     // Cuantos campos quedaron en rojo: el resumen de arriba del boton cuenta
     // los mismos que la persona ve marcados, vengan de aca o del backend
     // (el usuario tomado tambien es un campo en rojo).
-    final camposConError =
-        [errorUsuario, errorClave, errorWhatsapp].whereType<String>().length;
+    final camposConError = [errorUsuario, errorCorreo, errorClave, errorWhatsapp]
+        .whereType<String>()
+        .length;
 
     // El aviso de arriba del boton (Figma: Crear cuenta · datos con error):
     // el resumen de los campos en rojo o, si no hay ninguno marcado, el error
@@ -167,6 +185,19 @@ class _RegistroScreenState extends State<RegistroScreen> {
           controlador: _usuario,
           icono: Icons.person_outline,
           mensajeError: errorUsuario,
+          accionTeclado: TextInputAction.next,
+          alEnviar: (_) => FocusScope.of(context).nextFocus(),
+        ),
+        const SizedBox(height: Espacio.md),
+        // Obligatorio: es lo unico con lo que se recupera la cuenta si se
+        // olvida la contrasena.
+        CampoTexto(
+          etiqueta: 'Correo',
+          controlador: _correo,
+          icono: Icons.mark_email_unread_outlined,
+          tipoTeclado: TextInputType.emailAddress,
+          pista: 'tucorreo@ejemplo.com',
+          mensajeError: errorCorreo,
           accionTeclado: TextInputAction.next,
           alEnviar: (_) => FocusScope.of(context).nextFocus(),
         ),

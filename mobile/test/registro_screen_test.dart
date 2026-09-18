@@ -29,7 +29,9 @@ const _andrea = Perfil(username: 'andrea', rol: Rol.inquilino);
 /// prueba lo tiene que notar.
 const _claveCorta = 'Asegurate de que este campo tenga al menos 8 caracteres.';
 const _whatsappInvalido = 'Escribí un número de 8 dígitos.';
+const _correoInvalido = 'Escribí un correo completo, como marta@uagrm.edu.bo.';
 const _usuarioTomado = 'Ese nombre de usuario ya está tomado.';
+const _correoTomado = 'Ya hay una cuenta con ese correo.';
 const _sinConexion = 'No se pudo conectar con el servidor.';
 
 /// El backend del registro: anota lo que le llega y responde como se le
@@ -52,6 +54,7 @@ class _Auth extends Fake implements AuthRepository {
   }) {
     registros.add({
       'username': username,
+      'email': email,
       'password': password,
       'rol': rol.valor,
       'whatsapp': whatsapp,
@@ -96,14 +99,16 @@ Future<void> _escribir(
   await tester.pump();
 }
 
-/// Llena los tres campos. Por defecto, con datos que el backend aceptaria.
+/// Llena los cuatro campos. Por defecto, con datos que el backend aceptaria.
 Future<void> _completar(
   WidgetTester tester, {
   String usuario = 'marta',
+  String correo = 'marta@uagrm.edu.bo',
   String clave = '12345678',
   String whatsapp = '70011122',
 }) async {
   await _escribir(tester, 'Usuario', usuario);
+  await _escribir(tester, 'Correo', correo);
   await _escribir(tester, 'Contraseña', clave);
   await _escribir(tester, 'WhatsApp', whatsapp);
 }
@@ -141,8 +146,8 @@ String? _resumen(WidgetTester tester) {
 
 void main() {
   group('El boton CREAR CUENTA', () {
-    testWidgets('vacío: apagado hasta que usuario, contraseña y WhatsApp '
-        'tengan texto; completo: prendido', (tester) async {
+    testWidgets('vacío: apagado hasta que usuario, correo, contraseña y '
+        'WhatsApp tengan texto; completo: prendido', (tester) async {
       final repo = await _montar(tester);
       expect(_estadoBoton(tester), EstadoBoton.deshabilitado);
 
@@ -154,6 +159,15 @@ void main() {
 
       await _escribir(tester, 'Usuario', 'marta');
       await _escribir(tester, 'Contraseña', '12345678');
+      await _escribir(tester, 'WhatsApp', '70011122');
+      expect(
+        _estadoBoton(tester),
+        EstadoBoton.deshabilitado,
+        reason: 'falta el correo: sin él no se puede recuperar la cuenta',
+      );
+
+      await _escribir(tester, 'WhatsApp', '');
+      await _escribir(tester, 'Correo', 'marta@uagrm.edu.bo');
       expect(
         _estadoBoton(tester),
         EstadoBoton.deshabilitado,
@@ -173,6 +187,7 @@ void main() {
       tester,
     ) async {
       final repo = await _montar(tester);
+      await _escribir(tester, 'Correo', 'marta@uagrm.edu.bo');
       await _escribir(tester, 'Contraseña', '12345678');
       await _escribir(tester, 'WhatsApp', '70011122');
       expect(
@@ -200,13 +215,14 @@ void main() {
       expect(repo.registros, hasLength(1));
     });
 
-    testWidgets('inquilina: no se le pide WhatsApp, alcanza con usuario y '
-        'contraseña', (tester) async {
+    testWidgets('inquilina: no se le pide WhatsApp, alcanza con usuario, '
+        'correo y contraseña', (tester) async {
       await _montar(tester, rol: Rol.inquilino);
       expect(find.widgetWithText(CampoTexto, 'WhatsApp'), findsNothing);
       expect(_estadoBoton(tester), EstadoBoton.deshabilitado);
 
       await _escribir(tester, 'Usuario', 'andrea');
+      await _escribir(tester, 'Correo', 'andrea@uagrm.edu.bo');
       await _escribir(tester, 'Contraseña', '12345678');
       expect(_estadoBoton(tester), EstadoBoton.reposo);
     });
@@ -321,15 +337,51 @@ void main() {
       expect(_resumen(tester), _sinConexion);
     });
 
+    testWidgets('correo sin arroba ni dominio: el campo dice cómo tiene que '
+        'ser', (tester) async {
+      final repo = await _montar(tester);
+      await _completar(tester, correo: 'marta');
+      await _tocarCrearCuenta(tester);
+
+      expect(repo.registros, isEmpty, reason: 'no llega al backend');
+      expect(_camposEnRojo(tester), ['Correo']);
+      expect(find.text(_correoInvalido), findsOneWidget);
+    });
+
+    testWidgets('correo ya usado: el backend lo pone debajo del campo', (
+      tester,
+    ) async {
+      await _montar(
+        tester,
+        respuesta: () async => throw ApiException(
+          _correoTomado,
+          codigo: 400,
+          porCampo: {'email': _correoTomado},
+        ),
+      );
+      await _completar(tester);
+      await _tocarCrearCuenta(tester);
+
+      expect(_camposEnRojo(tester), ['Correo']);
+      expect(
+        find.descendant(
+          of: find.widgetWithText(CampoTexto, 'Correo'),
+          matching: find.text(_correoTomado),
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('con datos válidos manda lo escrito, sin espacios, y no '
         'marca nada', (tester) async {
       final repo = await _montar(tester);
-      await _completar(tester, usuario: ' marta ');
+      await _completar(tester, usuario: ' marta ', correo: ' marta@uagrm.edu.bo ');
       await _tocarCrearCuenta(tester);
 
       expect(repo.registros, [
         {
           'username': 'marta',
+          'email': 'marta@uagrm.edu.bo',
           'password': '12345678',
           'rol': 'PROPIETARIO',
           'whatsapp': '70011122',
