@@ -20,7 +20,7 @@
 flowchart TD
     S([Entra a Gestionar solicitudes]) --> A{"¿Tiene solicitudes?"}
 
-    A -->|No| V["<b>4.</b> Aún no tenés<br/>solicitudes"]
+    A -->|No| V["<b>5.</b> Aún no tenés<br/>solicitudes"]
     A -->|Sí| B["<b>0.</b> Bandeja<br/>pendientes primero"]
 
     B -->|Abre una o toca Aprobar| D["<b>1.</b> Ve el anuncio, lo que aceptó<br/>y el aviso del WhatsApp"]
@@ -29,6 +29,7 @@ flowchart TD
     D --> C{"¿Aprueba?"}
     C -->|Sí| AP["<b>2.</b> Aprobada<br/>contacto liberado a esa persona"]
     C -->|No| R["<b>3.</b> Rechazada y cerrada<br/>no se abre conversación"]
+    B -->|Abre una que se cerró| CE["<b>4.</b> Cerrada<br/>el cuarto ya se alquiló"]
 
     AP --> F2[["Flujo v0.2 · paso 6<br/>Andrea recibe el contacto"]]
     AP -->|Volver a la bandeja| B
@@ -41,7 +42,7 @@ flowchart TD
 
     class B,D,AP paso
     class R error
-    class S,V,F2 borde
+    class S,V,F2,CE borde
     class A,C otro
 ```
 
@@ -57,7 +58,8 @@ flowchart TD
 | 1 | Abre una solicitud, o toca *Aprobar* en su tarjeta | Muestra el anuncio, **las condiciones que esa persona ya aceptó** y, antes del botón, *"Esta persona va a ver tu WhatsApp. Sólo ella."* | No repite las mismas condiciones a quince personas (evidencia 7), y sabe a quién le da el número antes de darlo |
 | 2 | Toca *Aprobar y liberar mi WhatsApp* | La marca **aprobada** y dice *"Contacto liberado a andrea"* | El WhatsApp es el dato que el producto existe para proteger (evidencia 9) |
 | 3 | Toca *Rechazar* | La marca **rechazada y cerrada**, sin pedir un motivo | Rechazar no puede abrir la conversación que Marta quiere evitar |
-| 4 | — | Si no hay ninguna, lo dice: *"Aún no tenés solicitudes"* | Una bandeja vacía sin explicación parece rota |
+| 4 | Abre una que dice *Cerrada* | El pie explica que se cerró sola porque marcó el cuarto como alquilado, y que se le avisó a esa persona | Sin esto, las solicitudes de un cuarto ya alquilado parecían seguir esperando (flujo v0.5) |
+| 5 | — | Si no hay ninguna, lo dice: *"Aún no tenés solicitudes"* | Una bandeja vacía sin explicación parece rota |
 
 **El paso 1 es el momento clave.** Aprobar es lo único irreversible del flujo:
 una vez liberado, el número ya lo tiene esa persona. Por eso *Aprobar* en la
@@ -65,9 +67,16 @@ tarjeta no aprueba, abre el detalle, y el botón dice lo que hace —*Aprobar y
 liberar mi WhatsApp*— en vez de un *Aprobar* a secas. Rechazar sí se resuelve
 desde la tarjeta, porque no libera nada.
 
-**Las pantallas 1, 2 y 3 son la misma.** Arriba nunca cambia: el anuncio, las
-condiciones y el aviso. Cambia sólo el bloque de la decisión, así Marta no
-pierde de vista a quién le está respondiendo.
+**Las pantallas 1 a 4 son la misma.** Arriba nunca cambia: el anuncio y las
+condiciones. Cambia sólo el bloque de la decisión, así Marta no pierde de vista
+a quién le está respondiendo. El aviso del WhatsApp está mientras decide y en la
+aprobada; en la rechazada y la cerrada no, porque ya no es cierto: esa persona
+no va a ver nada.
+
+**Los errores (fila Validaciones en Figma).** La bandeja que no carga lo dice
+—*"No pudimos cargar tus solicitudes"*, con qué hacer y *Reintentar*— en vez de
+mostrarse vacía, y una solicitud que ya no está dice *"Esta solicitud ya no está
+disponible"* con una salida a la vista: *Volver a la bandeja*.
 
 ---
 

@@ -19,7 +19,7 @@ flowchart TD
     P3 --> P4["<b>4.</b> Toca Solicitar visita<br/>y acepta las condiciones"]
     P4 --> P5["<b>5.</b> Queda en Solicitud enviada"]
     P5 -.espera.-> Q{{"El propietario aprueba"}}
-    Q -.-> P6["<b>6.</b> Le llega la notificación<br/>y se libera el contacto"]
+    Q -.-> P6["<b>6.</b> En Estado de solicitudes<br/>la ve Aprobada y se libera el contacto"]
     P6 --> P7["<b>7.</b> Abre WhatsApp<br/>y coordina la visita"]
     P7 --> F([Tarea cumplida])
 
@@ -45,7 +45,7 @@ flowchart TD
 | 3 | Abre un anuncio y lo lee | Muestra foto con fecha, precio final, servicios, mascotas y "9 min caminando a la UAGRM". **Ningún contacto visible** | Pasos 2 a 5 |
 | 4 | Toca *Solicitar visita* y marca *Acepto estas condiciones* | Envía la solicitud al propietario | — |
 | 5 | — | Muestra *Solicitud enviada* | — |
-| 6 | — | Notifica *Aprobada* y muestra el contacto | Ciclo de vida: Marta aprueba |
+| 6 | Entra a *Estado de solicitudes* desde el Inicio | Cada solicitud con su etiqueta; la suya dice *Aprobada* y al tocarla aparece el contacto | Ciclo de vida: Marta aprueba |
 | 7 | Toca *Abrir WhatsApp* | Abre el chat para coordinar | — |
 
 **El paso 3 es el momento clave:** ahí decide si sigue o descarta, con los cuatro datos que hoy le faltan. Si no le sirve, vuelve al paso 2 sin haber gastado nada.
@@ -54,11 +54,24 @@ La última columna es la que demuestra que los dos flujos son uno solo: **ningun
 
 **El cuarto se alquila mientras ella espera:** resuelto con el
 [flujo v0.5](flujo-v0.5.md). Cuando Marta lo marca como alquilado, la solicitud de
-Andrea se cierra sola y ella ve *"El cuarto ya se alquiló"* (pantalla 08) en vez
+Andrea se cierra sola y ella ve *"El cuarto ya se alquiló"* (pantalla 11) en vez
 de esperar una respuesta que nunca iba a llegar.
 
-**Caminos alternos todavía sin dibujar:** sin resultados, y solicitud rechazada o
-sin respuesta.
+**Estado de solicitudes (pantallas 08 a 12).** No hay notificaciones todavía:
+Andrea se entera volviendo al Inicio y entrando a *Estado de solicitudes*, donde
+cada solicitud tiene su etiqueta —*Pendiente*, *Aprobada*, *Rechazada* o
+*Cerrada*— y abre su estado. Rechazada (10) dice que el propietario dijo que no y
+la manda a buscar otros anuncios; si no pidió ninguna, la 12 lo dice en vez de
+mostrar una lista vacía. Sus errores —la lista que no carga, el estado que no se
+actualiza y WhatsApp que no abre— están en la fila Validaciones de Figma.
+
+**Sin resultados (pantalla 04).** Si la búsqueda sale bien pero no hay ningún
+cuarto que cumpla, lo dice —*"No encontramos anuncios con esos filtros"*— y
+sugiere ampliar el precio o los minutos. Nunca se confunde con un error: si
+la búsqueda falla, la app lo dice y ofrece reintentar.
+
+**Camino alterno todavía sin dibujar:** la solicitud que queda sin respuesta
+(el propietario nunca contesta): hoy sigue *Pendiente*.
 
 ---
 

@@ -44,13 +44,15 @@ flowchart TD
     D -->|Buscar| P9["<b>09.</b> Inicio con 2 módulos"]
     P8 -->|Toca su tarjeta| M["<b>10 / 11.</b> Mi perfil"]
     P9 -->|Toca su tarjeta| M
+    M -->|Agregar foto| FT["<b>12.</b> Cámara o galería<br/>y la foto sube"]
+    FT --> M
 
     classDef paso fill:#d9ead3,stroke:#38761d,color:#000
     classDef error fill:#f4cccc,stroke:#cc0000,color:#000
     classDef borde fill:#c9daf8,stroke:#1155cc,color:#000
     classDef otro fill:#fff2cc,stroke:#bf9000,color:#000
 
-    class L1,O1,O2,O3,R1,R2,P8,P9,M paso
+    class L1,O1,O2,O3,R1,R2,P8,P9,M,FT paso
     class E1 error
     class S,F borde
     class A,L2,D otro
@@ -73,7 +75,8 @@ Los números son los de las pantallas de la fila Principal en Figma.
 | 05 | Elige *Busco dónde alquilar* o *Quiero publicar* | Hasta que no elija, **el botón está apagado** | Es la decisión que define toda la app |
 | 06 / 07 | Completa usuario, **correo** y contraseña | Si eligió publicar, **aparece el campo de WhatsApp** con el aviso de que no se publica | El correo es con lo que se recupera la cuenta; el WhatsApp, el dato que el producto existe para proteger (evidencia 9) |
 | 08 / 09 | — | Inicio con **tres** módulos si publica, **dos** si busca | Acá empiezan los flujos v0.1 y v0.2 |
-| 10 / 11 | Toca su tarjeta de perfil | **Mi perfil**: usuario, correo y rol; la propietaria además cambia su WhatsApp. Ahí vive *Cerrar sesión* | Si Marta cambia de número, cada visita que apruebe daría uno que ya no sirve |
+| 10 / 11 | Toca su tarjeta de perfil | **Mi perfil**: su foto (o el ícono de su rol), usuario, correo y rol; la propietaria además cambia su WhatsApp. Ahí vive *Cerrar sesión* | Si Marta cambia de número, cada visita que apruebe daría uno que ya no sirve |
+| 12 | Toca *Agregar foto* | Una hoja con *Sacar una foto* y *Elegir de la galería*; si ya tiene una, también *Quitar foto*. Mientras sube se ve la elegida, y después aparece en la tarjeta del inicio | Es opcional: sin foto se ve el ícono del rol. Se guarda **sin la ubicación** donde se sacó, que en esta app suele ser la casa de la persona |
 
 **El paso 05 es el momento clave.** No es un campo más de un formulario: es la
 bifurcación del producto. Por eso se eligen las dos opciones explicadas con lo
@@ -90,9 +93,9 @@ contrario de lo que decide el paso 05.
 
 | Fila | Pantallas | Qué muestra |
 |---|---|---|
-| Principal | 11 | Cada pantalla en su estado normal, con los formularios vacíos |
-| Happy Path | 14 | Cuatro historias completas —entrar, recuperar la contraseña, crear cuenta (las dos) y cambiar el WhatsApp—, cada acción con el botón pulsado y su resultado |
-| Validaciones | 7 | Los errores: datos incorrectos, el enlace vencido, rol sin elegir, datos con error (usuario o correo ya tomados), sin conexión, WhatsApp incompleto y no se pudo guardar |
+| Principal | 12 | Cada pantalla en su estado normal, con los formularios vacíos y sin foto |
+| Happy Path | 19 | Cinco historias completas —entrar, recuperar la contraseña, crear cuenta (las dos), cambiar el WhatsApp y la foto (subirla, verla en el inicio y quitarla)—, cada acción con el botón pulsado y su resultado |
+| Validaciones | 10 | Los errores: datos incorrectos, el enlace vencido, rol sin elegir, datos con error (usuario o correo ya tomados), sin conexión, WhatsApp incompleto, no se pudo guardar, la foto que no sube, la que el servidor rechaza y la cámara que no abre |
 
 > **Diferencia con el código, a la fecha.** En Figma, *Elegir rol · sin elegir*
 > muestra debajo del botón apagado el motivo *"Elegí si vas a buscar o a
@@ -106,6 +109,9 @@ contrario de lo que decide el paso 05.
   si no, quien agarre el teléfono desbloqueado cambia el correo y después usa
   *recuperar contraseña* para quedarse con la cuenta.
 - **Cambiar de rol** sin crear otra cuenta.
+- **Que la otra parte vea la foto.** Hoy la ve sólo su dueña, en Mi perfil y en
+  el inicio. Mostrársela a quien pide una visita, o a quien publica, es entregar
+  un dato personal más antes de la aprobación: la decisión está pendiente.
 
 ---
 

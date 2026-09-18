@@ -41,15 +41,15 @@ El proceso de búsqueda y oferta de alquileres genera una enorme pérdida de tie
 |---|---|
 | [Persona — Andrea](persona/persona-v0.2.md) | Estudiante de provincia, con un gato |
 | [App map](appmap/appmap-v0.2.md) | Mapa completo: los dos lados y dónde se enganchan |
-| [Flujo](flujo/flujo-v0.2.md) | Buscar, ver anuncio y solicitar visita |
-| [**Pantallas**](wireframes/flujo-v0.2-inquilina/flujo-completo.png) | Las 8 pantallas en una lámina — se ven sin abrir Figma |
+| [Flujo](flujo/flujo-v0.2.md) | Buscar, ver anuncio, solicitar visita y seguir en qué quedó |
+| [**Pantallas**](wireframes/flujo-v0.2-inquilina/flujo-completo.png) | Las 12 pantallas en una lámina — se ven sin abrir Figma |
 
 ### Flujo v0.3 — Entrar con el rol correcto 🟦
 
 | Documento | Contenido |
 |---|---|
-| [Flujo](flujo/flujo-v0.3.md) | Ingresar, recuperar la contraseña, crear cuenta eligiendo el rol y Mi perfil |
-| [**Pantallas**](wireframes/flujo-v0.3-acceso/flujo-completo.png) | Las 11 pantallas en una lámina — se ven sin abrir Figma |
+| [Flujo](flujo/flujo-v0.3.md) | Ingresar, recuperar la contraseña, crear cuenta eligiendo el rol y Mi perfil con su foto |
+| [**Pantallas**](wireframes/flujo-v0.3-acceso/flujo-completo.png) | Las 12 pantallas en una lámina — se ven sin abrir Figma |
 
 Es el único flujo que las dos personas recorren igual, y el que explica por qué
 la pantalla de Inicio les muestra cosas distintas.
@@ -59,7 +59,7 @@ la pantalla de Inicio les muestra cosas distintas.
 | Documento | Contenido |
 |---|---|
 | [Flujo](flujo/flujo-v0.4.md) | Responder las solicitudes: el WhatsApp se libera sólo a quien Marta aprueba |
-| [**Pantallas**](wireframes/flujo-v0.4-solicitudes/flujo-completo.png) | Las 5 pantallas en una lámina — se ven sin abrir Figma |
+| [**Pantallas**](wireframes/flujo-v0.4-solicitudes/flujo-completo.png) | Las 6 pantallas en una lámina — se ven sin abrir Figma |
 
 ### Flujo v0.5 — Cerrar el anuncio cuando se alquila 🟦
 
@@ -81,9 +81,9 @@ Marta por un cuarto que ya alquiló.
 |---|---|
 | [Lenguaje visual](wireframes/_lenguaje-visual.md) | Las reglas de los primeros wireframes en escala de grises (etapa anterior al sistema visual) |
 | [Pantallas del flujo v0.1](wireframes/flujo-v0.1-propietario/README.md) | Las 3 pantallas de la propietaria que publica |
-| [Pantallas del flujo v0.2](wireframes/flujo-v0.2-inquilina/README.md) | Las 8 pantallas de la inquilina |
-| [Pantallas del flujo v0.3](wireframes/flujo-v0.3-acceso/README.md) | Las 11 pantallas del acceso y la cuenta |
-| [Pantallas del flujo v0.4](wireframes/flujo-v0.4-solicitudes/README.md) | Las 5 pantallas de la gestión de solicitudes |
+| [Pantallas del flujo v0.2](wireframes/flujo-v0.2-inquilina/README.md) | Las 12 pantallas de la inquilina |
+| [Pantallas del flujo v0.3](wireframes/flujo-v0.3-acceso/README.md) | Las 12 pantallas del acceso y la cuenta |
+| [Pantallas del flujo v0.4](wireframes/flujo-v0.4-solicitudes/README.md) | Las 6 pantallas de la gestión de solicitudes |
 | [Pantallas del flujo v0.5](wireframes/flujo-v0.5-cerrar-anuncio/README.md) | Las 3 pantallas de cerrar el anuncio |
 | [**Decisión de diseño**](docs/decision-clase-05.md) | Jerarquía, layout y espaciado: antes, cambio, prueba con usuaria y siguiente paso |
 | [**Componente y estados**](docs/decision-clase-06.md) | El botón principal como pieza reutilizable, con sus cuatro estados |
