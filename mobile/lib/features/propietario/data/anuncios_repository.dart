@@ -76,10 +76,16 @@ class AnunciosRepository {
   }
 
   /// Apagar el anuncio en un toque. Si cuesta mas que eso, no va a pasar.
-  Future<Anuncio> marcarAlquilado(int id) async {
+  ///
+  /// El backend cierra de paso las solicitudes que seguian pendientes y dice
+  /// cuantas fueron, para contarselo a la propietaria.
+  Future<({Anuncio anuncio, int cerradas})> marcarAlquilado(int id) async {
     final datos =
         await _api.post('/api/anuncios/$id/marcar_alquilado/') as Map<String, dynamic>;
-    return Anuncio.desdeJson(datos);
+    return (
+      anuncio: Anuncio.desdeJson(datos),
+      cerradas: datos['solicitudes_cerradas'] as int? ?? 0,
+    );
   }
 
   Future<Anuncio> marcarDisponible(int id) async {

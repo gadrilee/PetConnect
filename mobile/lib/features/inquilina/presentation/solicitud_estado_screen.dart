@@ -104,7 +104,9 @@ class _SolicitudEstadoScreenState extends State<SolicitudEstadoScreen> {
         ? 'Contacto liberado'
         : solicitud.estaRechazada
             ? 'Solicitud rechazada'
-            : 'Solicitud enviada';
+            : solicitud.estaCerrada
+                ? 'Solicitud cerrada'
+                : 'Solicitud enviada';
 
     // CONSTRAINTS: es una confirmacion, asi que va en una sola columna del
     // ancho de un formulario, centrada.
@@ -244,29 +246,46 @@ class _VistaPendiente extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rechazada = solicitud.estaRechazada;
+    // Cerrada no es rechazada: nadie dijo que no. El cuarto se alquilo
+    // mientras esperaba, y eso es lo que tiene que leer (evidencia 5).
+    final cerrada = solicitud.estaCerrada;
+
+    final (icono, tono, titulo, detalle) = rechazada
+        ? (
+            Icons.cancel_outlined,
+            TonoIcono.error,
+            'Solicitud rechazada',
+            'El propietario rechazó la solicitud. Podés buscar otros anuncios.',
+          )
+        : cerrada
+            ? (
+                Icons.home_work_outlined,
+                TonoIcono.neutro,
+                'El cuarto ya se alquiló',
+                'Tu solicitud se cerró sola porque el propietario lo marcó como '
+                    'alquilado. Podés buscar otros anuncios.',
+              )
+            : (
+                Icons.hourglass_top_outlined,
+                TonoIcono.neutro,
+                'Solicitud enviada',
+                'El propietario tiene que aceptar tu solicitud antes de recibir su contacto.',
+              );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(
-          child: IconoCirculo(
-            rechazada ? Icons.cancel_outlined : Icons.hourglass_top_outlined,
-            diametro: 72,
-            tono: rechazada ? TonoIcono.error : TonoIcono.neutro,
-          ),
-        ),
+        Center(child: IconoCirculo(icono, diametro: 72, tono: tono)),
         const SizedBox(height: Espacio.lg),
         Text(
-          rechazada ? 'Solicitud rechazada' : 'Solicitud enviada',
+          titulo,
           textAlign: TextAlign.center,
           style: AppText.cifra(context).copyWith(color: AppColors.text),
         ),
         const SizedBox(height: Espacio.sm),
         Text(
-          rechazada
-              ? 'El propietario rechazó la solicitud. Podés buscar otros anuncios.'
-              : 'El propietario tiene que aceptar tu solicitud antes de recibir su contacto.',
+          detalle,
           textAlign: TextAlign.center,
           style: AppText.body(context).copyWith(color: AppColors.text70),
         ),

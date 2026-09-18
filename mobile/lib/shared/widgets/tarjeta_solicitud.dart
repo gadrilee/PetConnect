@@ -67,7 +67,8 @@ class TarjetaSolicitud extends StatelessWidget {
       colorBorde: switch (estado) {
         EstadoSolicitud.aprobada => AppColors.success,
         EstadoSolicitud.rechazada => AppColors.error,
-        EstadoSolicitud.pendiente => null,
+        // Sin borde de color: no hay nada que decidir ni nadie que dijo que no.
+        EstadoSolicitud.pendiente || EstadoSolicitud.cerrada => null,
       },
       // AUTO LAYOUT: sin alto fijo. La pendiente es mas alta porque trae las
       // acciones.

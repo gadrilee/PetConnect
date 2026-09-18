@@ -17,6 +17,7 @@ import '../../../shared/widgets/precio_final.dart';
 import '../data/anuncio.dart';
 import '../providers/mis_anuncios_provider.dart';
 import '../providers/publicar_provider.dart';
+import 'confirmar_alquilado_screen.dart';
 import 'publicar_screen.dart';
 
 /// Los anuncios del propietario, en cualquier estado.
@@ -57,6 +58,7 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
       ),
     );
     if (!mounted) return;
+    repo.limpiarMensajes();
     repo.cargar();
     if (publicado != null) {
       setState(() {
@@ -68,16 +70,23 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
 
   Future<void> _refrescar() {
     setState(() => _publicado = null);
-    return context.read<MisAnunciosProvider>().cargar();
+    final provider = context.read<MisAnunciosProvider>()..limpiarMensajes();
+    return provider.cargar();
   }
 
-  /// El pie solo cuenta resultados: que se publico, o el ultimo error del
-  /// provider —no se pudo cargar, o no se pudo cambiar el estado de un
-  /// anuncio— mientras la lista sigue a la vista. Nunca un toast suelto.
+  /// El pie solo cuenta resultados: que se publico, que salio de la busqueda
+  /// o volvio a ella, o el ultimo error —no se pudo cargar, o no se pudo
+  /// cambiar el estado de un anuncio— mientras la lista sigue a la vista.
+  /// Nunca un toast suelto.
   PieAcciones? _pie(MisAnunciosProvider estado) {
     final error = estado.anuncios.isEmpty ? null : estado.error;
     if (error != null) {
       return PieAcciones(aviso: Aviso(mensaje: error, tipo: TipoAviso.error));
+    }
+    if (estado.aviso != null) {
+      return PieAcciones(
+        aviso: Aviso(mensaje: estado.aviso!, tipo: TipoAviso.exito),
+      );
     }
     if (_publicado != null) {
       return PieAcciones(
@@ -147,11 +156,31 @@ class _TarjetaGestion extends StatelessWidget {
 
   final Anuncio anuncio;
 
+  /// Sin solicitudes pendientes, un toque. Con pendientes, antes se dice que
+  /// se van a cerrar: eso afecta a otras personas (flujo v0.5).
+  Future<void> _marcarAlquilado(BuildContext context) async {
+    final provider = context.read<MisAnunciosProvider>();
+    if (anuncio.solicitudesPendientes == 0) {
+      await provider.marcarAlquilado(anuncio);
+      return;
+    }
+    provider.limpiarMensajes();
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider.value(
+          value: provider,
+          child: ConfirmarAlquiladoScreen(anuncio: anuncio),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final precio = PrecioFinal.formatear(anuncio.precioFinal);
-    void alternar() =>
-        context.read<MisAnunciosProvider>().alternarEstado(anuncio);
+    final provider = context.watch<MisAnunciosProvider>();
+    // Mientras se cambia, el boton no acepta un segundo toque.
+    final ocupado = provider.cambiando(anuncio.id);
 
     final datos = <(IconData, String)>[
       (Icons.payments_outlined, '$precio Bs'),
@@ -206,13 +235,13 @@ class _TarjetaGestion extends StatelessWidget {
               etiqueta: 'Marcar Ya alquilado',
               icono: Icons.check_circle_outline,
               compacto: true,
-              alTocar: alternar,
+              alTocar: ocupado ? null : () => _marcarAlquilado(context),
             )
           else
             BotonTexto(
               etiqueta: 'Volver a publicar',
               icono: Icons.refresh,
-              alTocar: alternar,
+              alTocar: ocupado ? null : () => provider.volverAPublicar(anuncio),
             ),
         ],
       ),

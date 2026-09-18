@@ -40,6 +40,8 @@ const _vigilados = [
   'lib/features/inquilina/presentation/mis_solicitudes_screen.dart',
   'lib/features/propietario/presentation/mis_anuncios_screen.dart',
   'lib/features/propietario/presentation/publicar_screen.dart',
+  // Flujo v0.5: cerrar el anuncio.
+  'lib/features/propietario/presentation/confirmar_alquilado_screen.dart',
   // Las piezas compartidas.
   'lib/shared/layout/pagina.dart',
   'lib/shared/widgets/aviso.dart',

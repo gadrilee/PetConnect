@@ -126,6 +126,16 @@ class SolicitudDetalleScreen extends StatelessWidget {
           botonSecundarioAbajo:
               BotonSecundario(etiqueta: 'Volver a la bandeja', alTocar: volver),
         ),
+      // Se cerro sola al marcar el cuarto como alquilado (flujo v0.5).
+      EstadoSolicitud.cerrada => PieAcciones(
+          aviso: const Aviso(
+            titulo: 'Solicitud cerrada',
+            mensaje: 'Marcaste el cuarto como alquilado, así que se cerró sola '
+                'y se le avisó a esta persona.',
+          ),
+          botonSecundarioAbajo:
+              BotonSecundario(etiqueta: 'Volver a la bandeja', alTocar: volver),
+        ),
     };
   }
 }

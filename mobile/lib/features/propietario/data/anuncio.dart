@@ -66,6 +66,7 @@ class Anuncio {
     this.restricciones = '',
     this.direccionReferencia = '',
     this.fotos = const [],
+    this.solicitudesPendientes = 0,
   });
 
   final int id;
@@ -85,6 +86,11 @@ class Anuncio {
   final String restricciones;
   final String direccionReferencia;
   final List<FotoAnuncio> fotos;
+
+  /// Cuantas solicitudes esperan respuesta. Solo viene en Mis anuncios, que
+  /// es de la duena: marcar el cuarto como alquilado las cierra, y si hay
+  /// alguna eso se confirma antes (flujo v0.5).
+  final int solicitudesPendientes;
 
   bool get estaDisponible => estado == EstadoAnuncio.disponible;
 
@@ -109,6 +115,7 @@ class Anuncio {
               ?.map((f) => FotoAnuncio.desdeJson(f as Map<String, dynamic>))
               .toList() ??
           const [],
+      solicitudesPendientes: j['solicitudes_pendientes'] as int? ?? 0,
     );
   }
 }

@@ -4,7 +4,12 @@ import '../../propietario/data/anuncio.dart';
 enum EstadoSolicitud {
   pendiente('PENDIENTE', 'Pendiente'),
   aprobada('APROBADA', 'Aprobada'),
-  rechazada('RECHAZADA', 'Rechazada');
+  rechazada('RECHAZADA', 'Rechazada'),
+
+  /// No es un rechazo: el cuarto se alquilo mientras la solicitud esperaba.
+  /// La inquilina tiene que saberlo en vez de esperar una respuesta que nunca
+  /// va a llegar (flujo v0.5).
+  cerrada('CERRADA', 'Cerrada');
 
   const EstadoSolicitud(this.valor, this.etiqueta);
 
@@ -54,6 +59,7 @@ class SolicitudVisita {
   bool get estaAprobada => estado == EstadoSolicitud.aprobada;
   bool get estaPendiente => estado == EstadoSolicitud.pendiente;
   bool get estaRechazada => estado == EstadoSolicitud.rechazada;
+  bool get estaCerrada => estado == EstadoSolicitud.cerrada;
 
   factory SolicitudVisita.desdeJson(Map<String, dynamic> j) {
     final anuncioJson = j['anuncio'] as Map<String, dynamic>? ?? {};
