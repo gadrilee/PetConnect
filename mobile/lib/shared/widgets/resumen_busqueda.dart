@@ -13,6 +13,9 @@ import 'fila_condicion.dart';
 /// Nombra los cuatro filtros aunque no se hayan usado: "Sin límite de precio"
 /// dice mas que un hueco. Asi la persona sabe que esta buscando sin volver
 /// atras.
+///
+/// Va sobre un bloque suave, asi que sus lineas se leen en Text 80 %: el
+/// 70 % de las notas sobre blanco se queda en 4,2:1 sobre este gris.
 class ResumenBusqueda extends StatelessWidget {
   const ResumenBusqueda({super.key, required this.filtros, this.cantidad});
 
@@ -23,7 +26,7 @@ class ResumenBusqueda extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final estilo = AppText.caption(context).copyWith(color: AppColors.text70);
+    final estilo = AppText.caption(context).copyWith(color: AppColors.text80);
     final precio = filtros.precioMax;
     final minutos = filtros.minutosMax;
     final mascotas = filtros.aceptaMascotas == true;
@@ -61,7 +64,12 @@ class ResumenBusqueda extends StatelessWidget {
         ),
         for (final (icono, texto) in lineas) ...[
           const SizedBox(height: Espacio.sm),
-          FilaCondicion(icono: icono, texto: texto, estilo: estilo),
+          FilaCondicion(
+            icono: icono,
+            texto: texto,
+            estilo: estilo,
+            sobreTinte: true,
+          ),
         ],
         if (cantidad != null) ...[
           const SizedBox(height: Espacio.md),

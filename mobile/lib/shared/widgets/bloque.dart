@@ -26,6 +26,11 @@ enum TonoBloque {
 /// pantallas. **Ninguna pantalla dibuja su propio BoxDecoration**: cambiar un
 /// color o el radio aca lo cambia en todas las tarjetas.
 ///
+/// Para el lector de pantalla, el bloque que se toca es UN boton que lee todo
+/// lo que tiene adentro; el que no se toca no es nada: cada linea de adentro
+/// se anuncia (y se mide) por separado. Los tonos suave y destacado son fondos
+/// tenidos: el texto secundario que va encima usa Text 80 %, no 70 %.
+///
 /// AUTO LAYOUT: no tiene alto fijo. Mide lo que su contenido.
 class Bloque extends StatelessWidget {
   const Bloque({
@@ -69,12 +74,15 @@ class Bloque extends StatelessWidget {
   Widget build(BuildContext context) {
     final (fondo, bordeDelTono) = coloresDe(tono);
     final borde = colorBorde ?? bordeDelTono;
-    final contenido = child ??
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: hijos!,
-        );
+    final contenido = Padding(
+      padding: EdgeInsets.all(relleno),
+      child: child ??
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: hijos!,
+          ),
+    );
 
     return Material(
       color: fondo,
@@ -83,10 +91,15 @@ class Bloque extends StatelessWidget {
         borderRadius: BorderRadius.circular(Medida.radio),
         side: borde == null ? BorderSide.none : BorderSide(color: borde),
       ),
-      child: InkWell(
-        onTap: alTocar,
-        child: Padding(padding: EdgeInsets.all(relleno), child: contenido),
-      ),
+      // Solo el bloque que se toca lleva InkWell. Un InkWell junta todo lo de
+      // adentro en un solo nodo de semantica aunque no haga nada; un bloque de
+      // lectura no lo necesita y asi cada dato se anuncia solo.
+      child: alTocar == null
+          ? contenido
+          : Semantics(
+              button: true,
+              child: InkWell(onTap: alTocar, child: contenido),
+            ),
     );
   }
 }

@@ -8,7 +8,12 @@ import '../../core/theme.dart';
 /// REGLA DE LA PIEZA
 /// -----------------
 /// Icono a la izquierda y texto a la derecha, siempre con 8 entre los dos. El
-/// icono orienta, no decora: si no aporta a distinguir el dato, sobra.
+/// icono orienta, no decora: si no aporta a distinguir el dato, sobra. Por eso
+/// va en Text 60 %, el gris minimo para un icono que orienta (3,5:1), y el
+/// texto en Text 70 %, el del texto secundario sobre blanco (4,6:1).
+///
+/// Sobre un fondo tenido —un bloque suave— el 70 % ya no alcanza (4,2:1):
+/// quien la ubica ahi pasa [sobreTinte] y el texto sube a Text 80 %.
 ///
 /// Estaba escrita dos veces con tamanos distintos y despues aparecio copiada
 /// dentro de cada tarjeta. Ahora es una sola pieza con opciones.
@@ -27,16 +32,17 @@ class FilaCondicion extends StatelessWidget {
     this.estilo,
     this.maxLineas,
     this.enLinea = false,
+    this.sobreTinte = false,
   });
 
   final IconData icono;
   final String texto;
 
-  /// Por defecto, el gris de los textos secundarios.
+  /// Por defecto, Text 60 %: el gris de los iconos que orientan.
   final Color? colorIcono;
   final double tamanoIcono;
 
-  /// Por defecto, el cuerpo en gris.
+  /// Por defecto, el cuerpo en Text 70 % (Text 80 % con [sobreTinte]).
   final TextStyle? estilo;
 
   /// `null` deja que el texto use las lineas que necesite.
@@ -45,19 +51,26 @@ class FilaCondicion extends StatelessWidget {
   /// `true` para usarla dentro de un Wrap, junto a otras.
   final bool enLinea;
 
+  /// `true` cuando la fila va sobre un fondo tenido, como un bloque suave: el
+  /// texto por defecto pasa de Text 70 % a Text 80 %, que es lo que se lee
+  /// sobre ese gris. No cambia un [estilo] pasado a mano.
+  final bool sobreTinte;
+
+  /// El color del texto por defecto segun el fondo.
+  static Color colorTexto({required bool sobreTinte}) =>
+      sobreTinte ? AppColors.text80 : AppColors.text70;
+
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-
     final textoWidget = Text(
       texto,
       maxLines: maxLineas,
       overflow: maxLineas == null ? null : TextOverflow.ellipsis,
       style: estilo ??
-          Theme.of(context).textTheme.bodyMedium?.copyWith(
-                height: 1.15,
-                color: esquema.onSurfaceVariant,
-              ),
+          AppText.body(context).copyWith(
+            height: 1.15,
+            color: colorTexto(sobreTinte: sobreTinte),
+          ),
     );
 
     return Row(
@@ -70,7 +83,7 @@ class FilaCondicion extends StatelessWidget {
         Icon(
           icono,
           size: tamanoIcono,
-          color: colorIcono ?? esquema.onSurfaceVariant,
+          color: colorIcono ?? AppColors.text60,
         ),
         const SizedBox(width: Espacio.sm),
         if (enLinea)

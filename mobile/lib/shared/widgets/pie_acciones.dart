@@ -25,6 +25,9 @@ import 'aviso.dart';
 /// 6. [motivo]: por que no se puede seguir, en rojo.
 /// 7. [notaWhatsApp]: el candado con "Tu WhatsApp no aparece en el anuncio".
 ///
+/// Las notas se leen: van en Text 70 %, el gris de 4,6:1 sobre blanco, tambien
+/// la del WhatsApp, que antes iba en 50 % (2,8:1) y no se leia.
+///
 /// Las ranuras vacias no ocupan lugar: un pie con solo el boton mide lo que
 /// el boton. El borde de arriba, el relleno y el ancho maximo no son de esta
 /// pieza: los pone `Pagina` al recibirla en `pie`.
@@ -94,13 +97,13 @@ class PieAcciones extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.lock_outline, size: 16, color: AppColors.text50),
+            Icon(Icons.lock_outline, size: 16, color: AppColors.text70),
             const SizedBox(width: Espacio.sm),
             Flexible(
               child: Text(
                 textoNotaWhatsApp,
                 textAlign: TextAlign.center,
-                style: caption.copyWith(color: AppColors.text50),
+                style: caption.copyWith(color: AppColors.text70),
               ),
             ),
           ],

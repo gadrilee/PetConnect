@@ -8,6 +8,9 @@ import '../../core/theme.dart';
 /// -----------------
 /// Se usa para salidas o caminos alternativos, nunca para la accion principal
 /// de la pantalla. Lleva el color principal para que se lea como tocable.
+///
+/// Mide por lo menos 48 de alto, el blanco minimo de un toque: no tiene borde
+/// ni relleno, asi que el alto no se ve, pero el dedo lo encuentra.
 class BotonTexto extends StatelessWidget {
   const BotonTexto({
     super.key,
@@ -31,11 +34,18 @@ class BotonTexto extends StatelessWidget {
       etiqueta,
       style: AppText.button(context).copyWith(color: color),
     );
+    final estilo = TextButton.styleFrom(
+      minimumSize: const Size(Medida.toque, Medida.toque),
+      tapTargetSize: MaterialTapTargetSize.padded,
+    );
 
-    if (icono == null) return TextButton(onPressed: alTocar, child: texto);
+    if (icono == null) {
+      return TextButton(onPressed: alTocar, style: estilo, child: texto);
+    }
 
     return TextButton.icon(
       onPressed: alTocar,
+      style: estilo,
       icon: Icon(icono, size: 16, color: color),
       label: texto,
     );

@@ -12,6 +12,9 @@ import '../../core/theme.dart';
 /// detalle se titulan "Solicitud #N". **La flecha de volver aparece en todas
 /// las pantallas salvo en Inicio (titulo "AlquilaMatch") y en el login**, que
 /// no tiene encabezado.
+///
+/// La flecha es un icono solo, asi que se anuncia con su nombre, "Volver",
+/// y mide 48 de blanco, como todo lo que se toca.
 class Encabezado extends StatelessWidget implements PreferredSizeWidget {
   const Encabezado({
     super.key,
@@ -24,22 +27,38 @@ class Encabezado extends StatelessWidget implements PreferredSizeWidget {
   /// `false` solo en Inicio: es la raiz de la app y no hay a donde volver.
   final bool conBotonVolver;
 
+  /// Lo que se anuncia al tocar la flecha, para no repetirlo en las pruebas.
+  static const String etiquetaVolver = 'Volver';
+
   @override
   Size get preferredSize => const Size.fromHeight(56);
 
   @override
   Widget build(BuildContext context) {
+    // La misma regla que AppBar para decidir si hay flecha: solo cuando hay
+    // una pantalla a la que volver. La diferencia es el nombre, que aca es
+    // "Volver" en vez del que trae Material.
+    final puedeVolver =
+        conBotonVolver && (ModalRoute.of(context)?.canPop ?? false);
+
     return AppBar(
       title: Text(
         titulo,
         style: AppText.heading(context).copyWith(color: AppColors.text),
       ),
-      automaticallyImplyLeading: conBotonVolver,
+      automaticallyImplyLeading: false,
+      leading: puedeVolver
+          ? IconButton(
+              icon: const BackButtonIcon(),
+              tooltip: etiquetaVolver,
+              onPressed: () => Navigator.of(context).maybePop(),
+            )
+          : null,
       iconTheme: const IconThemeData(color: AppColors.text),
       backgroundColor: AppColors.surface,
       elevation: 0,
       centerTitle: false,
-      titleSpacing: conBotonVolver ? 0 : Espacio.md,
+      titleSpacing: puedeVolver ? 0 : Espacio.md,
     );
   }
 }

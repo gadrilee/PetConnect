@@ -22,6 +22,10 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: esquema,
       scaffoldBackgroundColor: AppColors.surface,
+      // Todo lo que se toca mide por lo menos 48 en cualquier plataforma. Sin
+      // esto, en un navegador de escritorio Material achica los botones de
+      // icono y las casillas a 40, y el blanco deja de alcanzar.
+      materialTapTargetSize: MaterialTapTargetSize.padded,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.text,

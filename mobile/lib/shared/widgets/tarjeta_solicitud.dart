@@ -18,6 +18,9 @@ import 'fila_condicion.dart';
 /// llevan borde y etiqueta de su color. **Una solicitud ya respondida no se
 /// vuelve a responder desde la tarjeta.**
 ///
+/// Los datos que acompanan (numero, fecha) van en Text 70 %, el gris que se
+/// lee; los iconos que orientan (persona, calendario) en Text 60 %.
+///
 /// Esta armada solo con piezas compartidas: Bloque, FilaCondicion,
 /// EtiquetaEstado y los dos botones. Si cambia el boton, cambia aca tambien.
 class TarjetaSolicitud extends StatelessWidget {
@@ -55,8 +58,8 @@ class TarjetaSolicitud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tenue = AppColors.text60;
-    final gris = AppColors.text50;
+    final tenue = AppColors.text70;
+    final gris = AppColors.text60;
     final pendiente = estado == EstadoSolicitud.pendiente;
 
     return Bloque(

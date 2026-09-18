@@ -10,7 +10,9 @@ import '../../core/theme.dart';
 /// igual para el tipo de espacio en Buscar y en Publicar, y la etiqueta va
 /// siempre centrada en su pastilla.
 ///
-/// AUTO LAYOUT: el alto es 40 y el ancho lo pone quien la ubica, de dos modos:
+/// AUTO LAYOUT: el alto es 48 —el de un campo de texto y el blanco minimo de
+/// un toque; antes era 40 y el dedo erraba— y el ancho lo pone quien la
+/// ubica, de dos modos:
 /// - Suelta, en un Wrap (Buscar): mide lo que su etiqueta, asi "Departamento"
 ///   no se corta y "Casa" no queda con aire de sobra. Si no entran en una
 ///   fila, pasan a la siguiente.
@@ -39,10 +41,10 @@ class Opcion extends StatelessWidget {
         onTap: alTocar,
         borderRadius: BorderRadius.circular(Medida.radioSm),
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Espacio.md,
-            vertical: Espacio.sm + Espacio.xs,
-          ),
+          // El alto minimo es el blanco del toque; la columna centra la
+          // etiqueta en ese alto sin estirar el ancho de la pastilla.
+          constraints: const BoxConstraints(minHeight: Medida.toque),
+          padding: const EdgeInsets.symmetric(horizontal: Espacio.md),
           decoration: BoxDecoration(
             color: seleccionada ? AppColors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(Medida.radioSm),
@@ -50,16 +52,22 @@ class Opcion extends StatelessWidget {
               color: seleccionada ? AppColors.primary : AppColors.text12,
             ),
           ),
-          child: Text(
-            etiqueta,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            // Centrada: en una pastilla que la abraza no se nota; en una
-            // estirada por FilaOpciones, si.
-            textAlign: TextAlign.center,
-            style: AppText.caption(context).copyWith(
-              color: seleccionada ? AppColors.surface : AppColors.text70,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                etiqueta,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                // Centrada: en una pastilla que la abraza no se nota; en una
+                // estirada por FilaOpciones, si.
+                textAlign: TextAlign.center,
+                style: AppText.caption(context).copyWith(
+                  color: seleccionada ? AppColors.surface : AppColors.text70,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -100,8 +108,14 @@ class FilaOpciones extends StatelessWidget {
 /// Un interruptor de encendido y apagado, de 48x24.
 ///
 /// Con [etiqueta] arma la fila completa: la etiqueta a la izquierda y el
-/// interruptor anclado a la derecha. Antes habia dos piezas con el mismo
-/// nombre, una con Material y otra propia, y cada pantalla usaba una distinta.
+/// interruptor anclado a la derecha, y **toda la fila responde al toque**, con
+/// 48 de alto minimo: la pista sola, de 24, era un blanco chico. Suelto, la
+/// pista va centrada en un area de toque de 48x48. Para el lector de pantalla
+/// es un solo interruptor con su etiqueta y su estado.
+///
+/// El pulgar apagado va en Text 60 % sobre la pista de Text 10 %: con 50 % no
+/// se distinguia de la pista. Antes habia dos piezas con el mismo nombre, una
+/// con Material y otra propia, y cada pantalla usaba una distinta.
 class Interruptor extends StatelessWidget {
   const Interruptor({
     super.key,
@@ -116,52 +130,72 @@ class Interruptor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pista = Semantics(
-      toggled: encendido,
-      label: etiqueta,
-      child: GestureDetector(
-        onTap: () => alCambiar(!encendido),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          width: 48,
-          height: 24,
-          padding: const EdgeInsets.all(Espacio.xs),
+    // La pista dibuja el estado y nada mas: el toque y la semantica los pone
+    // quien la envuelve, segun venga con etiqueta o suelta.
+    final pista = AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      width: 48,
+      height: 24,
+      padding: const EdgeInsets.all(Espacio.xs),
+      decoration: BoxDecoration(
+        color: encendido ? AppColors.primary : AppColors.text10,
+        borderRadius: BorderRadius.circular(Medida.radio),
+      ),
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 150),
+        alignment: encendido ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          width: 16,
+          height: 16,
           decoration: BoxDecoration(
-            color: encendido ? AppColors.primary : AppColors.text10,
-            borderRadius: BorderRadius.circular(Medida.radio),
-          ),
-          child: AnimatedAlign(
-            duration: const Duration(milliseconds: 150),
-            alignment:
-                encendido ? Alignment.centerRight : Alignment.centerLeft,
-            child: Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                color: encendido ? AppColors.surface : AppColors.text50,
-                shape: BoxShape.circle,
-              ),
-            ),
+            color: encendido ? AppColors.surface : AppColors.text60,
+            shape: BoxShape.circle,
           ),
         ),
       ),
     );
 
-    if (etiqueta == null) return pista;
-
-    // FLEXBOX: la etiqueta toma el espacio libre y el interruptor queda
-    // anclado a la derecha.
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            etiqueta!,
-            style: AppText.body(context).copyWith(color: AppColors.text),
+    if (etiqueta == null) {
+      return Semantics(
+        toggled: encendido,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => alCambiar(!encendido),
+          child: SizedBox(
+            width: Medida.toque,
+            height: Medida.toque,
+            child: Center(child: pista),
           ),
         ),
-        const SizedBox(width: Espacio.md),
-        pista,
-      ],
+      );
+    }
+
+    // FLEXBOX: la etiqueta toma el espacio libre y el interruptor queda
+    // anclado a la derecha. MergeSemantics junta etiqueta, estado y toque en
+    // un solo nodo.
+    return MergeSemantics(
+      child: Semantics(
+        toggled: encendido,
+        child: InkWell(
+          onTap: () => alCambiar(!encendido),
+          borderRadius: BorderRadius.circular(Medida.radioSm),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: Medida.toque),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    etiqueta!,
+                    style: AppText.body(context).copyWith(color: AppColors.text),
+                  ),
+                ),
+                const SizedBox(width: Espacio.md),
+                pista,
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

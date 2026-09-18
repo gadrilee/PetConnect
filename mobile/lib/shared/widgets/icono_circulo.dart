@@ -12,6 +12,9 @@ enum TonoIcono { primario, neutro, exito, error }
 /// -----------------
 /// El icono mide siempre la mitad del circulo. Suave es tinte del color con
 /// icono del color; relleno es el circulo lleno con icono claro.
+///
+/// El neutro usa Text 70 % sobre Text 10 %: es lo minimo que da 3:1 para un
+/// icono sobre ese gris (con 60 % quedaba en 2,9:1 y con 50 % en 2,3:1).
 class IconoCirculo extends StatelessWidget {
   const IconoCirculo(
     this.icono, {
@@ -31,7 +34,7 @@ class IconoCirculo extends StatelessWidget {
   /// El color del icono y del circulo relleno.
   static Color colorDe(TonoIcono tono) => switch (tono) {
         TonoIcono.primario => AppColors.primary,
-        TonoIcono.neutro => AppColors.text50,
+        TonoIcono.neutro => AppColors.text70,
         TonoIcono.exito => AppColors.success,
         TonoIcono.error => AppColors.error,
       };
