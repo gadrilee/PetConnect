@@ -59,14 +59,14 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
     } on ApiException catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.mensaje;
+          _error = e.motivo;
           _cargando = false;
         });
       }
     } catch (_) {
       if (mounted) {
         setState(() {
-          _error = 'No se pudo cargar el anuncio.';
+          _error = ApiException.sinRespuesta;
           _cargando = false;
         });
       }
@@ -108,7 +108,8 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
         titulo: _titulo,
         cuerpo: EstadoVacio(
           icono: Icons.error_outline,
-          titulo: _error ?? 'No se pudo cargar el anuncio.',
+          titulo: 'No pudimos cargar el anuncio',
+          detalle: _error,
           esError: true,
           accion: 'Reintentar',
           alAccion: _reintentar,

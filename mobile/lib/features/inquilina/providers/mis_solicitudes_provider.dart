@@ -24,9 +24,9 @@ class MisSolicitudesProvider extends ChangeNotifier {
     try {
       _solicitudes = await _repo.misSolicitudes();
     } on ApiException catch (e) {
-      error = e.mensaje;
+      error = e.motivo;
     } catch (_) {
-      error = 'No se pudieron cargar tus solicitudes.';
+      error = ApiException.sinRespuesta;
     } finally {
       _cargando = false;
       notifyListeners();

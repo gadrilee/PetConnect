@@ -16,6 +16,14 @@ class ApiException implements Exception {
   /// Sirve para pintarlos debajo del input correspondiente.
   final Map<String, String> porCampo;
 
+  /// Lo que se le dice a la persona cuando el servidor no respondio: que
+  /// hacer. [mensaje] en ese caso habla del backend, y es para quien programa.
+  static const String sinRespuesta = 'Revisá tu conexión y probá de nuevo.';
+
+  /// El motivo para mostrar debajo de un "No pudimos cargar...": sin
+  /// respuesta, [sinRespuesta]; con respuesta, lo que dijo el servidor.
+  String get motivo => codigo == null ? sinRespuesta : mensaje;
+
   @override
   String toString() => mensaje;
 }

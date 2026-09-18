@@ -73,7 +73,8 @@ class _SolicitudesRecibidasScreenState
       // conexion.
       cuerpo = EstadoVacio(
         icono: Icons.error_outline,
-        titulo: provider.error!,
+        titulo: 'No pudimos cargar tus solicitudes',
+        detalle: provider.error,
         esError: true,
         accion: 'Reintentar',
         alAccion: provider.cargar,

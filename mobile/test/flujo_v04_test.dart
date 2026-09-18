@@ -272,7 +272,11 @@ void main() {
         ),
       );
 
-      expect(find.text('No se pudo conectar con el servidor.'), findsOneWidget);
+      // Como en Figma (Validaciones 1): qué pasó y qué hacer, no el texto de
+      // la API, que habla del backend.
+      expect(find.text('No pudimos cargar tus solicitudes'), findsOneWidget);
+      expect(find.text(ApiException.sinRespuesta), findsOneWidget);
+      expect(find.textContaining('servidor'), findsNothing);
       expect(find.text('Reintentar'), findsOneWidget);
       expect(find.text('Aún no tenés solicitudes'), findsNothing);
     });
@@ -301,6 +305,68 @@ void main() {
       expect(rects[1].top, rects[2].top);
       expect(rects[3].top, greaterThan(rects[0].bottom));
       expect(rects[0].width, rects[2].width);
+    });
+  });
+  group('Lo que ya se resolvió (Figma v0.4: 3, 4 y Validaciones 3)', () {
+    Future<void> detalle(WidgetTester tester, List<SolicitudVisita> datos, int id) async {
+      _pantalla(tester, _telefono);
+      final provider = SolicitudesRecibidasProvider(_RepoFalso(datos));
+      await provider.cargar();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.claro,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ChangeNotifierProvider.value(
+                        value: provider,
+                        child: SolicitudDetalleScreen(id: id),
+                      ),
+                    ),
+                  ),
+                  child: const Text('bandeja'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('bandeja'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('cerrada: el pie lo explica y la nota del WhatsApp no aparece',
+        (tester) async {
+      await detalle(tester, [_solicitud(4, EstadoSolicitud.cerrada)], 4);
+
+      expect(find.text('Solicitud cerrada'), findsOneWidget);
+      expect(find.textContaining('Marcaste el cuarto como alquilado'), findsOneWidget);
+      expect(find.text(_aviso), findsNothing,
+          reason: 'nadie va a ver el WhatsApp: la nota mentiría');
+      expect(find.text(_aprobar), findsNothing);
+    });
+
+    testWidgets('rechazada: tampoco muestra la nota del WhatsApp', (tester) async {
+      await detalle(tester, [_solicitud(2, EstadoSolicitud.rechazada)], 2);
+
+      expect(find.text('Solicitud rechazada y cerrada'), findsOneWidget);
+      expect(find.text(_aviso), findsNothing);
+    });
+
+    testWidgets('la que ya no está: lo dice y vuelve a la bandeja', (tester) async {
+      await detalle(tester, [_solicitud(3, EstadoSolicitud.pendiente)], 5);
+
+      expect(find.text('Solicitud #5'), findsOneWidget);
+      expect(find.text('Esta solicitud ya no está disponible.'), findsOneWidget);
+      expect(find.text('Ya no aparece en tu bandeja.'), findsOneWidget);
+
+      await tester.tap(find.text('Volver a la bandeja'));
+      await tester.pumpAndSettle();
+      expect(find.byType(SolicitudDetalleScreen), findsNothing);
+      expect(find.text('bandeja'), findsOneWidget);
     });
   });
 }

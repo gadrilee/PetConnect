@@ -60,9 +60,9 @@ class SolicitudesRecibidasProvider extends ChangeNotifier {
     try {
       _solicitudes = await _repo.obtenerTodas();
     } on ApiException catch (e) {
-      error = e.mensaje;
+      error = e.motivo;
     } catch (_) {
-      error = 'No se pudieron cargar las solicitudes.';
+      error = ApiException.sinRespuesta;
     } finally {
       _cargando = false;
       notifyListeners();

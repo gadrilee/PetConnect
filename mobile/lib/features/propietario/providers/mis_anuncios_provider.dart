@@ -40,9 +40,9 @@ class MisAnunciosProvider extends ChangeNotifier {
     try {
       _anuncios = await _repo.mios();
     } on ApiException catch (e) {
-      error = e.mensaje;
+      error = e.motivo;
     } catch (_) {
-      error = 'No se pudieron cargar tus anuncios.';
+      error = ApiException.sinRespuesta;
     } finally {
       _cargando = false;
       notifyListeners();

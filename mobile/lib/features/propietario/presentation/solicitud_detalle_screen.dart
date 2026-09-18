@@ -36,9 +36,12 @@ class SolicitudDetalleScreen extends StatelessWidget {
     if (solicitud == null) {
       return Pagina(
         titulo: 'Solicitud #$id',
-        cuerpo: const EstadoVacio(
+        cuerpo: EstadoVacio(
           icono: Icons.search_off,
           titulo: 'Esta solicitud ya no está disponible.',
+          detalle: 'Ya no aparece en tu bandeja.',
+          accion: 'Volver a la bandeja',
+          alAccion: () => Navigator.of(context).pop(),
         ),
       );
     }
@@ -58,14 +61,16 @@ class SolicitudDetalleScreen extends StatelessWidget {
               columnas: const Columnas(tablet: 6, escritorio: 8),
               child: _Contexto(solicitud: solicitud),
             ),
-            // Lo que pasa al aprobar se dice ANTES del boton, no despues.
-            const CeldaGrilla(
-              columnas: Columnas(tablet: 6, escritorio: 4),
-              child: Aviso(
-                icono: Icons.lock_outline,
-                mensaje: 'Esta persona va a ver tu WhatsApp. Sólo ella.',
+            // Lo que pasa al aprobar se dice ANTES del boton, no despues. Una
+            // rechazada o cerrada ya no va a ver nada: ahi la nota mentiria.
+            if (solicitud.estaPendiente || solicitud.estaAprobada)
+              const CeldaGrilla(
+                columnas: Columnas(tablet: 6, escritorio: 4),
+                child: Aviso(
+                  icono: Icons.lock_outline,
+                  mensaje: 'Esta persona va a ver tu WhatsApp. Sólo ella.',
+                ),
               ),
-            ),
           ],
         ),
       ],

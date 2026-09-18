@@ -107,7 +107,8 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
     } else if (estado.error != null && anuncios.isEmpty) {
       cuerpo = EstadoVacio(
         icono: Icons.error_outline,
-        titulo: estado.error!,
+        titulo: 'No pudimos cargar tus anuncios',
+        detalle: estado.error,
         esError: true,
         accion: 'Reintentar',
         alAccion: estado.cargar,

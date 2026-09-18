@@ -15,16 +15,21 @@ import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../data/solicitud.dart';
 import '../providers/solicitud_provider.dart';
 
-/// Vista 06 / 07 — Estado de la solicitud enviada.
+/// El estado de una solicitud enviada (Figma, flujo de la inquilina).
 ///
-/// Vista 06 (Solicitud enviada): cuando está PENDIENTE, muestra ícono de
-/// espera y el resumen del anuncio. El botón refresca el estado.
+/// 06 Solicitud enviada: cuando está PENDIENTE, muestra ícono de espera y el
+/// resumen del anuncio. El botón refresca el estado.
 ///
-/// Vista 07 (Contacto liberado): cuando está APROBADA y [contacto] no es
-/// null, muestra el WhatsApp del propietario con un botón para abrirlo.
-/// La pantalla detecta el estado automáticamente.
+/// 08 Contacto liberado: cuando está APROBADA y [contacto] no es null,
+/// muestra el WhatsApp del propietario con un botón para abrirlo.
+///
+/// 09 Solicitud rechazada y 10 Solicitud cerrada: el motivo, sin nada que
+/// esperar. La pantalla detecta el estado automáticamente.
 class SolicitudEstadoScreen extends StatefulWidget {
   const SolicitudEstadoScreen({super.key});
+
+  /// Validaciones 11: el teléfono no pudo abrir el enlace de WhatsApp.
+  static const String noSeAbrioWhatsApp = 'No se pudo abrir WhatsApp.';
 
   @override
   State<SolicitudEstadoScreen> createState() => _SolicitudEstadoScreenState();
@@ -43,9 +48,16 @@ class _SolicitudEstadoScreenState extends State<SolicitudEstadoScreen> {
     final uri = Uri.parse('https://wa.me/591$numero');
 
     setState(() => _errorWhatsApp = null);
-    final abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    bool abierto;
+    try {
+      abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // El telefono no tiene con que abrir el enlace: es el mismo "no se
+      // pudo" que cuando launchUrl devuelve false, no un error sin atender.
+      abierto = false;
+    }
     if (!abierto && mounted) {
-      setState(() => _errorWhatsApp = 'No se pudo abrir WhatsApp.');
+      setState(() => _errorWhatsApp = SolicitudEstadoScreen.noSeAbrioWhatsApp);
     }
   }
 
