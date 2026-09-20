@@ -210,7 +210,9 @@ class _BuscarScreenState extends State<BuscarScreen> {
                   Deslizador(
                     valor: _minutosMax,
                     min: 5,
-                    max: 60,
+                    // Hasta 200: el tope de 60 dejaba afuera cuartos que
+                    // alguien con más tiempo igual consideraría.
+                    max: 200,
                     alCambiar: (v) => setState(() => _minutosMax = v),
                   ),
                 ],
