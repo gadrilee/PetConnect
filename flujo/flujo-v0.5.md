@@ -21,12 +21,10 @@
 flowchart TD
     S([Entra a Mis anuncios]) --> A{"¿Tiene anuncios?"}
 
-    A -->|No| V["<b>3.</b> Todavía no publicaste<br/>→ va a Publicar"]
+    A -->|No| V["<b>4.</b> Todavía no publicaste<br/>→ va a Publicar"]
     A -->|Sí| L["<b>1.</b> Sus anuncios,<br/>cada uno con su estado"]
 
-    L -->|Toca Marcar Ya alquilado| P{"¿Tiene solicitudes<br/>pendientes?"}
-    P -->|No| OK
-    P -->|Sí| C["<b>2.</b> Qué va a pasar:<br/>sale de la búsqueda y se<br/>cierran las pendientes"]
+    L -->|Toca Marcar Ya alquilado| C["<b>2 / 3.</b> Qué va a pasar:<br/>sale de la búsqueda y, si las hay,<br/>se cierran las pendientes"]
 
     C -->|Confirma| OK["Ya alquilado<br/>fuera de la búsqueda"]
     C -->|Cancela| L
@@ -54,8 +52,8 @@ flowchart TD
 | # | Marta hace | La app responde | Por qué importa |
 |---|---|---|---|
 | 1 | Entra a *Mis anuncios* | Lista sus anuncios con su estado —*Disponible* o *Ya alquilado*— y la acción de cada uno | Un anuncio sin estado visible es el que no muere (evidencias 5, 8 y 11) |
-| 2 | Toca *Marcar Ya alquilado* en un cuarto con solicitudes pendientes | Antes de hacerlo, dice qué va a pasar: sale de la búsqueda, se cierran las 2 solicitudes pendientes y a cada persona se le avisa | Cierra pedidos de otras personas: eso no puede pasar sin que ella lo sepa |
-| — | …en un cuarto **sin** pendientes | Lo marca en un toque, sin preguntar | El brief pide *"en un toque"*. Sólo se interrumpe cuando hay terceros afectados |
+| 2 | Toca *Marcar Ya alquilado* | Antes de hacerlo dice qué va a pasar: sale de la búsqueda, se cierran las solicitudes pendientes y a cada persona se le avisa | Cierra pedidos de otras personas: eso no puede pasar sin que ella lo sepa |
+| 3 | …en un cuarto **sin** pendientes | La misma pantalla, y dice *"No tenés solicitudes pendientes: no se cierra ninguna"* | El botón hace siempre lo mismo, y ella sabe antes de tocar que nadie queda colgado |
 | 3 | Confirma | Queda *Ya alquilado* y la app dice *"Salió de la búsqueda. Cerramos 2 solicitudes y les avisamos."* | Sabe exactamente qué cambió, sin tener que ir a revisar |
 | 4 | El inquilino se fue: toca *Volver a publicar* | Vuelve a la búsqueda en un toque, con los mismos datos | Volver a publicar no puede costar lo mismo que publicar de cero (evidencia 11) |
 | 5 | — | Si no tiene anuncios: *"Todavía no publicaste nada"* y el botón para publicar | Una lista vacía sin explicación parece rota |
@@ -67,10 +65,14 @@ no lo marca para ayudar a Andrea, lo marca **para dejar de recibir
 solicitudes**. Por eso la confirmación habla de lo que ella gana, no de un
 trámite.
 
-**Un toque, salvo cuando hay otros en juego.** El brief pide que el cambio de
-estado cueste un solo toque, y así es. La confirmación aparece únicamente si
-hay solicitudes pendientes, porque ahí marcar alquilado deja de ser una
-decisión sólo suya: cierra lo que otras personas estaban esperando.
+**Siempre confirma (cambiado el 20/09/2026).** Antes la confirmación aparecía
+sólo con solicitudes pendientes, y sin ellas el anuncio se marcaba en un toque.
+Probándolo se vio el problema: el mismo botón hacía dos cosas distintas según
+datos que la tarjeta no muestra, así que era imposible saber qué iba a pasar
+antes de tocarlo. Ahora siempre se pasa por la pantalla: es la acción que menos
+se puede deshacer —saca el anuncio de la búsqueda y cierra lo que otras personas
+esperaban— y lo que cambia es lo que se cuenta, no el camino. El *"en un toque"*
+del brief sigue valiendo para *Volver a publicar*, que es lo barato de rehacer.
 
 ---
 
@@ -78,7 +80,7 @@ decisión sólo suya: cierra lo que otras personas estaban esperando.
 
 | Fila | Pantallas | Qué muestra |
 |---|---|---|
-| Principal | 01 Mis anuncios · 02 ¿Ya lo alquilaste? · 03 Sin anuncios | Cada pantalla distinta del flujo, en su estado normal |
+| Principal | 01 Mis anuncios · 02 ¿Ya lo alquilaste? · 03 ¿Ya lo alquilaste? · sin pendientes · 04 Sin anuncios | Cada pantalla distinta del flujo, en su estado normal |
 | Happy Path | 01 marcar (botón pulsado) · 02 marcando · 03 alquilado · 04 publicado otra vez | Cada acción con el botón tocado y su resultado |
 | Validaciones | 01 no se pudo cargar · 02 no se pudo marcar · 03 no se pudo volver a publicar | Sólo lo que falla, con cómo reintentar |
 
@@ -87,17 +89,17 @@ anuncio* lleva directo al flujo v0.1.
 
 ---
 
-## Diferencia con el código, a la fecha
+## Qué hay en el código
 
-- **La app marca en un toque siempre.** La confirmación con las pendientes es
-  nueva del diseño.
-- **Las solicitudes pendientes no se cierran.** `Anuncio.marcar_alquilado()`
-  sólo cambia el estado del anuncio: si Andrea había pedido visita, su solicitud
-  queda *Pendiente* para siempre. Es la evidencia 5 pasando adentro de la app, y
-  es lo primero que hay que implementar de este flujo.
-- **La pantalla de Andrea con su solicitud cerrada** (*"El cuarto ya se
-  alquiló"*) está anotada para el flujo de la inquilina y todavía no está
-  dibujada.
+El flujo está implementado de punta a punta y verificado en el emulador contra
+el backend real:
+
+- `POST /api/anuncios/{id}/marcar_alquilado/` cierra en la misma operación las
+  solicitudes que seguían pendientes y devuelve cuántas cerró; el aviso de la
+  app lo usa (*"Salió de la búsqueda. Cerramos 2 solicitudes y les avisamos"*).
+- La confirmación es `ConfirmarAlquiladoScreen`, y se pasa por ella siempre.
+- Del otro lado, Andrea ve *"El cuarto ya se alquiló"* en lugar de una espera
+  eterna (pantalla 11 del flujo de la inquilina).
 
 ---
 

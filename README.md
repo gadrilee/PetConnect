@@ -65,8 +65,8 @@ la pantalla de Inicio les muestra cosas distintas.
 
 | Documento | Contenido |
 |---|---|
-| [Flujo](flujo/flujo-v0.5.md) | Marcar *Ya alquilado* en un toque, cerrar las solicitudes pendientes y volver a publicar |
-| [**Pantallas**](wireframes/flujo-v0.5-cerrar-anuncio/flujo-completo.png) | Las 3 pantallas en una lámina — se ven sin abrir Figma |
+| [Flujo](flujo/flujo-v0.5.md) | Marcar *Ya alquilado* diciendo antes qué va a pasar, cerrar las solicitudes pendientes y volver a publicar |
+| [**Pantallas**](wireframes/flujo-v0.5-cerrar-anuncio/flujo-completo.png) | Las 4 pantallas en una lámina — se ven sin abrir Figma |
 
 Es el final del ciclo: sin él, el anuncio no muere y le siguen escribiendo a
 Marta por un cuarto que ya alquiló.
@@ -84,7 +84,7 @@ Marta por un cuarto que ya alquiló.
 | [Pantallas del flujo v0.2](wireframes/flujo-v0.2-inquilina/README.md) | Las 12 pantallas de la inquilina |
 | [Pantallas del flujo v0.3](wireframes/flujo-v0.3-acceso/README.md) | Las 12 pantallas del acceso y la cuenta |
 | [Pantallas del flujo v0.4](wireframes/flujo-v0.4-solicitudes/README.md) | Las 6 pantallas de la gestión de solicitudes |
-| [Pantallas del flujo v0.5](wireframes/flujo-v0.5-cerrar-anuncio/README.md) | Las 3 pantallas de cerrar el anuncio |
+| [Pantallas del flujo v0.5](wireframes/flujo-v0.5-cerrar-anuncio/README.md) | Las 4 pantallas de cerrar el anuncio |
 | [**Decisión de diseño**](docs/decision-clase-05.md) | Jerarquía, layout y espaciado: antes, cambio, prueba con usuaria y siguiente paso |
 | [**Componente y estados**](docs/decision-clase-06.md) | El botón principal como pieza reutilizable, con sus cuatro estados |
 | [**Auditoría de accesibilidad**](docs/accesibilidad-clase-10.md) | Lighthouse, WAVE, contraste y teclado: qué se corrió, qué se cambió y qué pasó al repetir |

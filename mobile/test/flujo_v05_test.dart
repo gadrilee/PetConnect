@@ -89,10 +89,22 @@ Future<_Repo> _montar(WidgetTester tester, List<Anuncio> anuncios) async {
 
 void main() {
   group('Marcar Ya alquilado', () {
-    testWidgets('sin pendientes: es un toque, sin confirmación', (tester) async {
+    testWidgets('sin pendientes: también confirma, y dice que no cierra nada',
+        (tester) async {
       await _montar(tester, [_anuncio(1)]);
 
       await tester.tap(find.text(_marcar));
+      await tester.pumpAndSettle();
+
+      // El botón hace siempre lo mismo: primero cuenta qué va a pasar.
+      expect(find.byType(ConfirmarAlquiladoScreen), findsOneWidget);
+      expect(find.text('Sale de la búsqueda: nadie más lo va a encontrar.'),
+          findsOneWidget);
+      expect(find.text('No tenés solicitudes pendientes: no se cierra ninguna.'),
+          findsOneWidget);
+      expect(find.textContaining('Se cierran'), findsNothing);
+
+      await tester.tap(find.text('MARCAR YA ALQUILADO'));
       await tester.pumpAndSettle();
 
       expect(find.byType(ConfirmarAlquiladoScreen), findsNothing);

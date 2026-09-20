@@ -16,10 +16,11 @@ import '../providers/mis_anuncios_provider.dart';
 /// Flujo v0.5, pantalla 2: antes de marcar el cuarto como alquilado, lo que
 /// va a pasar.
 ///
-/// Solo se llega aca si el cuarto tiene solicitudes pendientes. Sin
-/// pendientes, marcarlo es un toque: el brief pide que cueste eso y nada mas.
-/// Con pendientes deja de ser una decision solo suya, porque cierra lo que
-/// otras personas estaban esperando, y eso no puede pasar sin que lo sepa.
+/// Se pasa por aca siempre, con pendientes o sin ellas: es la accion que
+/// menos se puede deshacer de Mis anuncios —saca el anuncio de la busqueda y
+/// cierra lo que otras personas estaban esperando— y el boton tiene que hacer
+/// siempre lo mismo. Lo que cambia es lo que se cuenta: con pendientes, que
+/// se cierran y que se les avisa; sin pendientes, que no se cierra ninguna.
 ///
 /// No pregunta "¿estas segura?": dice que va a pasar. La pregunta sola no le
 /// da nada para decidir.
@@ -131,9 +132,15 @@ class _QueVaAPasar extends StatelessWidget {
         const SizedBox(height: Espacio.md),
         paso(Icons.search_off, 'Sale de la búsqueda: nadie más lo va a encontrar.'),
         const SizedBox(height: Espacio.sm),
-        paso(Icons.cancel_outlined, solicitudes),
-        const SizedBox(height: Espacio.sm),
-        paso(Icons.mark_email_read_outlined, aviso),
+        // Sin pendientes no se cierra nada, y decirlo es parte de la
+        // respuesta: nadie se queda esperando por esto.
+        if (pendientes == 0)
+          paso(Icons.inbox_outlined, 'No tenés solicitudes pendientes: no se cierra ninguna.')
+        else ...[
+          paso(Icons.cancel_outlined, solicitudes),
+          const SizedBox(height: Espacio.sm),
+          paso(Icons.mark_email_read_outlined, aviso),
+        ],
       ],
     );
   }

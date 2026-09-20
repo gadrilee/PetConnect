@@ -157,14 +157,12 @@ class _TarjetaGestion extends StatelessWidget {
 
   final Anuncio anuncio;
 
-  /// Sin solicitudes pendientes, un toque. Con pendientes, antes se dice que
-  /// se van a cerrar: eso afecta a otras personas (flujo v0.5).
+  /// Siempre pasa por la confirmación: apagar el anuncio es lo que menos se
+  /// puede deshacer de la pantalla, y la persona ve antes qué va a pasar —
+  /// con pendientes, que se cierran; sin pendientes, que no se cierra
+  /// ninguna. El mismo botón hace siempre lo mismo.
   Future<void> _marcarAlquilado(BuildContext context) async {
     final provider = context.read<MisAnunciosProvider>();
-    if (anuncio.solicitudesPendientes == 0) {
-      await provider.marcarAlquilado(anuncio);
-      return;
-    }
     provider.limpiarMensajes();
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(

@@ -140,7 +140,7 @@ class _InicioPropietarioScreenState extends State<InicioPropietarioScreen> {
               columnas: columnas,
               child: TarjetaMenu(
                 titulo: 'Mis anuncios',
-                detalle: 'Marcar Ya alquilado en un toque.',
+                detalle: 'Marcar Ya alquilado o volver a publicar.',
                 icono: Icons.list_alt_outlined,
                 alTocar: () => _abrir(const MisAnunciosScreen()),
               ),
