@@ -111,6 +111,7 @@ class _SolicitudesRecibidasScreenState
                   inquilino: s.inquilino,
                   fecha: s.creadaEn,
                   estado: s.estado,
+                  foto: s.anuncio.fotoPrincipal,
                   alTocar: () => _abrir(s.id),
                   alAprobar: () => _abrir(s.id),
                   alRechazar:

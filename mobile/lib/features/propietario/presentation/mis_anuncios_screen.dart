@@ -12,6 +12,7 @@ import '../../../shared/widgets/boton_texto.dart';
 import '../../../shared/widgets/estado_vacio.dart';
 import '../../../shared/widgets/etiqueta_estado.dart';
 import '../../../shared/widgets/fila_condicion.dart';
+import '../../../shared/widgets/foto_inmueble.dart';
 import '../../../shared/widgets/pie_acciones.dart';
 import '../../../shared/widgets/precio_final.dart';
 import '../data/anuncio.dart';
@@ -196,36 +197,57 @@ class _TarjetaGestion extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // FLEXBOX: el titulo toma el espacio libre y el estado queda
-          // anclado a la derecha.
+          // FLEXBOX: la foto mide lo suyo y el resto toma el ancho que queda.
+          // La foto es lo primero que reconoce cual de los cuatro cuartos es
+          // este, antes de leer el titulo.
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              FotoInmueble(url: anuncio.fotoPrincipal, ancho: 64, alto: 64),
+              const SizedBox(width: Espacio.md),
               Expanded(
-                child: Text(
-                  anuncio.titulo,
-                  style:
-                      AppText.button(context).copyWith(color: AppColors.text),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // FLEXBOX: el titulo toma el espacio libre y el estado
+                    // queda anclado a la derecha.
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            anuncio.titulo,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppText.button(context)
+                                .copyWith(color: AppColors.text),
+                          ),
+                        ),
+                        const SizedBox(width: Espacio.sm),
+                        EtiquetaEstado.anuncio(anuncio.estado),
+                      ],
+                    ),
+                    const SizedBox(height: Espacio.sm),
+                    // FLEXBOX: los datos van en fila y bajan si no entran
+                    // (flex-wrap).
+                    Wrap(
+                      spacing: Espacio.md,
+                      runSpacing: Espacio.xs,
+                      children: [
+                        for (final (icono, texto) in datos)
+                          FilaCondicion(
+                            enLinea: true,
+                            icono: icono,
+                            texto: texto,
+                            colorIcono: AppColors.text50,
+                            estilo: AppText.caption(context)
+                                .copyWith(color: AppColors.text70),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: Espacio.sm),
-              EtiquetaEstado.anuncio(anuncio.estado),
-            ],
-          ),
-          const SizedBox(height: Espacio.sm),
-          // FLEXBOX: los datos van en fila y bajan si no entran (flex-wrap).
-          Wrap(
-            spacing: Espacio.md,
-            runSpacing: Espacio.xs,
-            children: [
-              for (final (icono, texto) in datos)
-                FilaCondicion(
-                  enLinea: true,
-                  icono: icono,
-                  texto: texto,
-                  colorIcono: AppColors.text50,
-                  estilo:
-                      AppText.caption(context).copyWith(color: AppColors.text70),
-                ),
             ],
           ),
           const SizedBox(height: Espacio.md),

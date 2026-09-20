@@ -9,6 +9,7 @@ import 'package:alquilamatch/features/propietario/data/anuncios_repository.dart'
 import 'package:alquilamatch/features/propietario/presentation/confirmar_alquilado_screen.dart';
 import 'package:alquilamatch/features/propietario/presentation/mis_anuncios_screen.dart';
 import 'package:alquilamatch/features/propietario/providers/mis_anuncios_provider.dart';
+import 'package:alquilamatch/shared/widgets/foto_inmueble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,9 @@ Anuncio _anuncio(int id, {int pendientes = 0, bool alquilado = false}) => Anunci
   minutosCaminando: 11,
   estado: alquilado ? EstadoAnuncio.alquilado : EstadoAnuncio.disponible,
   solicitudesPendientes: pendientes,
+  fotos: [
+    FotoAnuncio(imagen: 'http://x/$id.jpg', fechaCaptura: DateTime(2026, 9, 8)),
+  ],
 );
 
 /// Guarda los anuncios en memoria y responde como el backend: marcar
@@ -123,6 +127,23 @@ void main() {
           findsOneWidget);
       expect(find.text('Sale de la búsqueda: nadie más lo va a encontrar.'),
           findsOneWidget);
+    });
+
+    testWidgets('la foto del cuarto se ve en la lista y en la confirmación', (
+      tester,
+    ) async {
+      await _montar(tester, [_anuncio(1, pendientes: 2)]);
+
+      // En la tarjeta: cual de los cuatro cuartos es este se reconoce antes
+      // de leer el titulo.
+      expect(find.byType(FotoInmueble), findsOneWidget);
+
+      await tester.tap(find.text(_marcar));
+      await tester.pumpAndSettle();
+
+      // Y otra vez al confirmar: apagar el anuncio equivocado no se deshace.
+      expect(find.byType(ConfirmarAlquiladoScreen), findsOneWidget);
+      expect(find.byType(FotoInmueble), findsOneWidget);
     });
 
     testWidgets('cancelar no cambia nada', (tester) async {

@@ -94,6 +94,13 @@ class Anuncio {
 
   bool get estaDisponible => estado == EstadoAnuncio.disponible;
 
+  /// La foto que representa al anuncio en una tarjeta, o `null` si no tiene.
+  ///
+  /// Es siempre la primera, que es la que el backend manda en las listas.
+  /// Estaba escrito igual en cuatro pantallas; con el getter, quien dibuje
+  /// una tarjeta nueva no tiene que acordarse de la regla.
+  String? get fotoPrincipal => fotos.isEmpty ? null : fotos.first.imagen;
+
   /// Las fotos vengan como vengan.
   ///
   /// El detalle del anuncio manda la lista completa en `fotos`. Las listas

@@ -8,6 +8,7 @@ import '../../../shared/widgets/bloque.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/boton_secundario.dart';
 import '../../../shared/widgets/fila_condicion.dart';
+import '../../../shared/widgets/foto_inmueble.dart';
 import '../../../shared/widgets/pie_acciones.dart';
 import '../../../shared/widgets/precio_final.dart';
 import '../data/anuncio.dart';
@@ -85,16 +86,35 @@ class _Resumen extends StatelessWidget {
   Widget build(BuildContext context) {
     final precio = PrecioFinal.formatear(anuncio.precioFinal);
     return Bloque(
+      // FLEXBOX: la foto mide lo suyo y el texto toma el resto. Antes de
+      // apagar un anuncio conviene ver cual es, no solo leer su titulo: los
+      // de una misma casa se llaman casi igual.
       hijos: [
-        Text(
-          anuncio.titulo,
-          style: AppText.button(context)
-              .copyWith(color: AppColors.text, letterSpacing: 0),
-        ),
-        const SizedBox(height: Espacio.sm),
-        Text(
-          'Tipo: ${anuncio.tipoEspacio.etiqueta} · $precio Bs/mes',
-          style: AppText.caption(context).copyWith(color: AppColors.text70),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FotoInmueble(url: anuncio.fotoPrincipal, ancho: 64, alto: 64),
+            const SizedBox(width: Espacio.md),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    anuncio.titulo,
+                    style: AppText.button(context)
+                        .copyWith(color: AppColors.text, letterSpacing: 0),
+                  ),
+                  const SizedBox(height: Espacio.sm),
+                  Text(
+                    'Tipo: ${anuncio.tipoEspacio.etiqueta} · $precio Bs/mes',
+                    style: AppText.caption(context)
+                        .copyWith(color: AppColors.text70),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );

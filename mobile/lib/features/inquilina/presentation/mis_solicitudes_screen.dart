@@ -94,9 +94,7 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
                   tituloAnuncio: solicitud.anuncio.titulo,
                   enviada: solicitud.creadaEn,
                   estado: solicitud.estado,
-                  foto: solicitud.anuncio.fotos.isNotEmpty
-                      ? solicitud.anuncio.fotos.first.imagen
-                      : null,
+                  foto: solicitud.anuncio.fotoPrincipal,
                   alTocar: () => _verEstado(solicitud),
                 ),
               ),

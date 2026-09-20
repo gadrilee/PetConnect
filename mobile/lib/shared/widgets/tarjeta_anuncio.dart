@@ -75,7 +75,7 @@ class TarjetaAnuncio extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FotoInmueble(
-            url: anuncio.fotos.isNotEmpty ? anuncio.fotos.first.imagen : null,
+            url: anuncio.fotoPrincipal,
             ancho: lado,
             alto: lado,
           ),
