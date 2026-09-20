@@ -2,6 +2,11 @@
     <!-- Ubicacion: el propietario marca el inmueble con el GPS estando parado
          ahi. De esa coordenada sale el calculo de minutos caminando a la UAGRM,
          que es lo que reemplaza al "cerca de la U" de los anuncios de hoy. -->
+    <!-- Sin esto la app sólo tiene red en debug: Flutter declara INTERNET en
+         los manifiestos de debug y profile, y el APK de release se queda sin
+         conexión. Publicar y buscar son llamadas al servidor: la app entera
+         depende de este permiso. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
