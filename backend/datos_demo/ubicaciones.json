@@ -1,0 +1,464 @@
+[
+ {
+  "minutos": 3,
+  "lat": -17.774346,
+  "lng": -63.197482,
+  "calle": "Avenida Felipe Leonor Ribera Arteaga",
+  "barrio": "Faremafu"
+ },
+ {
+  "minutos": 3,
+  "lat": -17.774259,
+  "lng": -63.198,
+  "calle": "Avenida Felipe Leonor Ribera Arteaga",
+  "barrio": "Faremafu"
+ },
+ {
+  "minutos": 4,
+  "lat": -17.777596,
+  "lng": -63.198725,
+  "calle": "Calle 8 de Febrero",
+  "barrio": "Cervecería"
+ },
+ {
+  "minutos": 4,
+  "lat": -17.775043,
+  "lng": -63.195997,
+  "calle": "Avenida Doctor Rómulo Herrera Justiniano",
+  "barrio": "Panamericano"
+ },
+ {
+  "minutos": 5,
+  "lat": -17.776587,
+  "lng": -63.19544,
+  "calle": "Avenida Doctor Enrique Aponte Canseco",
+  "barrio": "Palermo"
+ },
+ {
+  "minutos": 5,
+  "lat": -17.777744,
+  "lng": -63.196323,
+  "calle": "Avenida Doctor Enrique Aponte Canseco",
+  "barrio": "Palermo"
+ },
+ {
+  "minutos": 5,
+  "lat": -17.777876,
+  "lng": -63.199484,
+  "calle": "Calle 3 de Mayo",
+  "barrio": "Cervecería"
+ },
+ {
+  "minutos": 6,
+  "lat": -17.774115,
+  "lng": -63.200884,
+  "calle": "",
+  "barrio": "Piraí"
+ },
+ {
+  "minutos": 6,
+  "lat": -17.774933,
+  "lng": -63.201231,
+  "calle": "Calle 18 de Noviembre",
+  "barrio": "Cervecería"
+ },
+ {
+  "minutos": 7,
+  "lat": -17.77305,
+  "lng": -63.195218,
+  "calle": "Avenida Busch",
+  "barrio": "Faremafu"
+ },
+ {
+  "minutos": 7,
+  "lat": -17.771967,
+  "lng": -63.198343,
+  "calle": "Calle 6 Oeste",
+  "barrio": "Faremafu"
+ },
+ {
+  "minutos": 7,
+  "lat": -17.774176,
+  "lng": -63.194405,
+  "calle": "Avenida Doctor Antonio Landivar Serrate",
+  "barrio": "Panamericano"
+ },
+ {
+  "minutos": 8,
+  "lat": -17.777179,
+  "lng": -63.202267,
+  "calle": "Calle 1",
+  "barrio": "Cervecería"
+ },
+ {
+  "minutos": 8,
+  "lat": -17.778862,
+  "lng": -63.194903,
+  "calle": "Avenida Centenario",
+  "barrio": "Palermo"
+ },
+ {
+  "minutos": 9,
+  "lat": -17.780027,
+  "lng": -63.200416,
+  "calle": "Calle Guabirá",
+  "barrio": "Villa San Luis"
+ },
+ {
+  "minutos": 10,
+  "lat": -17.780846,
+  "lng": -63.196033,
+  "calle": "Calle Cupesi",
+  "barrio": "Palermo"
+ },
+ {
+  "minutos": 10,
+  "lat": -17.774843,
+  "lng": -63.20368,
+  "calle": "Pasillo 1",
+  "barrio": "Centenario"
+ },
+ {
+  "minutos": 10,
+  "lat": -17.770307,
+  "lng": -63.198999,
+  "calle": "Pasillo 1",
+  "barrio": "Faremafu"
+ },
+ {
+  "minutos": 11,
+  "lat": -17.772765,
+  "lng": -63.19244,
+  "calle": "",
+  "barrio": "Panamericano"
+ },
+ {
+  "minutos": 12,
+  "lat": -17.769959,
+  "lng": -63.201481,
+  "calle": "Avenida Noel Kempff Mercado",
+  "barrio": "El Carmen"
+ },
+ {
+  "minutos": 12,
+  "lat": -17.780136,
+  "lng": -63.192826,
+  "calle": "Pasaje Reyes Cardona",
+  "barrio": "Palermo"
+ },
+ {
+  "minutos": 13,
+  "lat": -17.782333,
+  "lng": -63.200957,
+  "calle": "Calle Bibosi",
+  "barrio": "Villa San Luis"
+ },
+ {
+  "minutos": 14,
+  "lat": -17.774349,
+  "lng": -63.189951,
+  "calle": "Calle Nicaragua",
+  "barrio": "Panamericano"
+ },
+ {
+  "minutos": 14,
+  "lat": -17.775157,
+  "lng": -63.206153,
+  "calle": "Calle Doctor Leonor Ribera Arteaga",
+  "barrio": "Los Chinos"
+ },
+ {
+  "minutos": 15,
+  "lat": -17.767626,
+  "lng": -63.200272,
+  "calle": "Avenida Noel Kempff Mercado",
+  "barrio": "El Carmen"
+ },
+ {
+  "minutos": 15,
+  "lat": -17.771026,
+  "lng": -63.190723,
+  "calle": "Calle Jardineras",
+  "barrio": "Panamericano"
+ },
+ {
+  "minutos": 16,
+  "lat": -17.78302,
+  "lng": -63.203382,
+  "calle": "Calle Tacuaral",
+  "barrio": "Villa San Luis"
+ },
+ {
+  "minutos": 16,
+  "lat": -17.781078,
+  "lng": -63.190506,
+  "calle": "Calle Buenos Aires",
+  "barrio": "Palermo"
+ },
+ {
+  "minutos": 17,
+  "lat": -17.784747,
+  "lng": -63.201087,
+  "calle": "Calle Tucavaca",
+  "barrio": "Villa San Luis"
+ },
+ {
+  "minutos": 18,
+  "lat": -17.765955,
+  "lng": -63.195258,
+  "calle": "Calle La Plata",
+  "barrio": "Faremafu"
+ },
+ {
+  "minutos": 18,
+  "lat": -17.775876,
+  "lng": -63.208593,
+  "calle": "Calle Doctor Enrique Aponte C.",
+  "barrio": "Los Chinos"
+ },
+ {
+  "minutos": 20,
+  "lat": -17.782926,
+  "lng": -63.188957,
+  "calle": "Senda Ciclista Primer Anillo",
+  "barrio": "Bancario"
+ },
+ {
+  "minutos": 20,
+  "lat": -17.767088,
+  "lng": -63.190412,
+  "calle": "Calle Franz Tamayo",
+  "barrio": "Avaroa"
+ },
+ {
+  "minutos": 22,
+  "lat": -17.786744,
+  "lng": -63.192091,
+  "calle": "Calle Alfredo Jordán",
+  "barrio": "Fé y Alegría"
+ },
+ {
+  "minutos": 24,
+  "lat": -17.771066,
+  "lng": -63.211369,
+  "calle": "Senda Cordón Ecológico Río Piraí",
+  "barrio": "El Carmen"
+ },
+ {
+  "minutos": 24,
+  "lat": -17.776645,
+  "lng": -63.212192,
+  "calle": "Calle Doctor G. Moreno",
+  "barrio": "Los Chinos"
+ },
+ {
+  "minutos": 25,
+  "lat": -17.762346,
+  "lng": -63.193171,
+  "calle": "Avenida Noel Kempff Mercado",
+  "barrio": "Avaroa"
+ },
+ {
+  "minutos": 27,
+  "lat": -17.785922,
+  "lng": -63.186078,
+  "calle": "Calle Suárez de Figueroa",
+  "barrio": "Fé y Alegría"
+ },
+ {
+  "minutos": 28,
+  "lat": -17.767773,
+  "lng": -63.183582,
+  "calle": "Calle Padre Ceferino Mussani",
+  "barrio": "La Santa Cruz"
+ },
+ {
+  "minutos": 28,
+  "lat": -17.7824,
+  "lng": -63.213088,
+  "calle": "Calle Bustamante",
+  "barrio": "Los Milagros"
+ },
+ {
+  "minutos": 30,
+  "lat": -17.758704,
+  "lng": -63.198623,
+  "calle": "Calle Doctor Alberto Seleme Antelo",
+  "barrio": "Piraí"
+ },
+ {
+  "minutos": 32,
+  "lat": -17.782208,
+  "lng": -63.180197,
+  "calle": "Calle Beni",
+  "barrio": "Centro"
+ },
+ {
+  "minutos": 34,
+  "lat": -17.789592,
+  "lng": -63.212088,
+  "calle": "Calle Guaitu",
+  "barrio": "Urbanización La Madre"
+ },
+ {
+  "minutos": 35,
+  "lat": -17.795589,
+  "lng": -63.198,
+  "calle": "Calle Guacaya",
+  "barrio": "Urbarí"
+ },
+ {
+  "minutos": 35,
+  "lat": -17.757392,
+  "lng": -63.206161,
+  "calle": "Ciclovía Ruta Metropolitana 1",
+  "barrio": "Piraí"
+ },
+ {
+  "minutos": 36,
+  "lat": -17.7757,
+  "lng": -63.176509,
+  "calle": "Calle Avaroa",
+  "barrio": "Máquina Vieja"
+ },
+ {
+  "minutos": 38,
+  "lat": -17.7956,
+  "lng": -63.20687,
+  "calle": "Avenida Piraí",
+  "barrio": "Villa Rosario"
+ },
+ {
+  "minutos": 40,
+  "lat": -17.75932,
+  "lng": -63.214611,
+  "calle": "",
+  "barrio": "Urubo"
+ },
+ {
+  "minutos": 42,
+  "lat": -17.767126,
+  "lng": -63.174545,
+  "calle": "Calle Guembé",
+  "barrio": "Petrolero Norte"
+ },
+ {
+  "minutos": 44,
+  "lat": -17.800762,
+  "lng": -63.198919,
+  "calle": "Calle Pananti Masavi",
+  "barrio": "Urbarí"
+ },
+ {
+  "minutos": 45,
+  "lat": -17.780155,
+  "lng": -63.171469,
+  "calle": "Calle Chiquitos",
+  "barrio": "Obrero"
+ },
+ {
+  "minutos": 45,
+  "lat": -17.764858,
+  "lng": -63.222416,
+  "calle": "Avenida Bicentenario",
+  "barrio": "Urubo"
+ },
+ {
+  "minutos": 50,
+  "lat": -17.748885,
+  "lng": -63.187751,
+  "calle": "Calle Tordo Este",
+  "barrio": ""
+ },
+ {
+  "minutos": 55,
+  "lat": -17.804621,
+  "lng": -63.185108,
+  "calle": "Pasillo Buceta",
+  "barrio": "Braniff"
+ },
+ {
+  "minutos": 60,
+  "lat": -17.761749,
+  "lng": -63.230907,
+  "calle": "Camino Urubo-Porongo-Las Cruces",
+  "barrio": "Los Batos"
+ },
+ {
+  "minutos": 65,
+  "lat": -17.763594,
+  "lng": -63.16108,
+  "calle": "Tercer Anillo Interno",
+  "barrio": "Los Tusequis"
+ },
+ {
+  "minutos": 70,
+  "lat": -17.811076,
+  "lng": -63.217753,
+  "calle": "Calle Oriente Petrolero",
+  "barrio": "Urbanización Los Jardines"
+ },
+ {
+  "minutos": 75,
+  "lat": -17.734215,
+  "lng": -63.209673,
+  "calle": "Camino Urubo Barranca-Rio Pirai",
+  "barrio": ""
+ },
+ {
+  "minutos": 80,
+  "lat": -17.799987,
+  "lng": -63.157185,
+  "calle": "Calle Padre José Vicente Durán",
+  "barrio": "Polanco"
+ },
+ {
+  "minutos": 90,
+  "lat": -17.785545,
+  "lng": -63.251187,
+  "calle": "Buen Retiro",
+  "barrio": "Buen Retiro"
+ },
+ {
+  "minutos": 100,
+  "lat": -17.829601,
+  "lng": -63.218602,
+  "calle": "",
+  "barrio": "13 de Enero"
+ },
+ {
+  "minutos": 110,
+  "lat": -17.785575,
+  "lng": -63.263474,
+  "calle": "Camino Urubo-Porongo",
+  "barrio": "Limon"
+ },
+ {
+  "minutos": 120,
+  "lat": -17.721414,
+  "lng": -63.242539,
+  "calle": "",
+  "barrio": "Urubo"
+ },
+ {
+  "minutos": 130,
+  "lat": -17.70698,
+  "lng": -63.167367,
+  "calle": "",
+  "barrio": "El Paraíso"
+ },
+ {
+  "minutos": 145,
+  "lat": -17.766993,
+  "lng": -63.111,
+  "calle": "Calle Santa Barbara",
+  "barrio": "Urbanización San Lorenzo"
+ },
+ {
+  "minutos": 160,
+  "lat": -17.851021,
+  "lng": -63.142616,
+  "calle": "",
+  "barrio": "Plan 3000"
+ }
+]

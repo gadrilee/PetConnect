@@ -1,12 +1,14 @@
 """Puebla la base con gente, anuncios y solicitudes para mostrar la app.
 
 Lo que hay acá no son datos de relleno: cada anuncio cae en una calle real de
-Santa Cruz —geocodificada con OpenStreetMap— a una distancia real del campus,
-los precios están en el rango que se paga hoy alrededor de la UAGRM, y las
-historias de cada persona salen de `research/evidencias.md`. Las fotos son
-fotografías reales con licencia libre de Pexels (ver `backend/datos_demo/`).
+Santa Cruz —geocodificadas con OpenStreetMap, en `datos_demo/ubicaciones.json`—
+a una distancia real del campus, los precios están en el rango que se paga hoy
+alrededor de la UAGRM, y las nueve personas del principio salen de
+`research/evidencias.md`. Las fotos son fotografías reales con licencia libre
+de Pexels (ver `backend/datos_demo/`).
 
     python manage.py poblar_demo --limpiar
+    python manage.py poblar_demo --limpiar --anuncios 40 --inquilinos 20
 
 `--limpiar` borra TODO lo que no sea superusuario: cuentas, anuncios,
 solicitudes y los archivos de `media/`. Hacé una copia de `db.sqlite3` antes
@@ -19,8 +21,10 @@ el formato boliviano pero no son de nadie: antes de mostrar el flujo de
 "Abrir WhatsApp" en vivo, cambiá el de la cuenta que vayas a usar por el tuyo.
 """
 
+import json
 import os
 import random
+import unicodedata
 from datetime import timedelta
 
 from django.conf import settings
@@ -37,147 +41,119 @@ from usuarios.serializers import preparar_foto
 
 User = get_user_model()
 
-FOTOS = settings.BASE_DIR / 'datos_demo' / 'fotos'
+DATOS = settings.BASE_DIR / 'datos_demo'
+FOTOS = DATOS / 'fotos'
 CLAVE = 'demo1234'
 
-# ─── Las personas ────────────────────────────────────────────────
-# usuario, nombre, apellido, correo, rol, whatsapp, foto, de dónde sale
-PERSONAS = [
-    ('marta.quiroga', 'Marta', 'Quiroga', 'marta.quiroga@gmail.com', 'PROPIETARIO',
-     '71234567', 'cara-02',
+# ─── Las nueve personas de la investigación ──────────────────────
+# usuario, nombre, apellido, correo, rol, whatsapp, de dónde sale
+PROTAGONISTAS = [
+    ('marta.quiroga', 'Marta', 'Quiroga', 'PROPIETARIO', '71234567',
      'Alquila cuatro habitaciones en una casa compartida (evidencia 7).'),
-    ('rosa.mendoza', 'Rosa', 'Mendoza', 'rosa.mendoza@gmail.com', 'PROPIETARIO',
-     '76543210', 'cara-01',
+    ('rosa.mendoza', 'Rosa', 'Mendoza', 'PROPIETARIO', '76543210',
      'No pone su número en los anuncios y así casi nadie la contacta (evidencia 9).'),
-    ('julio.arispe', 'Julio', 'Arispe', 'julio.arispe@gmail.com', 'PROPIETARIO',
-     '70812345', 'cara-06',
+    ('julio.arispe', 'Julio', 'Arispe', 'PROPIETARIO', '70812345',
      'Publicaba lo mismo en tres grupos de Facebook (evidencia 11).'),
-    ('elena.vaca', 'Elena', 'Vaca', 'elena.vaca@gmail.com', 'PROPIETARIO',
-     '67891234', 'cara-03',
-     'Alquila un departamento; se cansó de esperar visitas que no llegan (evidencia 10).'),
-
-    ('andrea.rojas', 'Andrea', 'Rojas', 'andrea.rojas@uagrm.edu.bo', 'INQUILINO',
-     '', 'cara-07',
+    ('elena.vaca', 'Elena', 'Vaca', 'PROPIETARIO', '67891234',
+     'Se cansó de esperar visitas que no llegan (evidencia 10).'),
+    ('andrea.rojas', 'Andrea', 'Rojas', 'INQUILINO', '',
      'Tercer semestre, de provincia, tiene un gato (persona v0.2).'),
-    ('camila.terceros', 'Camila', 'Terceros', 'camila.terceros@uagrm.edu.bo', 'INQUILINO',
-     '', 'cara-09',
+    ('camila.terceros', 'Camila', 'Terceros', 'INQUILINO', '',
      'Primer semestre. Viajó media hora a un "cerca de la U" (evidencia 2).'),
-    ('luis.banegas', 'Luis', 'Banegas', 'luis.banegas@uagrm.edu.bo', 'INQUILINO',
-     '', 'cara-12',
+    ('luis.banegas', 'Luis', 'Banegas', 'INQUILINO', '',
      'Quinto semestre. Quiere saber con quiénes va a compartir (evidencia 6).'),
-    ('daniela.chavez', 'Daniela', 'Chávez', 'daniela.chavez@uagrm.edu.bo', 'INQUILINO',
-     '', 'cara-10',
+    ('daniela.chavez', 'Daniela', 'Chávez', 'INQUILINO', '',
      'Escribió a cinco anuncios, le contestaron dos (evidencia 5).'),
-    ('pablo.suarez', 'Pablo', 'Suárez', 'pablo.suarez@uagrm.edu.bo', 'INQUILINO',
-     '', 'cara-05',
-     'Vive en alquiler hace dos años. Le cobraron 300 Bs más al llegar (evidencia 1).'),
+    ('pablo.suarez', 'Pablo', 'Suárez', 'INQUILINO', '',
+     'Le cobraron 300 Bs más al llegar (evidencia 1).'),
 ]
 
-# ─── Los anuncios ────────────────────────────────────────────────
-# Las coordenadas salieron de geocodificación inversa con Nominatim
-# (OpenStreetMap): son puntos que caen en esa calle y ese barrio de verdad.
-# Los minutos los calcula el modelo solo; el comando avisa si no dan.
-#
-# propietario, título, tipo, alquiler, (agua, luz, internet), servicios,
-# mascotas, restricciones, lat, lng, dirección, minutos esperados, fotos,
-# días desde que se publicó, estado
-ANUNCIOS = [
-    ('marta.quiroga', 'Habitación con baño privado a una cuadra del campus', 'HABITACION',
-     750, (1, 1, 0), 80, False, 'Solo señoritas',
-     -17.774346, -63.197482, 'Av. Felipe Leonor Ribera Arteaga, barrio Faremafu',
-     3, ['hab-01', 'bano-02'], 9, 'DISPONIBLE'),
-
-    ('marta.quiroga', 'Habitación amoblada con entrada independiente', 'HABITACION',
-     700, (1, 1, 1), 0, True, '',
-     -17.777596, -63.198725, 'Calle 8 de Febrero, barrio Cervecería',
-     4, ['hab-03', 'hab-11'], 26, 'ALQUILADO'),
-
-    ('marta.quiroga', 'Habitación en casa compartida entre estudiantes', 'HABITACION',
-     500, (1, 1, 0), 120, True, 'Se comparte cocina y baño con otras tres estudiantes',
-     -17.777179, -63.202267, 'Calle 1, barrio Cervecería',
-     8, ['hab-06', 'cocina-04', 'bano-04'], 14, 'DISPONIBLE'),
-
-    ('marta.quiroga', 'Habitación con placard y escritorio', 'HABITACION',
-     620, (1, 1, 1), 0, False, 'Sin visitas después de las 22:00',
-     -17.776587, -63.195440, 'Av. Doctor Enrique Aponte, barrio Palermo',
-     5, ['hab-04', 'hab-13'], 5, 'DISPONIBLE'),
-
-    ('rosa.mendoza', 'Departamento de un dormitorio', 'DEPARTAMENTO',
-     1500, (1, 1, 0), 150, False, '',
-     -17.774115, -63.200884, 'Zona Piraí, a seis minutos del campus',
-     6, ['depto-01', 'cocina-01', 'bano-01'], 18, 'DISPONIBLE'),
-
-    ('rosa.mendoza', 'Departamento amoblado con patio', 'DEPARTAMENTO',
-     1800, (1, 1, 1), 0, True, '',
-     -17.769959, -63.201481, 'Av. Noel Kempff Mercado, barrio El Carmen',
-     12, ['hab-10', 'cocina-03', 'patio-01'], 31, 'DISPONIBLE'),
-
-    ('rosa.mendoza', 'Monoambiente cerca del segundo anillo', 'DEPARTAMENTO',
-     1200, (1, 0, 0), 180, False, '',
-     -17.780846, -63.196033, 'Calle Cupesi, barrio Palermo',
-     10, ['hab-07', 'cocina-02'], 3, 'DISPONIBLE'),
-
-    ('julio.arispe', 'Habitación sobre la avenida Busch', 'HABITACION',
-     650, (1, 1, 0), 90, False, '',
-     -17.773050, -63.195218, 'Av. Busch, barrio Faremafu',
-     7, ['hab-12', 'hab-05'], 21, 'DISPONIBLE'),
-
-    ('julio.arispe', 'Casa para compartir entre cuatro estudiantes', 'CASA',
-     2600, (1, 0, 0), 400, True, 'Grupo de hasta cuatro personas',
-     -17.774349, -63.189951, 'Calle Nicaragua, barrio Panamericano',
-     14, ['fachada-01', 'hab-14', 'cocina-02'], 40, 'DISPONIBLE'),
-
-    ('julio.arispe', 'Habitación económica', 'HABITACION',
-     420, (1, 1, 0), 110, False, 'Solo señoritas',
-     -17.783020, -63.203382, 'Calle Tacuaral, barrio Villa San Luis',
-     16, ['hab-08', 'bano-03'], 12, 'DISPONIBLE'),
-
-    ('elena.vaca', 'Habitación en casa familiar', 'HABITACION',
-     550, (1, 1, 1), 0, False, '',
-     -17.782926, -63.188957, 'Barrio Bancario, a veinte minutos caminando',
-     20, ['hab-09', 'bano-04'], 7, 'DISPONIBLE'),
-
-    ('elena.vaca', 'Departamento en Urbarí', 'DEPARTAMENTO',
-     2200, (1, 1, 1), 0, True, '',
-     -17.795589, -63.198000, 'Calle Guacaya, barrio Urbarí',
-     35, ['hab-02', 'fachada-03'], 48, 'DISPONIBLE'),
-
-    ('elena.vaca', 'Habitación con ventana a la calle', 'HABITACION',
-     480, (1, 1, 0), 100, True, '',
-     -17.780155, -63.171469, 'Calle Chiquitos, barrio Obrero',
-     45, ['hab-13', 'fachada-02'], 35, 'DISPONIBLE'),
+# ─── Vocabulario para el resto de la gente ───────────────────────
+# Nombres y apellidos de uso corriente en Santa Cruz. Las personas que salen
+# de combinarlos no existen: son cuentas de demostración.
+NOMBRES_F = [
+    'María', 'Ana', 'Lucía', 'Valeria', 'Gabriela', 'Fernanda', 'Carla', 'Paola',
+    'Noelia', 'Mariana', 'Jhoselin', 'Rocío', 'Alejandra', 'Patricia', 'Verónica',
+    'Silvia', 'Roxana', 'Karina', 'Lorena', 'Mónica', 'Claudia', 'Tatiana',
+    'Estefanía', 'Yessica', 'Nataly', 'Brenda', 'Sofía', 'Micaela', 'Jimena',
+    'Adriana', 'Melany', 'Ximena', 'Rebeca', 'Ruth', 'Mercedes', 'Teresa',
+]
+NOMBRES_M = [
+    'Carlos', 'José', 'Juan', 'Marco', 'Diego', 'Álvaro', 'Rodrigo', 'Sergio',
+    'Fernando', 'Mauricio', 'Javier', 'Gonzalo', 'Ramiro', 'Óscar', 'Iván',
+    'Richard', 'Wilson', 'Jhonny', 'Edwin', 'Rubén', 'Hernán', 'Cristian',
+    'Miguel', 'Ariel', 'Freddy', 'Limber', 'Danilo', 'Erick', 'Josué', 'Néstor',
+]
+APELLIDOS = [
+    'Justiniano', 'Áñez', 'Roca', 'Montero', 'Cuéllar', 'Melgar', 'Saucedo',
+    'Peredo', 'Salvatierra', 'Ribera', 'Chávez', 'Durán', 'Ortiz', 'Pinto',
+    'Guzmán', 'Aguilera', 'Barbery', 'Céspedes', 'Egüez', 'Ferrufino', 'Gutiérrez',
+    'Hurtado', 'Ibáñez', 'Landívar', 'Menacho', 'Nogales', 'Ovando', 'Parada',
+    'Quezada', 'Rivero', 'Sandoval', 'Tapia', 'Urquidi', 'Velasco', 'Zambrana',
+    'Arteaga', 'Bejarano', 'Camacho', 'Dorado', 'Escobar', 'Flores', 'Gil',
+    'Herrera', 'Ledezma', 'Moreno', 'Núñez', 'Oliva', 'Pacheco', 'Rocha', 'Serrate',
 ]
 
-# ─── Las solicitudes ─────────────────────────────────────────────
-# inquilino, índice del anuncio (según la lista de arriba), estado,
-# días desde que la mandó
-SOLICITUDES = [
-    ('andrea.rojas', 2, 'PENDIENTE', 2),
-    ('andrea.rojas', 5, 'APROBADA', 11),
-    ('andrea.rojas', 1, 'CERRADA', 24),
-    ('camila.terceros', 3, 'PENDIENTE', 1),
-    ('camila.terceros', 9, 'RECHAZADA', 8),
-    ('camila.terceros', 0, 'PENDIENTE', 4),
-    ('luis.banegas', 8, 'PENDIENTE', 3),
-    ('luis.banegas', 4, 'RECHAZADA', 13),
-    ('luis.banegas', 1, 'CERRADA', 22),
-    ('daniela.chavez', 0, 'PENDIENTE', 6),
-    ('daniela.chavez', 2, 'APROBADA', 9),
-    ('daniela.chavez', 7, 'PENDIENTE', 1),
-    ('pablo.suarez', 6, 'APROBADA', 5),
-    ('pablo.suarez', 11, 'PENDIENTE', 2),
-    ('pablo.suarez', 4, 'PENDIENTE', 7),
+# ─── Vocabulario para los anuncios ───────────────────────────────
+# tipo -> (rango de alquiler, características del título)
+CATALOGO = {
+    'HABITACION': ((380, 900), [
+        'Habitación con baño privado', 'Habitación amoblada',
+        'Habitación con entrada independiente', 'Habitación en casa familiar',
+        'Habitación con placard y escritorio', 'Habitación con ventana a la calle',
+        'Habitación en casa compartida', 'Habitación económica',
+        'Habitación con aire acondicionado', 'Habitación amplia',
+        'Habitación con baño compartido', 'Habitación para estudiante',
+        'Habitación con cocina compartida', 'Habitación luminosa',
+        'Habitación recién pintada', 'Habitación con ropero empotrado',
+    ]),
+    'DEPARTAMENTO': ((1000, 2600), [
+        'Departamento de un dormitorio', 'Departamento amoblado',
+        'Monoambiente', 'Departamento de dos dormitorios',
+        'Departamento con patio', 'Departamento en planta alta',
+        'Monoambiente amoblado', 'Departamento con garaje',
+        'Departamento recién estrenado', 'Departamento con balcón',
+    ]),
+    'CASA': ((2200, 4800), [
+        'Casa para compartir entre estudiantes', 'Casa de dos dormitorios',
+        'Casa con patio grande', 'Casa de tres dormitorios',
+        'Casa independiente', 'Casa con garaje',
+    ]),
+}
+# Cuántos anuncios de cada tipo, en proporción: la mayoría son habitaciones,
+# que es lo que busca un estudiante.
+MEZCLA = ['HABITACION'] * 62 + ['DEPARTAMENTO'] * 28 + ['CASA'] * 10
+
+COLETILLAS = [
+    '', '', '', '', ' a una cuadra del campus', ' cerca de la UAGRM',
+    ' sobre avenida', ' en zona tranquila', ' para una persona',
+    ' con todo incluido', ' sin expensas',
 ]
+
+RESTRICCIONES = [
+    '', '', '', '', '', '', '',
+    'Solo señoritas', 'Solo varones', 'Sin visitas después de las 22:00',
+    'No se puede fumar adentro', 'Se comparte cocina y baño',
+    'Se pide el primer mes por adelantado', 'Sin fiestas',
+    'Se comparte con otras dos estudiantes', 'Entrada hasta las 23:00',
+]
+
+
+def sin_tildes(texto):
+    return ''.join(c for c in unicodedata.normalize('NFD', texto)
+                   if unicodedata.category(c) != 'Mn')
 
 
 class Command(BaseCommand):
     help = 'Puebla la base con personas, anuncios y solicitudes para mostrar la app.'
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--limpiar', action='store_true',
-            help='Borra antes todo lo que no sea superusuario, incluidos los archivos de media/.',
-        )
+        parser.add_argument('--limpiar', action='store_true',
+                            help='Borra antes todo lo que no sea superusuario, con sus archivos.')
+        parser.add_argument('--propietarios', type=int, default=35)
+        parser.add_argument('--inquilinos', type=int, default=55)
+        parser.add_argument('--anuncios', type=int, default=130)
+        parser.add_argument('--solicitudes', type=int, default=150)
 
     @transaction.atomic
     def handle(self, *args, **opciones):
@@ -186,16 +162,31 @@ class Command(BaseCommand):
             return
 
         # Mismo resultado en cada corrida: las fechas y las fotos no bailan.
-        random.seed(2026)
+        self.azar = random.Random(2026)
         self.ahora = timezone.now()
+        self.fotos = self._catalogo_de_fotos()
+        self.ubicaciones = json.loads((DATOS / 'ubicaciones.json').read_text(encoding='utf-8'))
 
         if opciones['limpiar']:
             self._limpiar()
 
-        personas = self._crear_personas()
-        anuncios = self._crear_anuncios(personas)
-        self._crear_solicitudes(personas, anuncios)
-        self._informe(personas, anuncios)
+        propietarios, inquilinos = self._crear_personas(
+            opciones['propietarios'], opciones['inquilinos'])
+        anuncios = self._crear_anuncios(propietarios, opciones['anuncios'])
+        self._crear_solicitudes(inquilinos, anuncios, opciones['solicitudes'])
+        self._alquilar_algunos(anuncios)
+        self._informe(propietarios, inquilinos, anuncios)
+
+    # ─── Fotos ───────────────────────────────────────────────────
+
+    def _catalogo_de_fotos(self):
+        """Las fotos agrupadas por lo que muestran: hab, cocina, baño…"""
+        grupos = {}
+        for nombre in sorted(os.listdir(FOTOS)):
+            if not nombre.endswith('.jpg'):
+                continue
+            grupos.setdefault(nombre.rsplit('-', 1)[0], []).append(nombre)
+        return grupos
 
     # ─── Limpieza ────────────────────────────────────────────────
 
@@ -205,8 +196,7 @@ class Command(BaseCommand):
 
         archivos = 0
         for carpeta in ('anuncios', 'perfiles'):
-            raiz = settings.MEDIA_ROOT / carpeta
-            for base, _, nombres in os.walk(raiz):
+            for base, _, nombres in os.walk(settings.MEDIA_ROOT / carpeta):
                 for nombre in nombres:
                     os.remove(os.path.join(base, nombre))
                     archivos += 1
@@ -218,121 +208,237 @@ class Command(BaseCommand):
 
     # ─── Personas ────────────────────────────────────────────────
 
-    def _crear_personas(self):
-        personas = {}
-        for usuario, nombre, apellido, correo, rol, whatsapp, foto, _ in PERSONAS:
+    def _crear_personas(self, cuantos_propietarios, cuantos_inquilinos):
+        propietarios, inquilinos = [], []
+        usados = set()
+        caras = list(self.fotos.get('cara', []))
+        self.azar.shuffle(caras)
+
+        def alta(nombre, apellido, rol, whatsapp, usuario=None, historia=''):
+            base = usuario or f'{sin_tildes(nombre).lower()}.{sin_tildes(apellido).lower()}'
+            usuario = base
+            n = 2
+            while usuario in usados:
+                usuario = f'{base}{n}'
+                n += 1
+            usados.add(usuario)
+            dominio = 'gmail.com' if rol == 'PROPIETARIO' else 'uagrm.edu.bo'
             u = User.objects.create_user(
-                username=usuario, email=correo, password=CLAVE,
-                first_name=nombre, last_name=apellido,
-            )
+                username=usuario, email=f'{usuario}@{dominio}', password=CLAVE,
+                first_name=nombre, last_name=apellido)
             perfil = Perfil.objects.create(usuario=u, rol=rol, whatsapp=whatsapp)
-            with open(FOTOS / f'{foto}.jpg', 'rb') as f:
-                # Por el mismo camino que una foto subida desde el teléfono:
-                # cuadrada, 512 px, sin EXIF.
-                perfil.foto.save('foto.jpg', preparar_foto(f), save=True)
-            personas[usuario] = u
-        return personas
+            # No todo el mundo sube foto: en la app de verdad tampoco.
+            if caras:
+                with open(FOTOS / caras.pop(), 'rb') as f:
+                    # Por el mismo camino que una foto subida desde el
+                    # teléfono: cuadrada, 512 px, sin EXIF.
+                    perfil.foto.save('foto.jpg', preparar_foto(f), save=True)
+            (propietarios if rol == 'PROPIETARIO' else inquilinos).append(
+                {'usuario': u, 'historia': historia})
+            return u
+
+        # Primero las nueve de la investigación, con su historia y su foto.
+        for usuario, nombre, apellido, rol, whatsapp, historia in PROTAGONISTAS:
+            alta(nombre, apellido, rol, whatsapp, usuario=usuario, historia=historia)
+
+        # Y después el resto, para que la app se vea con gente adentro.
+        while len(propietarios) < cuantos_propietarios:
+            hombre = self.azar.random() < 0.45
+            alta(self.azar.choice(NOMBRES_M if hombre else NOMBRES_F),
+                 self.azar.choice(APELLIDOS), 'PROPIETARIO',
+                 f'{self.azar.choice("67")}{self.azar.randrange(1000000, 9999999)}')
+        while len(inquilinos) < cuantos_inquilinos:
+            hombre = self.azar.random() < 0.45
+            alta(self.azar.choice(NOMBRES_M if hombre else NOMBRES_F),
+                 self.azar.choice(APELLIDOS), 'INQUILINO', '')
+
+        return propietarios, inquilinos
 
     # ─── Anuncios ────────────────────────────────────────────────
 
-    def _crear_anuncios(self, personas):
+    def _crear_anuncios(self, propietarios, cuantos):
+        # Casi todos tienen uno o dos; unos pocos alquilan media casa. Repartir
+        # parejo daría 35 propietarios con lo mismo, que no es una ciudad.
+        duenios = []
+        for i, p in enumerate(propietarios):
+            # Los cuatro de la investigación son los que más publican: son los
+            # que se usan para mostrar la bandeja llena.
+            cuantos_suyos = 5 if i < 4 else self.azar.choices([1, 2, 3, 4, 6], [40, 26, 16, 12, 6])[0]
+            duenios += [p['usuario']] * cuantos_suyos
+        self.azar.shuffle(duenios)
+
         creados = []
-        for fila in ANUNCIOS:
-            (duenio, titulo, tipo, alquiler, servicios, costo, mascotas,
-             restricciones, lat, lng, direccion, minutos, fotos, dias, estado) = fila
-            agua, luz, internet = servicios
+        for i in range(cuantos):
+            tipo = MEZCLA[i % len(MEZCLA)]
+            (minimo, maximo), titulos = CATALOGO[tipo]
+            lugar = self.ubicaciones[i % len(self.ubicaciones)]
+
+            # Precios redondeados a 10 Bs, como se publican.
+            alquiler = self.azar.randrange(minimo, maximo, 10)
+            todo_incluido = self.azar.random() < 0.35
+            agua = todo_incluido or self.azar.random() < 0.85
+            luz = todo_incluido or self.azar.random() < 0.75
+            internet = todo_incluido or self.azar.random() < 0.35
+            # Si algo no está incluido hay que decir cuánto se paga aparte:
+            # es la regla del modelo y la evidencia 1.
+            falta = 3 - sum([agua, luz, internet])
+            servicios = 0 if falta == 0 else self.azar.randrange(60, 90 + 70 * falta, 10)
+
+            titulo = titulos[self.azar.randrange(len(titulos))] + self.azar.choice(COLETILLAS)
+            if titulo.endswith(' sobre avenida') and lugar['calle']:
+                titulo = titulo.replace(' sobre avenida', ' sobre ' + lugar['calle'])
+            elif titulo.endswith(' en zona tranquila') and lugar['barrio']:
+                titulo = titulo.replace(' en zona tranquila', f' en {lugar["barrio"]}')
+
+            direccion = ', '.join(x for x in (lugar['calle'], lugar['barrio']) if x) \
+                or 'Santa Cruz de la Sierra'
 
             anuncio = Anuncio(
-                propietario=personas[duenio], titulo=titulo, tipo_espacio=tipo,
+                propietario=duenios[i % len(duenios)],
+                titulo=titulo[:150],
+                tipo_espacio=tipo,
                 precio_alquiler=alquiler,
-                incluye_agua=bool(agua), incluye_luz=bool(luz), incluye_internet=bool(internet),
-                costo_servicios_estimado=costo, acepta_mascotas=mascotas,
-                restricciones=restricciones, lat=lat, lng=lng,
-                direccion_referencia=direccion,
+                incluye_agua=agua, incluye_luz=luz, incluye_internet=internet,
+                costo_servicios_estimado=servicios,
+                acepta_mascotas=self.azar.random() < 0.4,
+                restricciones=self.azar.choice(RESTRICCIONES),
+                # Unos metros de diferencia sobre el punto geocodificado: dos
+                # anuncios de la misma calle no están en la misma puerta.
+                lat=lugar['lat'] + self.azar.uniform(-0.00035, 0.00035),
+                lng=lugar['lng'] + self.azar.uniform(-0.00035, 0.00035),
+                direccion_referencia=direccion[:200],
             )
-            # Lo valida la misma regla del modelo que valida un anuncio real:
-            # si algo no está incluido, hay que decir cuánto se paga aparte.
+            # La misma regla del modelo que valida un anuncio hecho a mano.
             anuncio.full_clean()
             anuncio.save()
 
-            publicado = self.ahora - timedelta(days=dias, hours=random.randint(0, 23))
+            dias = self.azar.randrange(1, 95)
+            publicado = self.ahora - timedelta(days=dias, hours=self.azar.randrange(24))
             Anuncio.objects.filter(pk=anuncio.pk).update(publicado_en=publicado)
+
+            self._fotos_de(anuncio, tipo, publicado)
+
             anuncio.refresh_from_db()
-
-            for orden, nombre in enumerate(fotos):
-                with open(FOTOS / f'{nombre}.jpg', 'rb') as f:
-                    contenido = ContentFile(f.read(), name=f'{nombre}.jpg')
-                # La foto se sacó cuando se publicó, no hoy: es el dato que la
-                # app muestra para que nadie viaje a ver una foto de hace años.
-                FotoAnuncio.objects.create(
-                    anuncio=anuncio, imagen=contenido, orden=orden,
-                    fecha_captura=publicado - timedelta(hours=random.randint(1, 30)),
-                )
-
-            if estado == 'ALQUILADO':
-                anuncio.marcar_alquilado()
-
-            creados.append((anuncio, minutos))
+            creados.append(anuncio)
         return creados
+
+    def _alquilar_algunos(self, anuncios, proporcion=0.1):
+        """Uno de cada diez ya se alquiló.
+
+        Se hace **después** de las solicitudes y con el mismo método que usa
+        la app, así las que estaban esperando quedan cerradas por el camino de
+        siempre en vez de a mano: es la evidencia 5 pasando adentro del
+        producto.
+        """
+        cuantos = round(len(anuncios) * proporcion)
+        cerradas = 0
+        for anuncio in self.azar.sample(anuncios, cuantos):
+            cerradas += anuncio.marcar_alquilado()
+            anuncio.refresh_from_db()
+        return cuantos, cerradas
+
+    def _fotos_de(self, anuncio, tipo, publicado):
+        """Dos o tres fotos: el ambiente principal y lo que se comparte."""
+        principal = 'hab' if tipo == 'HABITACION' else self.azar.choice(['sala', 'hab'])
+        grupos = [principal] + self.azar.sample(['cocina', 'bano', 'sala', 'fachada'],
+                                                self.azar.choice([1, 1, 2]))
+        for orden, grupo in enumerate(grupos):
+            disponibles = self.fotos.get(grupo) or self.fotos['hab']
+            nombre = disponibles[self.azar.randrange(len(disponibles))]
+            with open(FOTOS / nombre, 'rb') as f:
+                contenido = ContentFile(f.read(), name=nombre)
+            # La foto se sacó antes de publicar, no hoy: es el dato que la app
+            # muestra para que nadie viaje a ver una foto de hace años.
+            FotoAnuncio.objects.create(
+                anuncio=anuncio, imagen=contenido, orden=orden,
+                fecha_captura=publicado - timedelta(hours=self.azar.randrange(1, 72)),
+            )
 
     # ─── Solicitudes ─────────────────────────────────────────────
 
-    def _crear_solicitudes(self, personas, anuncios):
-        for inquilino, indice, estado, dias in SOLICITUDES:
-            anuncio = anuncios[indice][0]
-            creada = self.ahora - timedelta(days=dias, hours=random.randint(0, 23))
+    def _crear_solicitudes(self, inquilinos, anuncios, cuantas):
+        # Se pide visita a lo que está cerca y es barato: los anuncios que
+        # salen primero en la búsqueda son los que más solicitudes juntan.
+        candidatos = sorted(anuncios, key=lambda a: a.minutos_caminando)
+        pesos = [max(1, 60 - i) for i in range(len(candidatos))]
+        hechas = set()
+        creadas = 0
+        intentos = 0
+
+        while creadas < cuantas and intentos < cuantas * 20:
+            intentos += 1
+            anuncio = self.azar.choices(candidatos, pesos)[0]
+            inquilino = self.azar.choice(inquilinos)['usuario']
+            if (anuncio.id, inquilino.id) in hechas:
+                continue
+            hechas.add((anuncio.id, inquilino.id))
+
+            creada = self.ahora - timedelta(days=self.azar.randrange(1, 45),
+                                            hours=self.azar.randrange(24))
+            if creada < anuncio.publicado_en:
+                creada = anuncio.publicado_en + timedelta(hours=self.azar.randrange(1, 48))
+            if creada > self.ahora:
+                continue
 
             solicitud = SolicitudVisita.objects.create(
-                anuncio=anuncio, inquilino=personas[inquilino],
-                condiciones_aceptadas=True, estado='PENDIENTE',
-            )
+                anuncio=anuncio, inquilino=inquilino,
+                condiciones_aceptadas=True, estado='PENDIENTE')
+
+            # Las cerradas no se ponen a mano: salen de alquilar el cuarto
+            # con solicitudes esperando, más abajo.
+            estado = self.azar.choices(
+                ['PENDIENTE', 'APROBADA', 'RECHAZADA'], [45, 33, 22])[0]
+
             campos = {'creada_en': creada}
             if estado != 'PENDIENTE':
-                # Contestar tarda entre un rato y dos días: el propietario no
-                # está mirando la bandeja cuando llega.
+                # Contestar tarda entre un rato y dos días: nadie vive mirando
+                # la bandeja.
                 campos['estado'] = estado
-                campos['respondida_en'] = creada + timedelta(hours=random.randint(2, 40))
+                campos['respondida_en'] = creada + timedelta(hours=self.azar.randrange(2, 48))
             SolicitudVisita.objects.filter(pk=solicitud.pk).update(**campos)
+            creadas += 1
 
     # ─── Informe ─────────────────────────────────────────────────
 
-    def _informe(self, personas, anuncios):
-        self.stdout.write('')
-        self.stdout.write(f'{"min":>4}  {"precio final":>13}  {"tipo":<12}  {"mascotas":<8}  '
-                          f'{"estado":<12}  título')
-        self.stdout.write('-' * 100)
-        desvios = []
-        for anuncio, esperado in anuncios:
-            if anuncio.minutos_caminando != esperado:
-                desvios.append((anuncio.titulo, esperado, anuncio.minutos_caminando))
-            self.stdout.write(
-                f'{anuncio.minutos_caminando:>4}  {anuncio.precio_final:>10} Bs  '
-                f'{anuncio.get_tipo_espacio_display():<12}  '
-                f'{"sí" if anuncio.acepta_mascotas else "no":<8}  '
-                f'{anuncio.get_estado_display():<12}  {anuncio.titulo}'
-            )
+    def _informe(self, propietarios, inquilinos, anuncios):
+        from django.db.models import Count
+
+        disponibles = Anuncio.objects.filter(estado='DISPONIBLE').count()
+        minutos = sorted(a.minutos_caminando for a in anuncios)
+        precios = sorted(a.precio_final for a in anuncios)
+        con_anuncios = Anuncio.objects.values('propietario').distinct().count()
 
         self.stdout.write('')
-        for usuario, nombre, apellido, correo, rol, whatsapp, _, historia in PERSONAS:
+        self.stdout.write(f'{len(propietarios) + len(inquilinos)} cuentas: '
+                          f'{len(propietarios)} propietarias/os, {len(inquilinos)} inquilinas/os. '
+                          f'{Perfil.objects.exclude(foto="").count()} con foto de perfil.')
+        self.stdout.write(f'{len(anuncios)} anuncios: {disponibles} disponibles, '
+                          f'{Anuncio.objects.filter(estado="ALQUILADO").count()} ya alquilados, de '
+                          f'{con_anuncios} propietarias/os distintos.')
+        for tipo, _ in Anuncio.TipoEspacio.choices:
+            n = Anuncio.objects.filter(tipo_espacio=tipo).count()
+            self.stdout.write(f'   {tipo.lower():13} {n:4d}')
+        self.stdout.write(f'   {"con mascotas":13} '
+                          f'{Anuncio.objects.filter(acepta_mascotas=True).count():4d}')
+        self.stdout.write(f'   {"con reglas":13} '
+                          f'{Anuncio.objects.exclude(restricciones="").count():4d}')
+        self.stdout.write(f'   minutos caminando: {minutos[0]} a {minutos[-1]} '
+                          f'(mitad por debajo de {minutos[len(minutos) // 2]})')
+        self.stdout.write(f'   precio final: {precios[0]:.0f} a {precios[-1]:.0f} Bs '
+                          f'(mitad por debajo de {precios[len(precios) // 2]:.0f})')
+        self.stdout.write(f'{FotoAnuncio.objects.count()} fotos de inmueble, '
+                          f'{Anuncio.objects.annotate(n=Count("fotos")).filter(n__gt=0).count()} '
+                          f'anuncios con al menos una.')
+
+        self.stdout.write(f'{SolicitudVisita.objects.count()} solicitudes:')
+        for estado, etiqueta in SolicitudVisita.Estado.choices:
+            self.stdout.write(f'   {etiqueta.lower():13} '
+                              f'{SolicitudVisita.objects.filter(estado=estado).count():4d}')
+
+        self.stdout.write('')
+        self.stdout.write('Para entrar, cualquiera de estas nueve:')
+        for usuario, nombre, apellido, rol, whatsapp, historia in PROTAGONISTAS:
             marca = 'propietaria/o' if rol == 'PROPIETARIO' else 'inquilina/o'
-            cuenta = f'{nombre} {apellido}'
-            extra = f' · WhatsApp {whatsapp}' if whatsapp else ''
-            self.stdout.write(f'  {usuario:16} {cuenta:18} {marca:14}{extra}')
-            self.stdout.write(f'  {"":16} {historia}')
-
-        pendientes = SolicitudVisita.objects.filter(estado='PENDIENTE').count()
+            self.stdout.write(f'   {usuario:16} {nombre + " " + apellido:18} {marca}')
         self.stdout.write('')
-        self.stdout.write(self.style.SUCCESS(
-            f'{len(personas)} cuentas, {len(anuncios)} anuncios, '
-            f'{FotoAnuncio.objects.count()} fotos de inmuebles y '
-            f'{SolicitudVisita.objects.count()} solicitudes ({pendientes} pendientes).'
-        ))
-        self.stdout.write(f'Todas las contraseñas son "{CLAVE}".')
-
-        if desvios:
-            self.stdout.write(self.style.ERROR('Minutos que no dieron lo esperado:'))
-            for titulo, esperado, real in desvios:
-                self.stdout.write(self.style.ERROR(
-                    f'  {titulo}: se esperaba {esperado}, quedó {real}'))
-        else:
-            self.stdout.write('Cada anuncio quedó a los minutos que dice su coordenada real.')
+        self.stdout.write(self.style.SUCCESS(f'Todas las contraseñas son "{CLAVE}".'))
