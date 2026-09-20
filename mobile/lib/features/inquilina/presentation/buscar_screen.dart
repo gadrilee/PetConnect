@@ -162,12 +162,12 @@ class _BuscarScreenState extends State<BuscarScreen> {
                   // ---- Tipo de espacio ----
                   Text('Tipo de espacio', style: tenue),
                   const SizedBox(height: Espacio.sm),
-                  // FLEXBOX: cada opcion mide lo que su palabra y, si no
-                  // entran en una fila, pasan a la siguiente (flex-wrap).
-                  Wrap(
-                    spacing: Espacio.md,
-                    runSpacing: Espacio.sm,
-                    children: [
+                  // Las tres miden lo mismo, como en Figma y como en Publicar.
+                  // Midiendo cada una por su palabra, "Casa" quedaba la mitad
+                  // que "Departamento": tres tamanos distintos se leen como
+                  // tres cosas distintas, no como tres opciones de lo mismo.
+                  FilaOpciones(
+                    opciones: [
                       for (final t in TipoEspacio.values)
                         Opcion(
                           etiqueta: t.etiqueta,

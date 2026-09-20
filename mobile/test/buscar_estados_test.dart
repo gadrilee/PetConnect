@@ -2,9 +2,11 @@ import 'package:alquilamatch/core/api_client.dart';
 import 'package:alquilamatch/core/theme.dart';
 import 'package:alquilamatch/features/inquilina/data/solicitudes_repository.dart';
 import 'package:alquilamatch/features/inquilina/presentation/anuncio_screen.dart';
+import 'package:alquilamatch/features/inquilina/presentation/buscar_screen.dart';
 import 'package:alquilamatch/features/inquilina/presentation/resultados_screen.dart';
 import 'package:alquilamatch/features/inquilina/providers/buscar_provider.dart';
 import 'package:alquilamatch/features/propietario/data/anuncio.dart';
+import 'package:alquilamatch/shared/widgets/controles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -92,5 +94,25 @@ void main() {
     await tester.tap(find.text('Reintentar'));
     await tester.pumpAndSettle();
     expect(find.text('Habitación con baño privado'), findsOneWidget);
+  });
+
+  testWidgets('Tipo de espacio: las tres opciones miden lo mismo', (tester) async {
+    _telefono(tester);
+    await tester.pumpWidget(
+      Provider<SolicitudesRepository>.value(
+        value: _Repo(),
+        child: MaterialApp(theme: AppTheme.claro, home: const BuscarScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // La fila reparte el ancho: "Casa" mide lo mismo que "Departamento" en vez
+    // de encogerse a su palabra, como en Figma y como en Publicar.
+    expect(find.byType(FilaOpciones), findsOneWidget);
+    final casa = tester.getSize(find.widgetWithText(Opcion, 'Casa'));
+    final depto = tester.getSize(find.widgetWithText(Opcion, 'Departamento'));
+    final habitacion = tester.getSize(find.widgetWithText(Opcion, 'Habitación'));
+    expect(casa.width, closeTo(depto.width, 0.01));
+    expect(habitacion.width, closeTo(depto.width, 0.01));
   });
 }
