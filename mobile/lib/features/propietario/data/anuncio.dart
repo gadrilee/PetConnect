@@ -94,6 +94,27 @@ class Anuncio {
 
   bool get estaDisponible => estado == EstadoAnuncio.disponible;
 
+  /// Las fotos vengan como vengan.
+  ///
+  /// El detalle del anuncio manda la lista completa en `fotos`. Las listas
+  /// —resultados de la busqueda, mis anuncios, el historial de solicitudes—
+  /// mandan solo la primera, en `foto_principal`, para no arrastrar diez
+  /// fotos por tarjeta. Leer una sola de las dos formas es lo que dejaba las
+  /// tarjetas con el icono gris aunque el anuncio tuviera fotos.
+  static List<FotoAnuncio> _fotos(Map<String, dynamic> j) {
+    final lista = j['fotos'] as List?;
+    if (lista != null) {
+      return lista
+          .map((f) => FotoAnuncio.desdeJson(f as Map<String, dynamic>))
+          .toList();
+    }
+    final principal = j['foto_principal'];
+    if (principal is Map<String, dynamic>) {
+      return [FotoAnuncio.desdeJson(principal)];
+    }
+    return const [];
+  }
+
   factory Anuncio.desdeJson(Map<String, dynamic> j) {
     final servicios = j['servicios_incluidos'];
     return Anuncio(
@@ -111,10 +132,7 @@ class Anuncio {
           : const {},
       restricciones: j['restricciones'] as String? ?? '',
       direccionReferencia: j['direccion_referencia'] as String? ?? '',
-      fotos: (j['fotos'] as List?)
-              ?.map((f) => FotoAnuncio.desdeJson(f as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      fotos: _fotos(j),
       solicitudesPendientes: j['solicitudes_pendientes'] as int? ?? 0,
     );
   }
