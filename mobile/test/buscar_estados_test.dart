@@ -157,16 +157,30 @@ void main() {
           'https://www.google.com/maps/search/?api=1&query=-17.77712,-63.19035');
     });
 
-    testWidgets('sin el punto no promete un mapa: dice lo que decía antes',
-        (tester) async {
+    testWidgets('sin el punto dice la zona y nada más', (tester) async {
       // Los resultados de la busqueda no traen lat/lng. Si el detalle tampoco
       // los manda, el aviso informa y ya: no hay flecha ni toque que no lleve
       // a ningun lado.
       await montar(tester, _Repo());
 
-      expect(find.textContaining('visible al aprobar la solicitud'),
-          findsOneWidget);
+      expect(find.text('Ubicación aproximada'), findsOneWidget);
       expect(find.byIcon(Icons.open_in_new), findsNothing);
+    });
+
+    testWidgets('la ubicación no promete nada sobre aprobar la solicitud',
+        (tester) async {
+      // Decia "visible al aprobar la solicitud" y era mentira: lo que se
+      // libera al aprobar es el contacto, que tiene su propio aviso. La
+      // ubicacion se ve desde el primer momento.
+      for (final repo in [_Repo(), _Repo()..detalleDevuelto = conUbicacion]) {
+        await montar(tester, repo);
+        // Un solo aviso habla de aprobar, y es el del contacto.
+        expect(find.textContaining('aprob'), findsOneWidget);
+        expect(
+          find.textContaining('El contacto del propietario está protegido'),
+          findsOneWidget,
+        );
+      }
     });
 
     testWidgets('si el aparato no abre el mapa, lo dice en el pie', (tester) async {

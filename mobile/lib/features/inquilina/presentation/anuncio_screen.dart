@@ -353,12 +353,14 @@ class _Acompana extends StatelessWidget {
         // bloque. Con mapa, el mismo aviso lleva a verla: la persona pregunta
         // "¿donde queda?" justo aca, y hasta ahora tenia que irse de la app a
         // buscar el nombre del barrio a mano.
+        //
+        // Antes decia "visible al aprobar la solicitud", y era mentira: lo que
+        // se libera al aprobar es el CONTACTO, que tiene su propio aviso arriba.
+        // La ubicacion se ve desde el primer momento, con mapa o sin el.
         Aviso(
           tipo: TipoAviso.info,
           icono: Icons.place_outlined,
-          mensaje: alVerMapa == null
-              ? '$zona — visible al aprobar la solicitud'
-              : '$zona · Ver en el mapa',
+          mensaje: alVerMapa == null ? zona : '$zona · Ver en el mapa',
           alTocar: alVerMapa,
         ),
       ],
