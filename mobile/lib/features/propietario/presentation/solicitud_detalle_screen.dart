@@ -12,6 +12,7 @@ import '../../../shared/widgets/estado_vacio.dart';
 import '../../../shared/widgets/fila_condicion.dart';
 import '../../../shared/widgets/pie_acciones.dart';
 import '../../../shared/widgets/precio_final.dart';
+import '../../../shared/widgets/resumen_anuncio.dart';
 import '../../inquilina/data/solicitud.dart';
 import '../data/anuncio.dart';
 import '../providers/solicitudes_recibidas_provider.dart';
@@ -173,20 +174,11 @@ class _Contexto extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Bloque(
-          hijos: [
-            Text(
-              anuncio.titulo,
-              style: AppText.button(context)
-                  .copyWith(color: AppColors.text, letterSpacing: 0),
-            ),
-            const SizedBox(height: Espacio.sm),
-            Text(
-              'Tipo: ${anuncio.tipoEspacio.etiqueta} · $precio Bs/mes',
-              style: tenue,
-            ),
-          ],
-        ),
+        // La misma pieza que usa Marcar como alquilado. Antes era este bloque
+        // escrito a mano, sin la foto: para decidir una visita conviene ver
+        // cuál de los cuartos es, no sólo leer un título que se parece a los
+        // otros tres.
+        ResumenAnuncio(anuncio: anuncio),
         const SizedBox(height: Espacio.lg),
         Bloque(
           hijos: [

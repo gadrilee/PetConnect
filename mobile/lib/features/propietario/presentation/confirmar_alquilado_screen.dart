@@ -8,9 +8,8 @@ import '../../../shared/widgets/bloque.dart';
 import '../../../shared/widgets/boton_principal.dart';
 import '../../../shared/widgets/boton_secundario.dart';
 import '../../../shared/widgets/fila_condicion.dart';
-import '../../../shared/widgets/foto_inmueble.dart';
 import '../../../shared/widgets/pie_acciones.dart';
-import '../../../shared/widgets/precio_final.dart';
+import '../../../shared/widgets/resumen_anuncio.dart';
 import '../data/anuncio.dart';
 import '../providers/mis_anuncios_provider.dart';
 
@@ -65,7 +64,7 @@ class ConfirmarAlquiladoScreen extends StatelessWidget {
       hijos: [
         // AUTO LAYOUT: una columna con 24 entre bloques, como el detalle de
         // una solicitud: primero de que cuarto se habla, despues que pasa.
-        _Resumen(anuncio: anuncio),
+        ResumenAnuncio(anuncio: anuncio),
         const SizedBox(height: Espacio.lg),
         _QueVaAPasar(pendientes: pendientes),
         const SizedBox(height: Espacio.lg),
@@ -77,49 +76,6 @@ class ConfirmarAlquiladoScreen extends StatelessWidget {
   }
 }
 
-class _Resumen extends StatelessWidget {
-  const _Resumen({required this.anuncio});
-
-  final Anuncio anuncio;
-
-  @override
-  Widget build(BuildContext context) {
-    final precio = PrecioFinal.formatear(anuncio.precioFinal);
-    return Bloque(
-      // FLEXBOX: la foto mide lo suyo y el texto toma el resto. Antes de
-      // apagar un anuncio conviene ver cual es, no solo leer su titulo: los
-      // de una misma casa se llaman casi igual.
-      hijos: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FotoInmueble(url: anuncio.fotoPrincipal, ancho: 64, alto: 64),
-            const SizedBox(width: Espacio.md),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    anuncio.titulo,
-                    style: AppText.button(context)
-                        .copyWith(color: AppColors.text, letterSpacing: 0),
-                  ),
-                  const SizedBox(height: Espacio.sm),
-                  Text(
-                    'Tipo: ${anuncio.tipoEspacio.etiqueta} · $precio Bs/mes',
-                    style: AppText.caption(context)
-                        .copyWith(color: AppColors.text70),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
 
 class _QueVaAPasar extends StatelessWidget {
   const _QueVaAPasar({required this.pendientes});

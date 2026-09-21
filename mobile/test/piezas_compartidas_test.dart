@@ -13,10 +13,12 @@ import 'package:alquilamatch/shared/widgets/campo_texto.dart';
 import 'package:alquilamatch/shared/widgets/controles.dart';
 import 'package:alquilamatch/shared/widgets/estado_vacio.dart';
 import 'package:alquilamatch/shared/widgets/etiqueta_estado.dart';
+import 'package:alquilamatch/shared/widgets/foto_inmueble.dart';
 import 'package:alquilamatch/shared/widgets/hoja_opciones.dart';
 import 'package:alquilamatch/shared/widgets/icono_circulo.dart';
 import 'package:alquilamatch/shared/widgets/pie_acciones.dart';
 import 'package:alquilamatch/shared/widgets/precio_final.dart';
+import 'package:alquilamatch/shared/widgets/resumen_anuncio.dart';
 import 'package:alquilamatch/shared/widgets/resumen_busqueda.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -583,6 +585,34 @@ void main() {
     expect(find.text('Habitación'), findsOneWidget);
     expect(find.text('Acepta mascotas'), findsOneWidget);
     expect(find.text('3 anuncios encontrados'), findsOneWidget);
+  });
+
+  testWidgets('ResumenAnuncio: la foto primero, y el tipo con el precio', (
+    tester,
+  ) async {
+    const anuncio = Anuncio(
+      id: 1,
+      titulo: 'Habitación a aprox 40 min de la UAGRM',
+      tipoEspacio: TipoEspacio.habitacion,
+      precioFinal: '650.00',
+      aceptaMascotas: false,
+      minutosCaminando: 40,
+      estado: EstadoAnuncio.disponible,
+    );
+
+    await tester.pumpWidget(_enCaja(const ResumenAnuncio(anuncio: anuncio)));
+
+    expect(find.text('Habitación a aprox 40 min de la UAGRM'), findsOneWidget);
+    expect(find.text('Tipo: Habitación · 650 Bs/mes'), findsOneWidget);
+
+    // La foto mide 64 y va a la izquierda del texto: es lo que dice de cuál
+    // de los cuartos se habla antes de leer el título.
+    final foto = tester.getRect(find.byType(FotoInmueble));
+    expect(foto.size, const Size(64, 64));
+    expect(
+      foto.right,
+      lessThanOrEqualTo(tester.getRect(find.text(anuncio.titulo)).left),
+    );
   });
 
   group('PieAcciones', () {

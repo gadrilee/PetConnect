@@ -75,6 +75,31 @@ void main() {
     expect(sinPagina, isEmpty, reason: sinPagina.join('\n'));
   });
 
+  test('el resumen del anuncio sale de la pieza, no escrito a mano', () {
+    // Marcar como alquilado y el Detalle de la solicitud mostraban el mismo
+    // bloque —título y "Tipo: X · N Bs/mes"— cada uno por su cuenta, y sólo
+    // uno de los dos tenía la foto. Ahora es ResumenAnuncio. Si alguna
+    // pantalla vuelve a escribir esa línea sin usar la pieza, la foto se le
+    // pierde de nuevo y nadie se entera.
+    const pantallas = [
+      'lib/features/propietario/presentation/solicitud_detalle_screen.dart',
+      'lib/features/propietario/presentation/confirmar_alquilado_screen.dart',
+    ];
+    final infracciones = <String>[];
+
+    for (final ruta in pantallas) {
+      final fuente = _sinComentarios(File(ruta));
+      if (!fuente.contains('ResumenAnuncio(')) {
+        infracciones.add('$ruta  Usá ResumenAnuncio.');
+      }
+      if (fuente.contains(r'Tipo: ${anuncio.tipoEspacio.etiqueta}')) {
+        infracciones.add('$ruta  vuelve a escribir el resumen a mano.');
+      }
+    }
+
+    expect(infracciones, isEmpty, reason: infracciones.join('\n'));
+  });
+
   test('todo pie se arma con PieAcciones', () {
     // El pie ordena el aviso, los botones y las notas igual en todas las
     // pantallas. Si una pantalla le pasa a Pagina su propia Column o un boton
