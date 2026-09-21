@@ -9,8 +9,7 @@ class SolicitudesRecibidasRepository {
 
   /// Obtiene todas las solicitudes dirigidas a los anuncios de este propietario.
   Future<List<SolicitudVisita>> obtenerTodas() async {
-    final datos = await _api.get('/api/solicitudes/') as Map<String, dynamic>;
-    final lista = datos['results'] as List? ?? [];
+    final lista = await _api.getTodo('/api/solicitudes/');
     return lista
         .map((s) => SolicitudVisita.desdeJson(s as Map<String, dynamic>))
         .toList();

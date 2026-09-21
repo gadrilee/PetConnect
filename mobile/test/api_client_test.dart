@@ -122,4 +122,75 @@ void main() {
       expect(intentos, ['Bearer token-viejo', 'Bearer token-nuevo']);
     });
   });
+
+  group('Listas de varias paginas', () {
+    /// Un servidor que pagina de a 20, como DRF.
+    MockClient servidorPaginado(int total, List<Uri> pedidos) {
+      return MockClient((peticion) async {
+        pedidos.add(peticion.url);
+        final pagina = int.parse(peticion.url.queryParameters['page'] ?? '1');
+        final desde = (pagina - 1) * 20;
+        final hasta = (desde + 20).clamp(0, total);
+        final hayMas = hasta < total;
+        return http.Response(
+          jsonEncode({
+            'count': total,
+            'next': hayMas
+                ? 'https://servidor/api/anuncios/?page=${pagina + 1}'
+                : null,
+            'results': [
+              for (var i = desde; i < hasta; i++) {'id': i},
+            ],
+          }),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      });
+    }
+
+    test('getTodo junta todas las paginas, no solo la primera', () async {
+      // 117 anuncios con PAGE_SIZE 20: la busqueda mostraba 20 y nadie se
+      // enteraba de los otros 97.
+      final pedidos = <Uri>[];
+      final api = ApiClient(cliente: servidorPaginado(117, pedidos));
+
+      final todo = await api.getTodo('/api/anuncios/');
+
+      expect(todo.length, 117);
+      expect(todo.first, {'id': 0});
+      expect(todo.last, {'id': 116});
+      expect(pedidos.length, 6, reason: '117 de a 20 son seis paginas');
+    });
+
+    test('getTodo conserva los filtros en la primera pagina', () async {
+      final pedidos = <Uri>[];
+      final api = ApiClient(cliente: servidorPaginado(25, pedidos));
+
+      await api.getTodo('/api/anuncios/', query: {'tipo_espacio': 'CASA'});
+
+      expect(pedidos.first.queryParameters['tipo_espacio'], 'CASA');
+      // La segunda sale del `next` del servidor, que ya los trae.
+      expect(pedidos[1].queryParameters['page'], '2');
+    });
+
+    test('si la API deja de paginar y manda una lista, tambien sirve', () async {
+      final api = ApiClient(
+        cliente: MockClient(
+          (_) async => http.Response(
+            jsonEncode([
+              {'id': 1},
+              {'id': 2},
+            ]),
+            200,
+            headers: {'content-type': 'application/json'},
+          ),
+        ),
+      );
+
+      expect(await api.getTodo('/api/anuncios/'), [
+        {'id': 1},
+        {'id': 2},
+      ]);
+    });
+  });
 }

@@ -66,6 +66,38 @@ class ApiClient {
     return _enviar('GET', ruta, query: query);
   }
 
+  /// Una lista completa, juntando todas las páginas que devuelva la API.
+  ///
+  /// DRF pagina de a 20 y responde `{count, next, results}`. Quedarse con
+  /// `results` de la primera página dejaba la búsqueda en 20 de 117 anuncios
+  /// **sin decirlo**: la persona veía veinte y creía que eso era todo lo que
+  /// había. El `next` que manda el servidor ya trae los filtros y el número
+  /// de página, así que se lo devolvemos tal cual.
+  ///
+  /// Si el endpoint dejara de paginar y contestara una lista pelada, también
+  /// funciona.
+  Future<List<dynamic>> getTodo(
+    String ruta, {
+    Map<String, String>? query,
+  }) async {
+    final todo = <dynamic>[];
+    Map<String, String>? parametros = query;
+
+    // Tope de seguridad: un `next` que se muerde la cola no cuelga la app.
+    for (var vuelta = 0; vuelta < 100; vuelta++) {
+      final respuesta = await get(ruta, query: parametros);
+      if (respuesta is List) return [...todo, ...respuesta];
+
+      final datos = respuesta as Map<String, dynamic>;
+      todo.addAll(datos['results'] as List? ?? const []);
+
+      final siguiente = datos['next'] as String?;
+      if (siguiente == null) break;
+      parametros = Uri.parse(siguiente).queryParameters;
+    }
+    return todo;
+  }
+
   Future<dynamic> post(String ruta, {Object? cuerpo, bool conToken = true}) {
     return _enviar('POST', ruta, cuerpo: cuerpo, conToken: conToken);
   }

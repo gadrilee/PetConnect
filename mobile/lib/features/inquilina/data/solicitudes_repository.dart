@@ -28,8 +28,9 @@ class SolicitudesRepository {
     if (aceptaMascotas != null) query['acepta_mascotas'] = aceptaMascotas.toString();
     if (minutosMax != null) query['minutos_max'] = minutosMax.toString();
 
-    final datos = await _api.get('/api/anuncios/', query: query) as Map<String, dynamic>;
-    final lista = datos['results'] as List? ?? [];
+    // Todas las paginas: la busqueda muestra los anuncios que hay, no los
+    // veinte de la primera.
+    final lista = await _api.getTodo('/api/anuncios/', query: query);
     return lista
         .map((a) => Anuncio.desdeJson(a as Map<String, dynamic>))
         .toList();
@@ -55,8 +56,7 @@ class SolicitudesRepository {
 
   /// Las solicitudes del inquilino autenticado, ordenadas por fecha desc.
   Future<List<SolicitudVisita>> misSolicitudes() async {
-    final datos = await _api.get('/api/solicitudes/') as Map<String, dynamic>;
-    final lista = datos['results'] as List? ?? [];
+    final lista = await _api.getTodo('/api/solicitudes/');
     return lista
         .map((s) => SolicitudVisita.desdeJson(s as Map<String, dynamic>))
         .toList();

@@ -82,8 +82,8 @@ class AnunciosRepository {
 
   /// Los anuncios del propietario, en cualquier estado.
   Future<List<Anuncio>> mios() async {
-    final datos = await _api.get('/api/anuncios/mios/') as Map<String, dynamic>;
-    return (datos['results'] as List)
+    final lista = await _api.getTodo('/api/anuncios/mios/');
+    return lista
         .map((a) => Anuncio.desdeJson(a as Map<String, dynamic>))
         .toList();
   }
