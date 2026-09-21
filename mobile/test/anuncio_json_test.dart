@@ -53,6 +53,39 @@ void main() {
     expect(Anuncio.desdeJson({...base(), 'fotos': []}).fotos, isEmpty);
   });
 
+  group('dónde queda', () {
+    test('el detalle trae lat y lng, y de ahí sale el mapa', () {
+      final anuncio = Anuncio.desdeJson({
+        ...base(),
+        'lat': -17.77712,
+        'lng': -63.19035,
+      });
+
+      expect(anuncio.lat, -17.77712);
+      expect(anuncio.lng, -63.19035);
+      expect(
+        anuncio.mapa.toString(),
+        'https://www.google.com/maps/search/?api=1&query=-17.77712,-63.19035',
+      );
+    });
+
+    test('un número redondo llega como int y no rompe', () {
+      // JSON no distingue 17 de 17.0: el backend manda floats y a veces
+      // salen sin decimales.
+      final anuncio = Anuncio.desdeJson({...base(), 'lat': -17, 'lng': -63});
+
+      expect(anuncio.lat, -17.0);
+      expect(anuncio.mapa, isNotNull);
+    });
+
+    test('una lista no los manda, y entonces no hay mapa que abrir', () {
+      // Los resultados de la busqueda no traen lat/lng: la tarjeta no los
+      // necesita. Sin ellos el aviso de ubicacion no lleva a ningun lado en
+      // vez de abrir un mapa en el medio del mar.
+      expect(Anuncio.desdeJson(base()).mapa, isNull);
+    });
+  });
+
   test('si vienen las dos formas gana la lista completa', () {
     final anuncio = Anuncio.desdeJson({
       ...base(),

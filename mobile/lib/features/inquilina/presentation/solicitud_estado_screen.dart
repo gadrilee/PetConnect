@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/enlace_externo.dart';
 import '../../../core/theme.dart';
 import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/aviso.dart';
@@ -48,14 +48,7 @@ class _SolicitudEstadoScreenState extends State<SolicitudEstadoScreen> {
     final uri = Uri.parse('https://wa.me/591$numero');
 
     setState(() => _errorWhatsApp = null);
-    bool abierto;
-    try {
-      abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      // El telefono no tiene con que abrir el enlace: es el mismo "no se
-      // pudo" que cuando launchUrl devuelve false, no un error sin atender.
-      abierto = false;
-    }
+    final abierto = await abrirEnlaceExterno(uri);
     if (!abierto && mounted) {
       setState(() => _errorWhatsApp = SolicitudEstadoScreen.noSeAbrioWhatsApp);
     }

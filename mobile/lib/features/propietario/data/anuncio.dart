@@ -1,3 +1,5 @@
+import '../../../core/enlace_externo.dart';
+
 /// Tipos de espacio que se pueden publicar. Es una de las cuatro condiciones
 /// de descarte del Brief v0.2.0.
 enum TipoEspacio {
@@ -65,6 +67,8 @@ class Anuncio {
     this.serviciosIncluidos = const {},
     this.restricciones = '',
     this.direccionReferencia = '',
+    this.lat,
+    this.lng,
     this.fotos = const [],
     this.solicitudesPendientes = 0,
   });
@@ -85,6 +89,12 @@ class Anuncio {
   final Map<String, bool> serviciosIncluidos;
   final String restricciones;
   final String direccionReferencia;
+
+  /// Donde queda. Solo viene en el detalle: las listas no lo necesitan y el
+  /// backend ya manda calculados los minutos caminando a la UAGRM.
+  final double? lat;
+  final double? lng;
+
   final List<FotoAnuncio> fotos;
 
   /// Cuantas solicitudes esperan respuesta. Solo viene en Mis anuncios, que
@@ -93,6 +103,15 @@ class Anuncio {
   final int solicitudesPendientes;
 
   bool get estaDisponible => estado == EstadoAnuncio.disponible;
+
+  /// El mapa de este anuncio, o `null` si la API no mando donde queda.
+  ///
+  /// Lo arma el anuncio y no la pantalla: quien muestre la ubicacion en otro
+  /// lado abre el mismo mapa, sin volver a escribir la direccion.
+  Uri? get mapa {
+    final (y, x) = (lat, lng);
+    return y == null || x == null ? null : mapaDeGoogle(y, x);
+  }
 
   /// La foto que representa al anuncio en una tarjeta, o `null` si no tiene.
   ///
@@ -139,6 +158,10 @@ class Anuncio {
           : const {},
       restricciones: j['restricciones'] as String? ?? '',
       direccionReferencia: j['direccion_referencia'] as String? ?? '',
+      // Vienen como numero: a veces con decimales y a veces redondo, que en
+      // JSON llega como int. `num` toma los dos.
+      lat: (j['lat'] as num?)?.toDouble(),
+      lng: (j['lng'] as num?)?.toDouble(),
       fotos: _fotos(j),
       solicitudesPendientes: j['solicitudes_pendientes'] as int? ?? 0,
     );

@@ -8,6 +8,7 @@ import 'package:alquilamatch/features/inquilina/providers/buscar_provider.dart';
 import 'package:alquilamatch/features/propietario/data/anuncio.dart';
 import 'package:alquilamatch/shared/widgets/controles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +29,10 @@ class _Repo extends Fake implements SolicitudesRepository {
   List<Anuncio> encontrados = const [];
   ApiException? falla;
 
+  /// Que devuelve el detalle. Se cambia para probar el anuncio que sabe donde
+  /// queda y el que no.
+  Anuncio detalleDevuelto = _anuncio;
+
   @override
   Future<List<Anuncio>> buscar({
     double? precioMax,
@@ -42,7 +47,7 @@ class _Repo extends Fake implements SolicitudesRepository {
   @override
   Future<Anuncio> detalle(int id) async {
     if (falla != null) throw falla!;
-    return _anuncio;
+    return detalleDevuelto;
   }
 }
 
@@ -94,6 +99,87 @@ void main() {
     await tester.tap(find.text('Reintentar'));
     await tester.pumpAndSettle();
     expect(find.text('Habitación con baño privado'), findsOneWidget);
+  });
+
+  group('La ubicación lleva al mapa', () {
+    /// El anuncio con la zona y el punto donde queda, como lo manda el
+    /// detalle de la API.
+    const conUbicacion = Anuncio(
+      id: 1,
+      titulo: 'Habitación con baño privado',
+      tipoEspacio: TipoEspacio.habitacion,
+      precioFinal: '1000.00',
+      aceptaMascotas: true,
+      minutosCaminando: 9,
+      estado: EstadoAnuncio.disponible,
+      direccionReferencia: 'Panamericano',
+      lat: -17.77712,
+      lng: -63.19035,
+    );
+
+    /// Lo que el aparato contesta cuando la app le pide abrir un enlace, y la
+    /// lista de lo que le pidio.
+    List<MethodCall> escucharAlAparato(WidgetTester tester, {bool abre = true}) {
+      const canal = MethodChannel('plugins.flutter.io/url_launcher');
+      final llamadas = <MethodCall>[];
+      final mensajero = tester.binding.defaultBinaryMessenger;
+      mensajero.setMockMethodCallHandler(canal, (llamada) async {
+        llamadas.add(llamada);
+        return abre;
+      });
+      addTearDown(() => mensajero.setMockMethodCallHandler(canal, null));
+      return llamadas;
+    }
+
+    Future<void> montar(WidgetTester tester, _Repo repo) async {
+      _telefono(tester);
+      await tester.pumpWidget(
+        Provider<SolicitudesRepository>.value(
+          value: repo,
+          child: MaterialApp(
+            theme: AppTheme.claro,
+            home: const AnuncioScreen(anuncioId: 1),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('tocar la zona abre Google Maps en donde queda', (tester) async {
+      final llamadas = escucharAlAparato(tester);
+      await montar(tester, _Repo()..detalleDevuelto = conUbicacion);
+
+      expect(find.text('Panamericano · Ver en el mapa'), findsOneWidget);
+      await tester.tap(find.text('Panamericano · Ver en el mapa'));
+      await tester.pumpAndSettle();
+
+      expect(llamadas.single.arguments['url'],
+          'https://www.google.com/maps/search/?api=1&query=-17.77712,-63.19035');
+    });
+
+    testWidgets('sin el punto no promete un mapa: dice lo que decía antes',
+        (tester) async {
+      // Los resultados de la busqueda no traen lat/lng. Si el detalle tampoco
+      // los manda, el aviso informa y ya: no hay flecha ni toque que no lleve
+      // a ningun lado.
+      await montar(tester, _Repo());
+
+      expect(find.textContaining('visible al aprobar la solicitud'),
+          findsOneWidget);
+      expect(find.byIcon(Icons.open_in_new), findsNothing);
+    });
+
+    testWidgets('si el aparato no abre el mapa, lo dice en el pie', (tester) async {
+      escucharAlAparato(tester, abre: false);
+      await montar(tester, _Repo()..detalleDevuelto = conUbicacion);
+
+      await tester.tap(find.text('Panamericano · Ver en el mapa'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(AnuncioScreen.noSeAbrioElMapa), findsOneWidget);
+      // El anuncio sigue ahi: no se pudo abrir el mapa, no se cayo la app.
+      expect(find.text('SOLICITAR VISITA'), findsOneWidget);
+    });
   });
 
   testWidgets('Tipo de espacio: las tres opciones miden lo mismo', (tester) async {
