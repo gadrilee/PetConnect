@@ -53,6 +53,8 @@ tar --exclude='.venv' --exclude='db.sqlite3' --exclude='media' \
     -czf backend.tgz backend
 gcloud compute scp backend.tgz alquilamatch:/home/danie/backend.tgz \
     --project=alquilamatch-uagrm --zone=us-central1-a
+# y al terminar: rm backend.tgz, y en el servidor
+# rm -rf /home/danie/backend.tgz /tmp/backend
 
 gcloud compute ssh alquilamatch --project=alquilamatch-uagrm --zone=us-central1-a --command "
   cd /home/danie && tar -xzf backend.tgz &&
@@ -69,14 +71,32 @@ gcloud compute ssh alquilamatch --project=alquilamatch-uagrm --zone=us-central1-
 ```bash
 cd mobile
 flutter build web --release --dart-define=API_URL=https://34-42-165-3.nip.io
-cd build && tar -czf ../../web.tgz web && cd ../..
+cd build && tar --exclude='web/canvaskit' --exclude='web/.last_build_id' \
+    -czf ../../web.tgz web && cd ../..
 gcloud compute scp web.tgz alquilamatch:/home/danie/web.tgz \
     --project=alquilamatch-uagrm --zone=us-central1-a
 gcloud compute ssh alquilamatch --project=alquilamatch-uagrm --zone=us-central1-a --command "
   cd /home/danie && tar -xzf web.tgz &&
   sudo rsync -a --delete web/ /var/www/alquilamatch/ &&
-  sudo chown -R www-data:www-data /var/www/alquilamatch"
+  sudo chown -R www-data:www-data /var/www/alquilamatch &&
+  rm -rf /home/danie/web /home/danie/web.tgz"
 ```
+
+> **Los `--exclude` no son un detalle.** `flutter build web` deja 35 MB en
+> `build/web/canvaskit/`: seis variantes del motor de dibujo (`canvaskit.wasm`,
+> `skwasm.wasm`, `wimp.wasm`…) y sus archivos de símbolos. **El navegador no
+> baja ninguna**: Flutter pide CanvasKit a `gstatic.com`, no al servidor. Se
+> comprueba en la consola con
+> `performance.getEntriesByType('resource').map(r => r.name)`. Sin ellos la web
+> servida pasa de 42 MB a 6,6 MB y anda igual.
+>
+> Si alguna vez hace falta que no dependa de Google —una demo sin internet, por
+> ejemplo— hay que hacer lo contrario: dejar la carpeta y apuntar
+> `canvaskitBaseUrl` a `canvaskit/` en `index.html`. Mientras no se haga eso,
+> subirla es peso muerto.
+
+La última línea borra el `.tgz` y la copia descomprimida: si no, cada
+despliegue deja ~30 MB en el home del servidor.
 
 ### El APK
 
