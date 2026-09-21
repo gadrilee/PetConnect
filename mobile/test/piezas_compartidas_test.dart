@@ -3,6 +3,7 @@ import 'package:alquilamatch/features/inquilina/data/solicitud.dart';
 import 'package:alquilamatch/features/inquilina/providers/buscar_provider.dart';
 import 'package:alquilamatch/features/propietario/data/anuncio.dart';
 import 'package:alquilamatch/shared/layout/pagina.dart';
+import 'package:alquilamatch/shared/widgets/avatar_perfil.dart';
 import 'package:alquilamatch/shared/widgets/aviso.dart';
 import 'package:alquilamatch/shared/widgets/bloque.dart';
 import 'package:alquilamatch/shared/widgets/boton_principal.dart';
@@ -12,6 +13,7 @@ import 'package:alquilamatch/shared/widgets/campo_texto.dart';
 import 'package:alquilamatch/shared/widgets/controles.dart';
 import 'package:alquilamatch/shared/widgets/estado_vacio.dart';
 import 'package:alquilamatch/shared/widgets/etiqueta_estado.dart';
+import 'package:alquilamatch/shared/widgets/hoja_opciones.dart';
 import 'package:alquilamatch/shared/widgets/icono_circulo.dart';
 import 'package:alquilamatch/shared/widgets/pie_acciones.dart';
 import 'package:alquilamatch/shared/widgets/precio_final.dart';
@@ -268,6 +270,128 @@ void main() {
     }
   });
 
+  group('AvatarPerfil', () {
+    testWidgets('sin foto es el IconoCirculo del rol', (tester) async {
+      await tester.pumpWidget(
+        _enCaja(const Center(child: AvatarPerfil(icono: Icons.search, diametro: 96))),
+      );
+      expect(find.byType(IconoCirculo), findsOneWidget);
+      expect(find.byType(Image), findsNothing);
+      expect(tester.getSize(find.byType(AvatarPerfil)), const Size(96, 96));
+    });
+
+    testWidgets('con foto: la imagen recortada al circulo, del mismo tamano', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _enCaja(
+          const Center(
+            child: AvatarPerfil(
+              icono: Icons.search,
+              foto: 'http://10.0.2.2:8000/media/perfiles/marta.jpg',
+              diametro: 96,
+            ),
+          ),
+        ),
+      );
+      expect(find.byType(ClipOval), findsOneWidget);
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(tester.getSize(find.byType(AvatarPerfil)), const Size(96, 96));
+    });
+
+    testWidgets('subiendo: el velo y el indicador, a un tercio del circulo', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _enCaja(
+          const Center(
+            child: AvatarPerfil(
+              icono: Icons.search,
+              foto: 'http://10.0.2.2:8000/media/perfiles/marta.jpg',
+              diametro: 96,
+              subiendo: true,
+            ),
+          ),
+        ),
+      );
+      expect(
+        tester.getSize(find.byType(CircularProgressIndicator)),
+        const Size(32, 32),
+      );
+      expect(
+        tester.widget<ColoredBox>(find.byType(ColoredBox).last).color,
+        AppColors.text50,
+      );
+    });
+  });
+
+  testWidgets('HojaOpciones: devuelve la opcion tocada y null al cancelar', (
+    tester,
+  ) async {
+    String? elegida = 'sin tocar';
+    await tester.pumpWidget(
+      _app(
+        Scaffold(
+          body: Builder(
+            builder: (context) => Center(
+              child: BotonTexto(
+                etiqueta: 'Abrir',
+                alTocar: () async {
+                  elegida = await mostrarHojaOpciones<String>(
+                    context,
+                    titulo: 'Foto de perfil',
+                    opciones: const [
+                      OpcionHoja(
+                        valor: 'camara',
+                        icono: Icons.photo_camera_outlined,
+                        etiqueta: 'Sacar una foto',
+                      ),
+                      OpcionHoja(
+                        valor: 'quitar',
+                        icono: Icons.delete_outline,
+                        etiqueta: 'Quitar foto',
+                        destructiva: true,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Abrir'));
+    await tester.pumpAndSettle();
+    expect(find.text('Foto de perfil'), findsOneWidget);
+    // Cada fila mide 56: el toque comodo, como "Opcion de hoja" en Figma.
+    expect(
+      tester
+          .getSize(
+            find.ancestor(of: find.text('Sacar una foto'), matching: find.byType(InkWell)),
+          )
+          .height,
+      56,
+    );
+    expect(
+      tester.widget<Icon>(find.byIcon(Icons.delete_outline)).color,
+      AppColors.error,
+    );
+
+    await tester.tap(find.text('Sacar una foto'));
+    await tester.pumpAndSettle();
+    expect(elegida, 'camara');
+
+    await tester.tap(find.text('Abrir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('CANCELAR'));
+    await tester.pumpAndSettle();
+    expect(elegida, isNull);
+    expect(find.text('Foto de perfil'), findsNothing);
+  });
+
   testWidgets('EstadoVacio: la accion aparece solo si tiene texto', (
     tester,
   ) async {
@@ -346,6 +470,43 @@ void main() {
     final depto = tester.getSize(find.widgetWithText(Opcion, 'Departamento'));
     expect(depto.width, greaterThan(casa.width));
     expect(depto.height, casa.height);
+  });
+
+  testWidgets('FilaOpciones: reparten el ancho por partes iguales, con 8 entre '
+      'ellas y la etiqueta centrada', (tester) async {
+    await tester.pumpWidget(
+      _enCaja(
+        FilaOpciones(
+          opciones: [
+            Opcion(etiqueta: 'Habitación', seleccionada: true, alTocar: () {}),
+            Opcion(etiqueta: 'Departamento', seleccionada: false, alTocar: () {}),
+            Opcion(etiqueta: 'Casa', seleccionada: false, alTocar: () {}),
+          ],
+        ),
+      ),
+    );
+
+    final opciones = find.byType(Opcion);
+    final rects = [for (var i = 0; i < 3; i++) tester.getRect(opciones.at(i))];
+    final fila = tester.getRect(find.byType(FilaOpciones));
+
+    // Tres anchos iguales que llenan la caja de 320, con 8 entre uno y otro:
+    // "Casa" ya no mide lo que su palabra.
+    expect(rects[0].width, closeTo((320 - 2 * Espacio.sm) / 3, 0.01));
+    expect(rects[1].width, closeTo(rects[0].width, 0.01));
+    expect(rects[2].width, closeTo(rects[0].width, 0.01));
+    expect(rects[0].left, fila.left);
+    expect(rects[2].right, closeTo(fila.right, 0.01));
+    expect(rects[1].left - rects[0].right, closeTo(Espacio.sm, 0.01));
+    expect(rects[2].left - rects[1].right, closeTo(Espacio.sm, 0.01));
+
+    // La palabra corta queda centrada en su pastilla, no pegada al borde.
+    expect(
+      tester.getCenter(find.text('Casa')).dx,
+      closeTo(rects[2].center.dx, 0.5),
+    );
+    // El alto es el mismo de la Opcion suelta: solo cambia el ancho.
+    expect(rects[0].height, rects[2].height);
   });
 
   group('CampoTexto', () {

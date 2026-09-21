@@ -26,6 +26,10 @@ enum TamanoTarjeta {
 /// entran; nunca cambia el orden ni que el precio venga acompanado de lo que
 /// cubre.
 ///
+/// Los colores son los de AppColors, no los tonales de Material: el titulo y
+/// el precio en Text, lo que acompana en Text 70 % y la flecha en Text 60 %,
+/// los mismos grises que el resto de las tarjetas.
+///
 /// **Por que existe esta pieza.** Antes estaba escrita dos veces, una por
 /// pantalla. La prueba con usuaria mostro que un monto sin decir que incluye
 /// no significa nada —vio "1.000 Bs" y pregunto "¿cuanto es con luz?"— y la
@@ -51,7 +55,6 @@ class TarjetaAnuncio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
     final texto = Theme.of(context).textTheme;
     final lado = _esCompleta ? 104.0 : 64.0;
 
@@ -72,7 +75,7 @@ class TarjetaAnuncio extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FotoInmueble(
-            url: anuncio.fotos.isNotEmpty ? anuncio.fotos.first.imagen : null,
+            url: anuncio.fotoPrincipal,
             ancho: lado,
             alto: lado,
           ),
@@ -81,7 +84,7 @@ class TarjetaAnuncio extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _titulo(esquema, texto),
+                _titulo(texto),
                 const SizedBox(height: Espacio.sm),
 
                 // El precio y lo que cubre son un solo dato: separarlos fue
@@ -92,15 +95,13 @@ class TarjetaAnuncio extends StatelessWidget {
                     PrecioFinal.cifraDe(anuncio.precioFinal),
                     style: texto.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: esquema.onSurface,
+                      color: AppColors.text,
                     ),
                   ),
                   const SizedBox(height: Espacio.sm),
                   Text(
                     cobertura(anuncio),
-                    style: texto.bodySmall?.copyWith(
-                      color: esquema.onSurfaceVariant,
-                    ),
+                    style: texto.bodySmall?.copyWith(color: AppColors.text70),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -112,6 +113,7 @@ class TarjetaAnuncio extends StatelessWidget {
                     '${cobertura(anuncio)}',
                     style: texto.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
+                      color: AppColors.text,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -120,9 +122,7 @@ class TarjetaAnuncio extends StatelessWidget {
                 const SizedBox(height: Espacio.sm),
                 Text(
                   '${anuncio.minutosCaminando} min caminando a la UAGRM',
-                  style: texto.bodySmall?.copyWith(
-                    color: esquema.onSurfaceVariant,
-                  ),
+                  style: texto.bodySmall?.copyWith(color: AppColors.text70),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -130,31 +130,33 @@ class TarjetaAnuncio extends StatelessWidget {
             ),
           ),
           // La flecha solo si de verdad se puede entrar.
-          if (alTocar != null) const Icon(Icons.chevron_right, size: 20),
+          if (alTocar != null)
+            Icon(Icons.chevron_right, size: 20, color: AppColors.text60),
         ],
       ),
     );
   }
 
   /// El titulo, o una barra gris si el anuncio no tiene.
-  Widget _titulo(ColorScheme esquema, TextTheme texto) {
+  Widget _titulo(TextTheme texto) {
     if (anuncio.titulo.isNotEmpty) {
       return Text(
         anuncio.titulo,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: texto.labelLarge?.copyWith(
-          color: esquema.onSurface,
+          color: AppColors.text,
           fontWeight: FontWeight.w600,
         ),
       );
     }
+    // Decorativa: marca donde iria el titulo, no se lee.
     return Container(
       height: Espacio.sm,
       width: 140,
       decoration: BoxDecoration(
-        color: esquema.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(4),
+        color: AppColors.text12,
+        borderRadius: BorderRadius.circular(Espacio.xs),
       ),
     );
   }

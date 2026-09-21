@@ -99,7 +99,25 @@ la búsqueda pero sigue visible para su dueño.
 `ACCESS_FINE_LOCATION` y `ACCESS_COARSE_LOCATION` están declarados en el
 manifest principal. **No se declara `CAMERA`**: `image_picker` abre la cámara
 del sistema por intent, y declararlo obligaría a pedirlo en tiempo de ejecución
-sin ganar nada.
+sin ganar nada. La galería, para la foto de perfil, es el selector de fotos del
+sistema: la app ve sólo la foto que la persona elige, y tampoco pide permiso.
+
+En iOS, `Info.plist` lleva `NSCameraUsageDescription` y
+`NSPhotoLibraryUsageDescription`: sin esos textos, iOS cierra la app al abrir la
+cámara o la galería.
+
+## La foto de perfil
+
+Mi perfil la muestra arriba, con *Agregar foto* (o *Cambiar foto*). Las dos
+cosas abren la misma hoja: *Sacar una foto*, *Elegir de la galería* y, sólo si
+ya hay una, *Quitar foto*. La foto se achica en el teléfono (1024 px, calidad
+85) y sube por `multipart`; mientras sube se ve la elegida con un velo y todo
+lo demás queda quieto. La tarjeta del inicio la muestra en lugar del ícono del
+rol.
+
+Las piezas son `AvatarPerfil` y `HojaOpciones`, espejo de los componentes
+*Avatar* y *Hoja de opciones* de Figma. En las pruebas, `PerfilScreen` recibe
+`elegirFoto` para reemplazar la cámara y la galería, que ahí no existen.
 
 Para probar el GPS en el emulador hay que fijarle una posición:
 

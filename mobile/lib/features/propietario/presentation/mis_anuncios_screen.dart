@@ -12,11 +12,13 @@ import '../../../shared/widgets/boton_texto.dart';
 import '../../../shared/widgets/estado_vacio.dart';
 import '../../../shared/widgets/etiqueta_estado.dart';
 import '../../../shared/widgets/fila_condicion.dart';
+import '../../../shared/widgets/foto_inmueble.dart';
 import '../../../shared/widgets/pie_acciones.dart';
 import '../../../shared/widgets/precio_final.dart';
 import '../data/anuncio.dart';
 import '../providers/mis_anuncios_provider.dart';
 import '../providers/publicar_provider.dart';
+import 'confirmar_alquilado_screen.dart';
 import 'publicar_screen.dart';
 
 /// Los anuncios del propietario, en cualquier estado.
@@ -57,6 +59,7 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
       ),
     );
     if (!mounted) return;
+    repo.limpiarMensajes();
     repo.cargar();
     if (publicado != null) {
       setState(() {
@@ -68,16 +71,23 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
 
   Future<void> _refrescar() {
     setState(() => _publicado = null);
-    return context.read<MisAnunciosProvider>().cargar();
+    final provider = context.read<MisAnunciosProvider>()..limpiarMensajes();
+    return provider.cargar();
   }
 
-  /// El pie solo cuenta resultados: que se publico, o el ultimo error del
-  /// provider —no se pudo cargar, o no se pudo cambiar el estado de un
-  /// anuncio— mientras la lista sigue a la vista. Nunca un toast suelto.
+  /// El pie solo cuenta resultados: que se publico, que salio de la busqueda
+  /// o volvio a ella, o el ultimo error —no se pudo cargar, o no se pudo
+  /// cambiar el estado de un anuncio— mientras la lista sigue a la vista.
+  /// Nunca un toast suelto.
   PieAcciones? _pie(MisAnunciosProvider estado) {
     final error = estado.anuncios.isEmpty ? null : estado.error;
     if (error != null) {
       return PieAcciones(aviso: Aviso(mensaje: error, tipo: TipoAviso.error));
+    }
+    if (estado.aviso != null) {
+      return PieAcciones(
+        aviso: Aviso(mensaje: estado.aviso!, tipo: TipoAviso.exito),
+      );
     }
     if (_publicado != null) {
       return PieAcciones(
@@ -98,7 +108,8 @@ class _MisAnunciosScreenState extends State<MisAnunciosScreen> {
     } else if (estado.error != null && anuncios.isEmpty) {
       cuerpo = EstadoVacio(
         icono: Icons.error_outline,
-        titulo: estado.error!,
+        titulo: 'No pudimos cargar tus anuncios',
+        detalle: estado.error,
         esError: true,
         accion: 'Reintentar',
         alAccion: estado.cargar,
@@ -147,11 +158,29 @@ class _TarjetaGestion extends StatelessWidget {
 
   final Anuncio anuncio;
 
+  /// Siempre pasa por la confirmación: apagar el anuncio es lo que menos se
+  /// puede deshacer de la pantalla, y la persona ve antes qué va a pasar —
+  /// con pendientes, que se cierran; sin pendientes, que no se cierra
+  /// ninguna. El mismo botón hace siempre lo mismo.
+  Future<void> _marcarAlquilado(BuildContext context) async {
+    final provider = context.read<MisAnunciosProvider>();
+    provider.limpiarMensajes();
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider.value(
+          value: provider,
+          child: ConfirmarAlquiladoScreen(anuncio: anuncio),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final precio = PrecioFinal.formatear(anuncio.precioFinal);
-    void alternar() =>
-        context.read<MisAnunciosProvider>().alternarEstado(anuncio);
+    final provider = context.watch<MisAnunciosProvider>();
+    // Mientras se cambia, el boton no acepta un segundo toque.
+    final ocupado = provider.cambiando(anuncio.id);
 
     final datos = <(IconData, String)>[
       (Icons.payments_outlined, '$precio Bs'),
@@ -168,36 +197,57 @@ class _TarjetaGestion extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // FLEXBOX: el titulo toma el espacio libre y el estado queda
-          // anclado a la derecha.
+          // FLEXBOX: la foto mide lo suyo y el resto toma el ancho que queda.
+          // La foto es lo primero que reconoce cual de los cuatro cuartos es
+          // este, antes de leer el titulo.
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              FotoInmueble(url: anuncio.fotoPrincipal, ancho: 64, alto: 64),
+              const SizedBox(width: Espacio.md),
               Expanded(
-                child: Text(
-                  anuncio.titulo,
-                  style:
-                      AppText.button(context).copyWith(color: AppColors.text),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // FLEXBOX: el titulo toma el espacio libre y el estado
+                    // queda anclado a la derecha.
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            anuncio.titulo,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppText.button(context)
+                                .copyWith(color: AppColors.text),
+                          ),
+                        ),
+                        const SizedBox(width: Espacio.sm),
+                        EtiquetaEstado.anuncio(anuncio.estado),
+                      ],
+                    ),
+                    const SizedBox(height: Espacio.sm),
+                    // FLEXBOX: los datos van en fila y bajan si no entran
+                    // (flex-wrap).
+                    Wrap(
+                      spacing: Espacio.md,
+                      runSpacing: Espacio.xs,
+                      children: [
+                        for (final (icono, texto) in datos)
+                          FilaCondicion(
+                            enLinea: true,
+                            icono: icono,
+                            texto: texto,
+                            colorIcono: AppColors.text50,
+                            estilo: AppText.caption(context)
+                                .copyWith(color: AppColors.text70),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: Espacio.sm),
-              EtiquetaEstado.anuncio(anuncio.estado),
-            ],
-          ),
-          const SizedBox(height: Espacio.sm),
-          // FLEXBOX: los datos van en fila y bajan si no entran (flex-wrap).
-          Wrap(
-            spacing: Espacio.md,
-            runSpacing: Espacio.xs,
-            children: [
-              for (final (icono, texto) in datos)
-                FilaCondicion(
-                  enLinea: true,
-                  icono: icono,
-                  texto: texto,
-                  colorIcono: AppColors.text50,
-                  estilo:
-                      AppText.caption(context).copyWith(color: AppColors.text70),
-                ),
             ],
           ),
           const SizedBox(height: Espacio.md),
@@ -206,13 +256,13 @@ class _TarjetaGestion extends StatelessWidget {
               etiqueta: 'Marcar Ya alquilado',
               icono: Icons.check_circle_outline,
               compacto: true,
-              alTocar: alternar,
+              alTocar: ocupado ? null : () => _marcarAlquilado(context),
             )
           else
             BotonTexto(
               etiqueta: 'Volver a publicar',
               icono: Icons.refresh,
-              alTocar: alternar,
+              alTocar: ocupado ? null : () => provider.volverAPublicar(anuncio),
             ),
         ],
       ),

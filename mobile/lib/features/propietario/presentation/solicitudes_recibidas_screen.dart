@@ -73,7 +73,8 @@ class _SolicitudesRecibidasScreenState
       // conexion.
       cuerpo = EstadoVacio(
         icono: Icons.error_outline,
-        titulo: provider.error!,
+        titulo: 'No pudimos cargar tus solicitudes',
+        detalle: provider.error,
         esError: true,
         accion: 'Reintentar',
         alAccion: provider.cargar,
@@ -110,6 +111,7 @@ class _SolicitudesRecibidasScreenState
                   inquilino: s.inquilino,
                   fecha: s.creadaEn,
                   estado: s.estado,
+                  foto: s.anuncio.fotoPrincipal,
                   alTocar: () => _abrir(s.id),
                   alAprobar: () => _abrir(s.id),
                   alRechazar:

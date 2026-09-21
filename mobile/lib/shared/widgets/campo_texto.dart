@@ -32,6 +32,13 @@ enum EstadoCampo {
 ///
 /// El motivo del error va pegado al campo que lo provoca, no al boton del
 /// final de la pantalla: es aca donde se corrige.
+///
+/// Legibilidad: el borde en reposo va en Text 60 %, el minimo para el contorno
+/// de un control (3,5:1; el 38 % de antes daba 2,1:1). La etiqueta, la pista
+/// y la unidad van en Text 70 %, el gris que se lee como texto (4,6:1); el
+/// icono va en Text 60 % hasta que el campo se activa. El borde se pinta por
+/// encima del contenido y no le quita alto: el campo y el ojito ocupan los 48
+/// enteros, asi que el blanco del toque es toda la caja.
 class CampoTexto extends StatefulWidget {
   const CampoTexto({
     super.key,
@@ -88,6 +95,10 @@ class CampoTexto extends StatefulWidget {
   final TextInputAction? accionTeclado;
   final ValueChanged<String>? alEnviar;
 
+  /// Lo que se anuncia al tocar el ojito, para no repetirlo en las pruebas.
+  static const String etiquetaMostrarClave = 'Mostrar contraseña';
+  static const String etiquetaOcultarClave = 'Ocultar contraseña';
+
   @override
   State<CampoTexto> createState() => _CampoTextoState();
 }
@@ -131,21 +142,27 @@ class _CampoTextoState extends State<CampoTexto> {
 
   @override
   Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
     final texto = Theme.of(context).textTheme;
     final actual = estado;
 
     // Lo unico que distingue los estados es el borde. La forma se conserva.
-    // Estado reposo: borde gris, "se puede escribir aca".
+    // Estado reposo: borde gris (Text 60 %), "se puede escribir aca".
     // Estado relleno: borde verde fino, confirma que el dato fue recibido.
     // Estado foco: borde verde grueso, "estás escribiendo aquí".
     // Estado error: borde rojo, "esto hay que corregirlo".
     // Los colores son constantes de AppColors: la pieza no calcula tintes.
     final (Color borde, double grosor) = switch (actual) {
-      EstadoCampo.reposo => (AppColors.text38, 1.0),
+      EstadoCampo.reposo => (AppColors.text60, 1.0),
       EstadoCampo.relleno => (AppColors.primary, 1.5),
       EstadoCampo.foco => (AppColors.primary, 2.0),
       EstadoCampo.error => (AppColors.error, 2.0),
+    };
+
+    // El icono acompana al borde: gris en reposo, verde activo, rojo en error.
+    final colorIcono = switch (actual) {
+      EstadoCampo.error => AppColors.error,
+      EstadoCampo.foco || EstadoCampo.relleno => AppColors.primary,
+      EstadoCampo.reposo => AppColors.text60,
     };
 
     final sufijo = widget.sufijo ??
@@ -153,20 +170,28 @@ class _CampoTextoState extends State<CampoTexto> {
             ? null
             : Text(
                 widget.unidad!,
-                style: texto.bodyLarge
-                    ?.copyWith(color: esquema.onSurfaceVariant),
+                style: texto.bodyLarge?.copyWith(color: AppColors.text70),
               )) ??
         (widget.esClave
             ? IconButton(
-                tooltip: _verClave ? 'Ocultar contraseña' : 'Mostrar contraseña',
+                // El tooltip es el nombre del boton para el lector de
+                // pantalla ("Mostrar contraseña, botón").
+                tooltip: _verClave
+                    ? CampoTexto.etiquetaOcultarClave
+                    : CampoTexto.etiquetaMostrarClave,
                 icon: Icon(
                   _verClave
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                   size: 20,
-                  color: AppColors.text50,
+                  color: AppColors.text60,
                 ),
                 onPressed: () => setState(() => _verClave = !_verClave),
+                // El icono mide 20; el blanco del toque, 48, toda la caja.
+                constraints: const BoxConstraints(
+                  minWidth: Medida.toque,
+                  minHeight: Medida.toque,
+                ),
               )
             : null);
 
@@ -178,8 +203,8 @@ class _CampoTextoState extends State<CampoTexto> {
           widget.etiqueta,
           style: texto.labelMedium?.copyWith(
             color: actual == EstadoCampo.error
-                ? esquema.error
-                : esquema.onSurfaceVariant,
+                ? AppColors.error
+                : AppColors.text70,
           ),
         ),
         const SizedBox(height: Espacio.sm),
@@ -193,8 +218,14 @@ class _CampoTextoState extends State<CampoTexto> {
             duration: const Duration(milliseconds: 120),
             curve: Curves.easeOut,
             height: Medida.campo, // constante en los cuatro estados
+            // El fondo va debajo del contenido y el borde por encima: asi el
+            // borde no le resta alto a la fila, y el campo y el ojito miden
+            // los 48 enteros de la caja.
             decoration: BoxDecoration(
-              color: esquema.surface,
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(Medida.radio),
+            ),
+            foregroundDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Medida.radio),
               border: Border.all(color: borde, width: grosor),
             ),
@@ -202,15 +233,7 @@ class _CampoTextoState extends State<CampoTexto> {
               children: [
                 if (widget.icono != null) ...[
                   const SizedBox(width: Espacio.md),
-                  Icon(
-                    widget.icono,
-                    size: 20,
-                    color: actual == EstadoCampo.error
-                        ? esquema.error
-                        : actual == EstadoCampo.foco || actual == EstadoCampo.relleno
-                            ? esquema.primary
-                            : esquema.onSurfaceVariant,
-                  ),
+                  Icon(widget.icono, size: 20, color: colorIcono),
                   const SizedBox(width: Espacio.sm),
                 ] else ...[
                   const SizedBox(width: Espacio.md),
@@ -225,15 +248,19 @@ class _CampoTextoState extends State<CampoTexto> {
                         widget.ocultarTexto || (widget.esClave && !_verClave),
                     textInputAction: widget.accionTeclado,
                     onSubmitted: widget.alEnviar,
-                    style: texto.bodyLarge,
+                    style: texto.bodyLarge?.copyWith(color: AppColors.text),
                     decoration: InputDecoration(
                       hintText: widget.pista,
+                      hintStyle:
+                          texto.bodyLarge?.copyWith(color: AppColors.text70),
                       border: InputBorder.none,
                       // La caja (fondo y borde) la dibuja el AnimatedContainer
                       // de arriba. Sin esto el TextField pinta ademas su propio
                       // relleno y queda un rectangulo gris dentro del campo.
                       filled: false,
-                      isDense: true,
+                      // Sin `isDense`: Material le da al campo su alto minimo
+                      // de 48, el de la caja, y el blanco del toque es toda la
+                      // caja y no solo la linea de texto.
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -257,7 +284,7 @@ class _CampoTextoState extends State<CampoTexto> {
           const SizedBox(height: Espacio.sm),
           Text(
             widget.mensajeError!,
-            style: texto.bodySmall?.copyWith(color: esquema.error),
+            style: texto.bodySmall?.copyWith(color: AppColors.error),
           ),
         ],
       ],

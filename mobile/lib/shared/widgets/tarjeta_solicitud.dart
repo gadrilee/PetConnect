@@ -7,16 +7,23 @@ import 'boton_principal.dart';
 import 'boton_secundario.dart';
 import 'etiqueta_estado.dart';
 import 'fila_condicion.dart';
+import 'foto_inmueble.dart';
 
 /// Una solicitud recibida en la bandeja de la propietaria. En Figma es la
 /// pieza "Tarjeta Solicitud", con los estados Activo, Rechazada y Aprobada.
 ///
 /// REGLA DE LA PIEZA
 /// -----------------
-/// El estado se reconoce antes de leer. La pendiente no lleva etiqueta pero
+/// El estado se reconoce antes de leer. La foto del inmueble va a la
+/// izquierda, como en las tarjetas que ve la inquilina: con cuatro anuncios
+/// publicados, la foto dice de cual se habla antes que el titulo.
+/// La pendiente no lleva etiqueta pero
 /// trae las dos acciones; la aprobada y la rechazada no tienen acciones y
 /// llevan borde y etiqueta de su color. **Una solicitud ya respondida no se
 /// vuelve a responder desde la tarjeta.**
+///
+/// Los datos que acompanan (numero, fecha) van en Text 70 %, el gris que se
+/// lee; los iconos que orientan (persona, calendario) en Text 60 %.
 ///
 /// Esta armada solo con piezas compartidas: Bloque, FilaCondicion,
 /// EtiquetaEstado y los dos botones. Si cambia el boton, cambia aca tambien.
@@ -28,6 +35,7 @@ class TarjetaSolicitud extends StatelessWidget {
     required this.inquilino,
     required this.fecha,
     required this.estado,
+    this.foto,
     this.alTocar,
     this.alAprobar,
     this.alRechazar,
@@ -42,6 +50,9 @@ class TarjetaSolicitud extends StatelessWidget {
   final DateTime fecha;
   final EstadoSolicitud estado;
 
+  /// La primera foto del anuncio; `null` muestra el marcador.
+  final String? foto;
+
   /// Abrir el detalle de la solicitud.
   final VoidCallback? alTocar;
 
@@ -55,8 +66,8 @@ class TarjetaSolicitud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tenue = AppColors.text60;
-    final gris = AppColors.text50;
+    final tenue = AppColors.text70;
+    final gris = AppColors.text60;
     final pendiente = estado == EstadoSolicitud.pendiente;
 
     return Bloque(
@@ -64,7 +75,8 @@ class TarjetaSolicitud extends StatelessWidget {
       colorBorde: switch (estado) {
         EstadoSolicitud.aprobada => AppColors.success,
         EstadoSolicitud.rechazada => AppColors.error,
-        EstadoSolicitud.pendiente => null,
+        // Sin borde de color: no hay nada que decidir ni nadie que dijo que no.
+        EstadoSolicitud.pendiente || EstadoSolicitud.cerrada => null,
       },
       // AUTO LAYOUT: sin alto fijo. La pendiente es mas alta porque trae las
       // acciones.
@@ -93,32 +105,54 @@ class TarjetaSolicitud extends StatelessWidget {
             ],
           ),
           const SizedBox(height: Espacio.md),
-          FilaCondicion(
-            icono: Icons.home_outlined,
-            colorIcono: AppColors.primary,
-            tamanoIcono: 24,
-            maxLineas: 1,
-            texto: tituloAnuncio,
-            estilo: AppText.button(context)
-                .copyWith(color: AppColors.text, letterSpacing: 0),
-          ),
-          const SizedBox(height: Espacio.sm),
-          FilaCondicion(
-            icono: Icons.person_outline,
-            colorIcono: gris,
-            tamanoIcono: 24,
-            maxLineas: 1,
-            texto: inquilino.isEmpty ? 'Inquilino interesado' : inquilino,
-            estilo: AppText.body(context).copyWith(color: AppColors.text),
-          ),
-          const SizedBox(height: Espacio.sm),
-          FilaCondicion(
-            icono: Icons.calendar_today_outlined,
-            colorIcono: gris,
-            tamanoIcono: 24,
-            maxLineas: 1,
-            texto: '${fecha.day}/${fecha.month}/${fecha.year}',
-            estilo: AppText.caption(context).copyWith(color: tenue),
+          // FLEXBOX: la foto mide lo suyo y los datos toman el resto. La foto
+          // reemplaza al icono de casa que acompanaba al titulo: decia menos
+          // y ocupaba lo mismo.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FotoInmueble(url: foto, ancho: 64, alto: 64),
+              const SizedBox(width: Espacio.md),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Una linea, como antes: con dos, una tarjeta de titulo
+                    // largo queda mas alta que la de al lado y la bandeja
+                    // pierde el ritmo. Lo que el titulo no alcanza a decir,
+                    // ahora lo dice la foto.
+                    Text(
+                      tituloAnuncio,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.button(context)
+                          .copyWith(color: AppColors.text, letterSpacing: 0),
+                    ),
+                    const SizedBox(height: Espacio.sm),
+                    FilaCondicion(
+                      icono: Icons.person_outline,
+                      colorIcono: gris,
+                      tamanoIcono: 24,
+                      maxLineas: 1,
+                      texto:
+                          inquilino.isEmpty ? 'Inquilino interesado' : inquilino,
+                      estilo:
+                          AppText.body(context).copyWith(color: AppColors.text),
+                    ),
+                    const SizedBox(height: Espacio.sm),
+                    FilaCondicion(
+                      icono: Icons.calendar_today_outlined,
+                      colorIcono: gris,
+                      tamanoIcono: 24,
+                      maxLineas: 1,
+                      texto: '${fecha.day}/${fecha.month}/${fecha.year}',
+                      estilo: AppText.caption(context).copyWith(color: tenue),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           if (pendiente) ...[
             const Padding(

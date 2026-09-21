@@ -162,25 +162,21 @@ class _BuscarScreenState extends State<BuscarScreen> {
                   // ---- Tipo de espacio ----
                   Text('Tipo de espacio', style: tenue),
                   const SizedBox(height: Espacio.sm),
-                  // FLEXBOX: las tres opciones reparten el ancho por partes
-                  // iguales, para que "Casa" no quede mas angosta que las
-                  // demas por tener una palabra mas corta.
-                  Row(
-                    children: [
-                      for (final t in TipoEspacio.values) ...[
-                        if (t != TipoEspacio.values.first)
-                          const SizedBox(width: Espacio.md),
-                        Expanded(
-                          child: Opcion(
-                            etiqueta: t.etiqueta,
-                            seleccionada: _tipoSeleccionado == t,
-                            alTocar: () => setState(
-                              () => _tipoSeleccionado =
-                                  _tipoSeleccionado == t ? null : t,
-                            ),
+                  // Las tres miden lo mismo, como en Figma y como en Publicar.
+                  // Midiendo cada una por su palabra, "Casa" quedaba la mitad
+                  // que "Departamento": tres tamanos distintos se leen como
+                  // tres cosas distintas, no como tres opciones de lo mismo.
+                  FilaOpciones(
+                    opciones: [
+                      for (final t in TipoEspacio.values)
+                        Opcion(
+                          etiqueta: t.etiqueta,
+                          seleccionada: _tipoSeleccionado == t,
+                          alTocar: () => setState(
+                            () => _tipoSeleccionado =
+                                _tipoSeleccionado == t ? null : t,
                           ),
                         ),
-                      ],
                     ],
                   ),
                   const SizedBox(height: Espacio.md),
@@ -214,7 +210,9 @@ class _BuscarScreenState extends State<BuscarScreen> {
                   Deslizador(
                     valor: _minutosMax,
                     min: 5,
-                    max: 60,
+                    // Hasta 200: el tope de 60 dejaba afuera cuartos que
+                    // alguien con más tiempo igual consideraría.
+                    max: 200,
                     alCambiar: (v) => setState(() => _minutosMax = v),
                   ),
                 ],

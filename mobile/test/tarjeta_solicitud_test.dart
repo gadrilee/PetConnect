@@ -1,5 +1,6 @@
 import 'package:alquilamatch/core/theme.dart';
 import 'package:alquilamatch/features/inquilina/data/solicitud.dart';
+import 'package:alquilamatch/shared/widgets/foto_inmueble.dart';
 import 'package:alquilamatch/shared/widgets/tarjeta_solicitud.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +21,7 @@ TarjetaSolicitud _tarjeta({
   EstadoSolicitud estado = EstadoSolicitud.pendiente,
   String titulo = 'Habitación a aprox 40 min de la UAGRM',
   String inquilino = 'andrea',
+  String? foto,
   VoidCallback? alTocar,
   VoidCallback? alAprobar,
   VoidCallback? alRechazar,
@@ -29,6 +31,7 @@ TarjetaSolicitud _tarjeta({
   inquilino: inquilino,
   fecha: DateTime(2026, 9, 8),
   estado: estado,
+  foto: foto,
   alTocar: alTocar,
   alAprobar: alAprobar ?? () {},
   alRechazar: alRechazar ?? () {},
@@ -107,6 +110,30 @@ void main() {
       final titulo = tester.widget<Text>(find.textContaining('Habitación amplia'));
       expect(titulo.maxLines, 1);
       expect(titulo.overflow, TextOverflow.ellipsis);
+    });
+
+    testWidgets('la foto del inmueble va a la izquierda del título', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_envolver(_tarjeta(foto: 'http://x/foto.jpg')));
+
+      expect(find.byType(FotoInmueble), findsOneWidget);
+      final foto = tester.getRect(find.byType(FotoInmueble));
+      final titulo = tester.getRect(
+        find.text('Habitación a aprox 40 min de la UAGRM'),
+      );
+      expect(foto.width, 64);
+      expect(foto.height, 64);
+      expect(foto.right, lessThanOrEqualTo(titulo.left));
+    });
+
+    testWidgets('sin foto deja el marcador, no un hueco', (tester) async {
+      await tester.pumpWidget(_envolver(_tarjeta()));
+
+      // La pieza dibuja su propio marcador: la tarjeta mide lo mismo con foto
+      // y sin foto, asi la bandeja no salta mientras cargan.
+      expect(find.byType(FotoInmueble), findsOneWidget);
+      expect(tester.getSize(find.byType(FotoInmueble)), const Size(64, 64));
     });
 
     testWidgets('tocar la tarjeta abre el detalle', (tester) async {

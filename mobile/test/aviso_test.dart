@@ -104,6 +104,58 @@ void main() {
       expect(find.byIcon(Icons.info_outline), findsNothing);
     });
 
+    testWidgets('el que lleva a algún lado avisa con la flecha, y el que no, no', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_envolver(const Aviso(mensaje: _mensaje)));
+      expect(
+        find.byIcon(Icons.open_in_new),
+        findsNothing,
+        reason: 'un aviso que sólo informa no promete que lleva a ningún lado',
+      );
+
+      var tocado = 0;
+      await tester.pumpWidget(
+        _envolver(Aviso(mensaje: _mensaje, alTocar: () => tocado++)),
+      );
+
+      expect(find.byIcon(Icons.open_in_new), findsOneWidget);
+      await tester.tap(find.byType(Aviso));
+      expect(tocado, 1);
+    });
+
+    testWidgets('el que se toca mide lo mismo que el que no', (tester) async {
+      // La flecha entra en el aviso, no lo agranda: es la regla de la pieza.
+      await tester.pumpWidget(_envolver(const Aviso(mensaje: _mensaje)));
+      final quieto = tester.getSize(find.byType(Aviso));
+
+      await tester.pumpWidget(
+        _envolver(Aviso(mensaje: _mensaje, alTocar: () {})),
+      );
+      expect(tester.getSize(find.byType(Aviso)), quieto);
+      expect(quieto.height, 64);
+    });
+
+    testWidgets('el que se toca se anuncia como botón', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _envolver(Aviso(mensaje: _mensaje, alTocar: () {})),
+      );
+
+      expect(
+        tester.getSemantics(find.text(_mensaje)),
+        matchesSemantics(
+          label: _mensaje,
+          isButton: true,
+          hasTapAction: true,
+          // Los del InkWell, que tambien sirven: se llega con el teclado.
+          isFocusable: true,
+          hasFocusAction: true,
+        ),
+      );
+      handle.dispose();
+    });
+
     testWidgets('como toast, aparece y se va solo a los tres segundos', (
       tester,
     ) async {

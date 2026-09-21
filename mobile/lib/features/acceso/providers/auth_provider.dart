@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/api_client.dart';
 import '../data/auth_repository.dart';
+import '../data/foto_del_telefono.dart';
 import '../data/perfil.dart';
 
 enum EstadoSesion { comprobando, sinSesion, autenticado }
@@ -15,6 +16,11 @@ class AuthProvider extends ChangeNotifier {
   /// El aviso con el que se entra despues de crear la cuenta. El inicio lo
   /// muestra en su pie, como unico contenido del `PieAcciones`.
   static const String avisoCuentaCreada = 'Cuenta creada con éxito';
+
+  /// El aviso con el que se entra despues de poner una contrasena nueva: la
+  /// persona queda adentro sin volver a escribirla en Ingresar.
+  static const String avisoContrasenaCambiada =
+      'Listo, cambiaste tu contraseña. Ya estás adentro.';
 
   EstadoSesion _estado = EstadoSesion.comprobando;
   Perfil? _perfil;
@@ -65,6 +71,7 @@ class AuthProvider extends ChangeNotifier {
     required String username,
     required String password,
     required Rol rol,
+    String email = '',
     String whatsapp = '',
   }) {
     return _intentar(
@@ -72,9 +79,62 @@ class AuthProvider extends ChangeNotifier {
         username: username,
         password: password,
         rol: rol,
+        email: email,
         whatsapp: whatsapp,
       ),
       avisoAlLograrlo: avisoCuentaCreada,
+    );
+  }
+
+  /// Pone la contrasena nueva con el enlace del correo y entra.
+  Future<bool> confirmarRecuperacion({
+    required String uid,
+    required String token,
+    required String password,
+  }) {
+    return _intentar(
+      () => _repo.confirmarRecuperacion(uid: uid, token: token, password: password),
+      avisoAlLograrlo: avisoContrasenaCambiada,
+    );
+  }
+
+  /// Pide el enlace para una contrasena nueva. No toca la sesion: quien lo
+  /// pide todavia no entro.
+  Future<bool> pedirRecuperacion(String email) {
+    return _sinSesion(
+      () => _repo.pedirRecuperacion(email),
+      fallo: 'No se pudo enviar el enlace. Revisá tu conexión y probá de nuevo.',
+    );
+  }
+
+  /// Cambia el WhatsApp desde Mi perfil.
+  Future<bool> actualizarWhatsapp(String whatsapp) {
+    return _sinSesion(
+      () async => _perfil = await _repo.actualizarWhatsapp(whatsapp),
+      fallo: 'No se pudo guardar. Revisá tu conexión y probá de nuevo.',
+    );
+  }
+
+  /// Lo que se dice cuando la foto no llego al servidor (Figma, Validaciones
+  /// "08 Mi perfil · no se pudo subir la foto"). Si el servidor la recibio y
+  /// la rechazo (pesa mucho, no es una imagen), se dice su motivo, que queda
+  /// en `erroresPorCampo['foto']`.
+  static const String noSeSubioLaFoto =
+      'No se pudo subir la foto. Revisá tu conexión y probá de nuevo.';
+
+  /// Pone o cambia la foto de perfil desde Mi perfil.
+  Future<bool> subirFoto(FotoElegida foto) {
+    return _sinSesion(
+      () async => _perfil = await _repo.subirFoto(foto),
+      fallo: noSeSubioLaFoto,
+    );
+  }
+
+  /// Quita la foto de perfil: vuelve el icono del rol.
+  Future<bool> quitarFoto() {
+    return _sinSesion(
+      () async => _perfil = await _repo.quitarFoto(),
+      fallo: 'No se pudo quitar la foto. Revisá tu conexión y probá de nuevo.',
     );
   }
 
@@ -127,6 +187,33 @@ class AuthProvider extends ChangeNotifier {
       return false;
     } catch (e) {
       _error = 'Ocurrió un error inesperado.';
+      return false;
+    } finally {
+      _ocupado = false;
+      notifyListeners();
+    }
+  }
+
+  /// Corre una accion que no cambia el estado de la sesion (pedir el enlace,
+  /// guardar el WhatsApp). Los errores por campo del backend quedan para
+  /// pintarlos debajo del campo; si no hay ninguno, va [fallo].
+  Future<bool> _sinSesion(
+    Future<void> Function() accion, {
+    required String fallo,
+  }) async {
+    _ocupado = true;
+    _limpiarErrores();
+    notifyListeners();
+
+    try {
+      await accion();
+      return true;
+    } on ApiException catch (e) {
+      _erroresPorCampo = e.porCampo;
+      _error = e.porCampo.isEmpty ? fallo : null;
+      return false;
+    } catch (_) {
+      _error = fallo;
       return false;
     } finally {
       _ocupado = false;

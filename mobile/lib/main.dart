@@ -1,7 +1,11 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show SemanticsBinding;
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api_client.dart';
+import 'core/enlaces.dart';
 import 'core/theme.dart';
 import 'features/propietario/data/anuncios_repository.dart';
 import 'features/propietario/providers/mis_anuncios_provider.dart';
@@ -14,6 +18,16 @@ import 'features/propietario/presentation/inicio_screen.dart';
 import 'features/propietario/data/solicitudes_recibidas_repository.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // En la web Flutter dibuja en un canvas y no arma el arbol de semantica
+  // hasta que alguien lo pide: un lector de pantalla o un escaner (Lighthouse
+  // veia 17 auditorias aplicables y 49 "no aplica") no encuentran nada hasta
+  // tocar un boton escondido. Pedirlo al arrancar deja el DOM de semantica
+  // siempre disponible. En un telefono el sistema lo pide solo cuando hace
+  // falta.
+  if (kIsWeb) SemanticsBinding.instance.ensureSemantics();
+
   final api = ApiClient();
   final anuncios = AnunciosRepository(api);
   final solicitudes = SolicitudesRepository(api);
@@ -39,13 +53,30 @@ void main() {
 class AlquilaMatchApp extends StatelessWidget {
   const AlquilaMatchApp({super.key});
 
+  /// El idioma de la app. Con el, los nombres que pone Material solo —la
+  /// flecha de volver, el menu de copiar y pegar, los dialogos— se anuncian
+  /// en castellano y no en ingles. Las pruebas montan las pantallas con el
+  /// mismo idioma y los mismos delegados, para probar lo que se anuncia.
+  static const Locale idioma = Locale('es');
+
+  static const List<Locale> idiomas = [idioma];
+
+  static const List<LocalizationsDelegate<dynamic>> delegados =
+      GlobalMaterialLocalizations.delegates;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'AlquilaMatch',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.claro,
+      locale: idioma,
+      supportedLocales: idiomas,
+      localizationsDelegates: delegados,
       home: const _Puerta(),
+      // El enlace del correo de recuperacion abre "Nueva contraseña" encima
+      // de lo que haya: el login, o el inicio si ya habia sesion.
+      onGenerateRoute: rutaDesdeEnlace,
     );
   }
 }

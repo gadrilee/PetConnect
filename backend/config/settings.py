@@ -33,6 +33,17 @@ DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.0.2.2').split(',')
 
+# Detras de nginx, Django ve http aunque el navegador este en https. Sin esto
+# el admin rechaza sus propios formularios y build_absolute_uri devuelve
+# direcciones http para las fotos, que el navegador despues bloquea.
+CSRF_TRUSTED_ORIGINS = [
+    o for o in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if o
+]
+if os.getenv('DETRAS_DE_PROXY', 'False').lower() == 'true':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
 
 # Application definition
 
@@ -143,6 +154,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# En produccion nginx sirve estos archivos: `collectstatic` los junta aca.
+# En desarrollo no se usa, que es por lo que no estaba.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # Email

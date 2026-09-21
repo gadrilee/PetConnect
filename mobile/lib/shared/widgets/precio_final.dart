@@ -30,6 +30,9 @@ enum EstiloPrecio {
 /// todas. Habia tres formateadores para un solo numero, y la misma cifra
 /// salia "1250.00" en Anuncio y "1.250" en Publicar.
 ///
+/// En el resumen la etiqueta va en Text 80 %: esta sobre el gris del bloque
+/// suave, donde el 70 % de las notas sobre blanco no llega a 4,5:1.
+///
 /// - AUTO LAYOUT: estira a lo ancho y mide lo que su contenido.
 /// - FLEXBOX (barra): la etiqueta a la izquierda y la cifra a la derecha
 ///   mientras entran en una linea. Si la cifra no entra —un precio largo en un
@@ -97,7 +100,7 @@ class PrecioFinal extends StatelessWidget {
           hijos: [
             Text(
               etiqueta,
-              style: AppText.caption(context).copyWith(color: AppColors.text70),
+              style: AppText.caption(context).copyWith(color: AppColors.text80),
             ),
             const SizedBox(height: Espacio.sm),
             Text(

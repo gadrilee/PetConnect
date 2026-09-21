@@ -13,6 +13,9 @@ import 'boton_secundario.dart';
 /// como vacio**: decir "no tenes solicitudes" cuando fallo la conexion hace
 /// creer algo falso.
 ///
+/// El detalle va en Text 70 %, el gris que se lee (4,6:1); el icono, en
+/// Text 60 % o en el color del error.
+///
 /// CONSTRAINTS: centrado y con tope de ancho, para que en un monitor no se lea
 /// como una sola linea eterna.
 class EstadoVacio extends StatelessWidget {
@@ -52,7 +55,7 @@ class EstadoVacio extends StatelessWidget {
               Icon(
                 icono,
                 size: 64,
-                color: esError ? AppColors.error : AppColors.text50,
+                color: esError ? AppColors.error : AppColors.text60,
               ),
               const SizedBox(height: Espacio.md),
               Text(
@@ -65,7 +68,7 @@ class EstadoVacio extends StatelessWidget {
                 Text(
                   detalle!,
                   textAlign: TextAlign.center,
-                  style: AppText.body(context).copyWith(color: AppColors.text60),
+                  style: AppText.body(context).copyWith(color: AppColors.text70),
                 ),
               ],
               if (accion != null) ...[

@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/theme.dart';
 import '../../../shared/layout/grilla.dart';
 import '../../../shared/layout/pagina.dart';
-import '../../../shared/widgets/bloque.dart';
 import '../../../shared/widgets/estado_vacio.dart';
-import '../../../shared/widgets/etiqueta_estado.dart';
-import '../../../shared/widgets/fila_condicion.dart';
-import '../../../shared/widgets/foto_inmueble.dart';
+import '../../../shared/widgets/tarjeta_historial.dart';
 import '../data/solicitud.dart';
 import '../data/solicitudes_repository.dart';
 import '../providers/mis_solicitudes_provider.dart';
@@ -67,7 +63,8 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
       // fallo la conexion hace creer algo falso.
       cuerpo = EstadoVacio(
         icono: Icons.error_outline,
-        titulo: provider.error!,
+        titulo: 'No pudimos cargar tus solicitudes',
+        detalle: provider.error,
         esError: true,
         accion: 'Reintentar',
         alAccion: provider.cargar,
@@ -93,70 +90,17 @@ class _MisSolicitudesScreenState extends State<MisSolicitudesScreen> {
             for (final solicitud in solicitudes)
               CeldaGrilla(
                 columnas: const Columnas(tablet: 6, escritorio: 4),
-                child: _TarjetaHistorial(
-                  solicitud: solicitud,
+                child: TarjetaHistorial(
+                  tituloAnuncio: solicitud.anuncio.titulo,
+                  enviada: solicitud.creadaEn,
+                  estado: solicitud.estado,
+                  foto: solicitud.anuncio.fotoPrincipal,
                   alTocar: () => _verEstado(solicitud),
                 ),
               ),
           ],
         ),
       ],
-    );
-  }
-}
-
-/// Una solicitud enviada: que anuncio, cuando y en que quedo.
-class _TarjetaHistorial extends StatelessWidget {
-  const _TarjetaHistorial({required this.solicitud, required this.alTocar});
-
-  final SolicitudVisita solicitud;
-  final VoidCallback alTocar;
-
-  @override
-  Widget build(BuildContext context) {
-    final fotos = solicitud.anuncio.fotos;
-
-    return Bloque(
-      alTocar: alTocar,
-      // FLEXBOX: la foto y la flecha miden lo suyo; los datos toman el resto.
-      child: Row(
-        children: [
-          FotoInmueble(
-            url: fotos.isNotEmpty ? fotos.first.imagen : null,
-            ancho: 64,
-            alto: 64,
-          ),
-          const SizedBox(width: Espacio.md),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  solicitud.anuncio.titulo,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style:
-                      AppText.button(context).copyWith(color: AppColors.text),
-                ),
-                const SizedBox(height: Espacio.xs),
-                FilaCondicion(
-                  icono: Icons.calendar_today_outlined,
-                  tamanoIcono: 14,
-                  maxLineas: 1,
-                  texto:
-                      'Enviada: ${solicitud.creadaEn.day}/${solicitud.creadaEn.month}',
-                  estilo: AppText.caption(context)
-                      .copyWith(color: AppColors.text70),
-                ),
-                const SizedBox(height: Espacio.sm),
-                EtiquetaEstado.solicitud(solicitud.estado),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right, color: AppColors.text50),
-        ],
-      ),
     );
   }
 }

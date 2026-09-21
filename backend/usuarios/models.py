@@ -1,7 +1,21 @@
 """Perfiles de usuario: quien publica y quien busca."""
 
+import uuid
+
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
+
+def ruta_foto_perfil(perfil, nombre_original):
+    """Un nombre nuevo para cada foto.
+
+    Si la foto nueva se guardara con el mismo nombre, la direccion no cambiaria
+    y la app seguiria mostrando la vieja que tiene guardada. El nombre original
+    no se usa: puede decir de mas ("marta-dni.jpg").
+    """
+    return f'perfiles/{uuid.uuid4().hex}.jpg'
 
 
 class Perfil(models.Model):
@@ -24,6 +38,10 @@ class Perfil(models.Model):
     # escriben para cualquier cosa, pero si no lo pongo nadie te contacta."
     whatsapp = models.CharField('WhatsApp', max_length=20, blank=True)
 
+    # Opcional: sin foto, la app muestra el icono del rol. Se guarda ya
+    # recortada, chica y sin metadatos (ver FotoPerfilSerializer).
+    foto = models.ImageField(upload_to=ruta_foto_perfil, blank=True)
+
     creado_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -36,3 +54,10 @@ class Perfil(models.Model):
     @property
     def es_propietario(self):
         return self.rol == self.Rol.PROPIETARIO
+
+
+@receiver(post_delete, sender=Perfil)
+def borrar_foto_del_perfil(sender, instance, **kwargs):
+    """Borrar la cuenta borra la foto: no queda una cara suelta en el disco."""
+    if instance.foto:
+        instance.foto.delete(save=False)

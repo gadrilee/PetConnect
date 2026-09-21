@@ -16,6 +16,14 @@ class ApiException implements Exception {
   /// Sirve para pintarlos debajo del input correspondiente.
   final Map<String, String> porCampo;
 
+  /// Lo que se le dice a la persona cuando el servidor no respondio: que
+  /// hacer. [mensaje] en ese caso habla del backend, y es para quien programa.
+  static const String sinRespuesta = 'Revisá tu conexión y probá de nuevo.';
+
+  /// El motivo para mostrar debajo de un "No pudimos cargar...": sin
+  /// respuesta, [sinRespuesta]; con respuesta, lo que dijo el servidor.
+  String get motivo => codigo == null ? sinRespuesta : mensaje;
+
   @override
   String toString() => mensaje;
 }
@@ -66,21 +74,31 @@ class ApiClient {
     return _enviar('PATCH', ruta, cuerpo: cuerpo);
   }
 
+  Future<dynamic> delete(String ruta) {
+    return _enviar('DELETE', ruta);
+  }
+
   /// Sube un archivo con `multipart/form-data`.
   ///
-  /// Lo usa la carga de fotos del anuncio, que ademas manda la fecha de
-  /// captura: lo que importa es cuando se saco la foto, no cuando se subio.
+  /// Lo usan las fotos del anuncio, que ademas mandan la fecha de captura (lo
+  /// que importa es cuando se saco la foto, no cuando se subio), y la foto de
+  /// perfil.
   Future<dynamic> postArchivo(
     String ruta, {
     required String campo,
-    required String rutaArchivo,
+    required List<int> bytes,
+    required String nombreArchivo,
     Map<String, String> campos = const {},
     bool esReintento = false,
   }) async {
     final uri = Uri.parse('${Config.baseUrl}$ruta');
+    // Bytes y no una ruta: `MultipartFile.fromPath` usa dart:io, que en la web
+    // no existe. Tiraba UnsupportedError, caia en el catch de mas abajo y la
+    // app culpaba a la conexion.
     final peticion = http.MultipartRequest('POST', uri)
       ..fields.addAll(campos)
-      ..files.add(await http.MultipartFile.fromPath(campo, rutaArchivo));
+      ..files.add(http.MultipartFile.fromBytes(campo, bytes,
+          filename: nombreArchivo));
 
     final token = await accessToken;
     if (token != null) peticion.headers['Authorization'] = 'Bearer $token';
@@ -108,7 +126,8 @@ class ApiClient {
       return postArchivo(
         ruta,
         campo: campo,
-        rutaArchivo: rutaArchivo,
+        bytes: bytes,
+        nombreArchivo: nombreArchivo,
         campos: campos,
         esReintento: true,
       );

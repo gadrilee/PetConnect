@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/api_client.dart';
+import '../../../core/enlace_externo.dart';
 import '../../../core/theme.dart';
 import '../../../shared/layout/grilla.dart';
 import '../../../shared/layout/pagina.dart';
@@ -27,6 +28,9 @@ import 'solicitar_visita_screen.dart';
 class AnuncioScreen extends StatefulWidget {
   const AnuncioScreen({super.key, required this.anuncioId});
 
+  /// Validaciones: el aparato no tuvo con qué abrir el mapa.
+  static const String noSeAbrioElMapa = 'No se pudo abrir el mapa.';
+
   final int anuncioId;
 
   @override
@@ -39,6 +43,10 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
   Anuncio? _anuncio;
   bool _cargando = true;
   String? _error;
+
+  /// Si no se pudo abrir el mapa. Va al pie, donde esta el resto de lo que
+  /// pasa en esta pantalla, y no en un toast que se va solo.
+  String? _errorMapa;
 
   @override
   void initState() {
@@ -59,14 +67,14 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
     } on ApiException catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.mensaje;
+          _error = e.motivo;
           _cargando = false;
         });
       }
     } catch (_) {
       if (mounted) {
         setState(() {
-          _error = 'No se pudo cargar el anuncio.';
+          _error = ApiException.sinRespuesta;
           _cargando = false;
         });
       }
@@ -79,6 +87,15 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
       _error = null;
     });
     _cargar();
+  }
+
+  /// Abre el mapa en donde queda el anuncio.
+  Future<void> _verEnElMapa(Uri mapa) async {
+    setState(() => _errorMapa = null);
+    final abierto = await abrirEnlaceExterno(mapa);
+    if (!abierto && mounted) {
+      setState(() => _errorMapa = AnuncioScreen.noSeAbrioElMapa);
+    }
   }
 
   void _irASolicitar() {
@@ -108,7 +125,8 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
         titulo: _titulo,
         cuerpo: EstadoVacio(
           icono: Icons.error_outline,
-          titulo: _error ?? 'No se pudo cargar el anuncio.',
+          titulo: 'No pudimos cargar el anuncio',
+          detalle: _error,
           esError: true,
           accion: 'Reintentar',
           alAccion: _reintentar,
@@ -116,9 +134,14 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
       );
     }
 
+    final mapa = anuncio.mapa;
+
     return Pagina(
       titulo: _titulo,
       pie: PieAcciones(
+        aviso: _errorMapa == null
+            ? null
+            : Aviso(tipo: TipoAviso.error, mensaje: _errorMapa!),
         botonPrincipal: BotonPrincipal(
           etiqueta: 'SOLICITAR VISITA',
           alTocar: _irASolicitar,
@@ -136,7 +159,10 @@ class _AnuncioScreenState extends State<AnuncioScreen> {
             ),
             CeldaGrilla(
               columnas: const Columnas(tablet: 6, escritorio: 4),
-              child: _Acompana(anuncio: anuncio),
+              child: _Acompana(
+                anuncio: anuncio,
+                alVerMapa: mapa == null ? null : () => _verEnElMapa(mapa),
+              ),
             ),
           ],
         ),
@@ -300,12 +326,19 @@ class _GaleriaState extends State<_Galeria> {
 
 /// Lo que acompana la decision: el contacto protegido y la ubicacion.
 class _Acompana extends StatelessWidget {
-  const _Acompana({required this.anuncio});
+  const _Acompana({required this.anuncio, required this.alVerMapa});
 
   final Anuncio anuncio;
 
+  /// Abrir el mapa, o `null` cuando la API no mando donde queda.
+  final VoidCallback? alVerMapa;
+
   @override
   Widget build(BuildContext context) {
+    final zona = anuncio.direccionReferencia.isNotEmpty
+        ? anuncio.direccionReferencia
+        : 'Ubicación aproximada';
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -316,13 +349,19 @@ class _Acompana extends StatelessWidget {
               'El contacto del propietario está protegido. Se libera solo cuando aprobás una solicitud.',
         ),
         const SizedBox(height: Espacio.lg),
-        // La ubicacion exacta no se publica: el aviso lo dice, no un bloque.
+        // La direccion exacta no se publica: el aviso dice la zona, no un
+        // bloque. Con mapa, el mismo aviso lleva a verla: la persona pregunta
+        // "¿donde queda?" justo aca, y hasta ahora tenia que irse de la app a
+        // buscar el nombre del barrio a mano.
+        //
+        // Antes decia "visible al aprobar la solicitud", y era mentira: lo que
+        // se libera al aprobar es el CONTACTO, que tiene su propio aviso arriba.
+        // La ubicacion se ve desde el primer momento, con mapa o sin el.
         Aviso(
           tipo: TipoAviso.info,
           icono: Icons.place_outlined,
-          mensaje: anuncio.direccionReferencia.isNotEmpty
-              ? anuncio.direccionReferencia
-              : 'Ubicación aproximada — visible al aprobar la solicitud',
+          mensaje: alVerMapa == null ? zona : '$zona · Ver en el mapa',
+          alTocar: alVerMapa,
         ),
       ],
     );

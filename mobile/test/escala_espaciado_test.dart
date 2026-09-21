@@ -40,6 +40,12 @@ const _vigilados = [
   'lib/features/inquilina/presentation/mis_solicitudes_screen.dart',
   'lib/features/propietario/presentation/mis_anuncios_screen.dart',
   'lib/features/propietario/presentation/publicar_screen.dart',
+  // Flujo v0.5: cerrar el anuncio.
+  'lib/features/propietario/presentation/confirmar_alquilado_screen.dart',
+  // Flujo v0.1: la cuenta.
+  'lib/features/acceso/presentation/perfil_screen.dart',
+  'lib/features/acceso/presentation/recuperar_screen.dart',
+  'lib/features/acceso/presentation/nueva_contrasena_screen.dart',
   // Las piezas compartidas.
   'lib/shared/layout/pagina.dart',
   'lib/shared/widgets/aviso.dart',
@@ -57,6 +63,9 @@ const _vigilados = [
   'lib/shared/widgets/resumen_busqueda.dart',
   'lib/shared/widgets/tarjeta_menu.dart',
   'lib/shared/widgets/tarjeta_perfil.dart',
+  'lib/shared/widgets/avatar_perfil.dart',
+  'lib/shared/widgets/hoja_opciones.dart',
+  'lib/shared/widgets/tarjeta_historial.dart',
   'lib/shared/widgets/titulo_seccion.dart',
   // El pie de acciones (Figma "Pie de acciones") y las piezas que faltaban.
   'lib/shared/widgets/pie_acciones.dart',

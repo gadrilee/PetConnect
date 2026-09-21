@@ -27,6 +27,10 @@ enum TipoAviso {
 /// tiene pie, el aviso va en `PieAcciones.aviso`; si no lo tiene, va en el
 /// contenido o, cuando es pasajero, como [mostrarToast], que ocupa el margen
 /// de la pagina igual que cualquier otro aviso.
+///
+/// Con [alTocar] el aviso lleva a algun lado. Sigue midiendo lo mismo: lo
+/// unico que cambia es la flecha del final, que avisa que el toque sale de la
+/// pantalla.
 class Aviso extends StatelessWidget {
   const Aviso({
     super.key,
@@ -34,6 +38,7 @@ class Aviso extends StatelessWidget {
     this.tipo = TipoAviso.info,
     this.icono,
     this.titulo,
+    this.alTocar,
   });
 
   final String mensaje;
@@ -46,6 +51,11 @@ class Aviso extends StatelessWidget {
 
   /// Título opcional, arriba del mensaje.
   final String? titulo;
+
+  /// Qué pasa al tocarlo. Sin esto el aviso solo informa, que es lo normal:
+  /// se pone cuando el aviso ES el camino a algo, como la ubicación que abre
+  /// el mapa.
+  final VoidCallback? alTocar;
 
   /// El ícono que corresponde a cada tipo. La misma tabla que usa el toast.
   static IconData iconoDe(TipoAviso tipo) => switch (tipo) {
@@ -73,11 +83,68 @@ class Aviso extends StatelessWidget {
     );
     final iconoWidget = Icon(icono ?? iconoDe(tipo), size: 24, color: contenido);
 
+    return _conToque(_cuerpo(context, decoracion, iconoWidget, contenido));
+  }
+
+  /// La caja del aviso: `Container` como siempre, y `Ink` sólo cuando se
+  /// toca, para que la onda se vea sobre el fondo en vez de quedar tapada por
+  /// él. El aviso que no lleva a ningún lado se dibuja igual que antes.
+  Widget _caja({
+    double? alto,
+    required EdgeInsets relleno,
+    required BoxDecoration decoracion,
+    required Widget hijo,
+  }) {
+    return alTocar == null
+        ? Container(
+            height: alto,
+            padding: relleno,
+            decoration: decoracion,
+            child: hijo,
+          )
+        : Ink(
+            height: alto,
+            padding: relleno,
+            decoration: decoracion,
+            child: hijo,
+          );
+  }
+
+  /// El aviso, y arriba el toque cuando lo hay.
+  Widget _conToque(Widget cuerpo) {
+    if (alTocar == null) return cuerpo;
+    return Semantics(
+      button: true,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: alTocar,
+          borderRadius: BorderRadius.circular(Medida.radio),
+          child: cuerpo,
+        ),
+      ),
+    );
+  }
+
+  Widget _cuerpo(
+    BuildContext context,
+    BoxDecoration decoracion,
+    Widget iconoWidget,
+    Color contenido,
+  ) {
+    // La flecha del final: solo cuando el aviso lleva a algun lado.
+    final flecha = alTocar == null
+        ? null
+        : Padding(
+            padding: const EdgeInsets.only(left: Espacio.sm),
+            child: Icon(Icons.open_in_new, size: 20, color: contenido),
+          );
+
     if (titulo != null) {
-      return Container(
-        padding: const EdgeInsets.all(Espacio.md),
-        decoration: decoracion,
-        child: Row(
+      return _caja(
+        relleno: const EdgeInsets.all(Espacio.md),
+        decoracion: decoracion,
+        hijo: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             iconoWidget,
@@ -101,16 +168,17 @@ class Aviso extends StatelessWidget {
                 ],
               ),
             ),
+            ?flecha,
           ],
         ),
       );
     }
 
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: Espacio.md),
-      decoration: decoracion,
-      child: Row(
+    return _caja(
+      alto: 64,
+      relleno: const EdgeInsets.symmetric(horizontal: Espacio.md),
+      decoracion: decoracion,
+      hijo: Row(
         children: [
           iconoWidget,
           const SizedBox(width: Espacio.md),
@@ -125,6 +193,7 @@ class Aviso extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          ?flecha,
         ],
       ),
     );

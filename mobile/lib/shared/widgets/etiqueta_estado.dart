@@ -5,7 +5,7 @@ import '../../features/propietario/data/anuncio.dart';
 import 'pastilla.dart';
 
 /// Los estados que se muestran con etiqueta.
-enum TipoEstado { pendiente, aprobada, rechazada, disponible, alquilado }
+enum TipoEstado { pendiente, aprobada, rechazada, cerrada, disponible, alquilado }
 
 /// El estado de una solicitud o de un anuncio, dicho con color y palabra.
 ///
@@ -23,6 +23,7 @@ class EtiquetaEstado extends StatelessWidget {
           EstadoSolicitud.pendiente => TipoEstado.pendiente,
           EstadoSolicitud.aprobada => TipoEstado.aprobada,
           EstadoSolicitud.rechazada => TipoEstado.rechazada,
+          EstadoSolicitud.cerrada => TipoEstado.cerrada,
         };
 
   /// Atajo para un anuncio.
@@ -39,6 +40,8 @@ class EtiquetaEstado extends StatelessWidget {
       TipoEstado.pendiente => ('Pendiente', TonoPastilla.neutro),
       TipoEstado.aprobada => ('Aprobada', TonoPastilla.exito),
       TipoEstado.rechazada => ('Rechazada', TonoPastilla.error),
+      // Neutra, no roja: nadie dijo que no, el cuarto se alquilo.
+      TipoEstado.cerrada => ('Cerrada', TonoPastilla.neutro),
       TipoEstado.disponible => ('Disponible', TonoPastilla.primario),
       TipoEstado.alquilado => ('Ya alquilado', TonoPastilla.neutro),
     };

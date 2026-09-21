@@ -10,6 +10,25 @@ import 'package:flutter/material.dart';
 /// (Color/Text 5 %, Color/Primary 10 %, ...) y acá tiene su constante. Si una
 /// pieza necesita un tinte que no existe, se agrega acá, una sola vez; una
 /// prueba impide volver a calcularlo a mano en una pieza o en una pantalla.
+///
+/// REGLA DE LEGIBILIDAD (WCAG 2.2 AA, medida el 16/09/2026)
+/// -----------------------------------------------------------
+/// Un texto que se lee necesita 4,5:1 contra su fondo; un icono que orienta o
+/// el borde de un control, 3:1. De ahi sale que tinte va en cada lugar:
+///
+/// - **Text 70 %** es el gris del texto secundario sobre blanco (4,6:1).
+/// - **Text 80 %** es ese mismo texto cuando el fondo ya es un tinte: una
+///   pastilla neutra, un bloque suave o uno destacado. Sobre gris el 70 % se
+///   queda en 4,2:1 y no alcanza; el 80 % da 5,6:1.
+/// - **Text 60 %** es solo para iconos que orientan y para el borde de un
+///   campo en reposo (3,5:1). Nunca para un texto.
+/// - **Text 50 %, 40 % y 38 %** no llegan ni a 3:1: quedan para lo decorativo
+///   (el marcador de una foto) y para lo deshabilitado, que WCAG exime.
+///
+/// Los colores de estado (exito, error, advertencia) estan elegidos para que
+/// su texto se lea sobre blanco (6:1) y sobre su propio tinte de 12 % (5:1).
+/// `accesibilidad_test` recalcula estos pares: cambiar un valor aca sin mirar
+/// la prueba no pasa.
 class AppColors {
   const AppColors._();
 
@@ -17,9 +36,18 @@ class AppColors {
   static const Color secondary = Color(0xFF52796F);
   static const Color text = Color(0xFF3A3A3A);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color success = Color(0xFF2E8B57);
-  static const Color error = Color(0xFFD92929);
-  static const Color warning = Color(0xFFC77700);
+
+  /// Exito. 6,0:1 sobre blanco y 5,1:1 sobre [success12]. Antes era #2E8B57,
+  /// que como texto daba 4,3:1 sobre blanco y 3,7:1 sobre su tinte.
+  static const Color success = Color(0xFF237046);
+
+  /// Error. 6,1:1 sobre blanco y 5,0:1 sobre [error12]. Antes era #D92929,
+  /// que sobre su tinte de 12 % daba 4,05:1.
+  static const Color error = Color(0xFFBF2020);
+
+  /// Advertencia. 6,1:1 sobre blanco y 5,1:1 sobre [warning12]. Antes era
+  /// #C77700, que como texto daba 3,5:1 sobre blanco.
+  static const Color warning = Color(0xFF8F5500);
 
   // ---------------------------------------------------------------------------
   // Tintes del texto (Figma: Color/Text N %).
@@ -37,20 +65,31 @@ class AppColors {
   /// 12 % — borde del pie de la pagina y fondo de un boton deshabilitado.
   static final Color text12 = text.withValues(alpha: 0.12);
 
-  /// 38 % — contenido deshabilitado y borde de un campo en reposo.
+  /// 38 % — contenido deshabilitado: el texto de un boton apagado o de una
+  /// opcion del menu que todavia no esta. Exento de contraste por inactivo.
   static final Color text38 = text.withValues(alpha: 0.38);
 
-  /// 40 % — un icono que solo orienta, como la flecha de un menu.
+  /// 40 % — variable de Figma sin uso en la app hoy. Con 2,2:1 no alcanza
+  /// ni para un icono que orienta; se conserva por el espejo con Figma.
   static final Color text40 = text.withValues(alpha: 0.4);
 
-  /// 50 % — iconos grises: el marcador de foto, el ojito, un dato secundario.
+  /// 50 % — decorativo: el marcador gris de una foto que no cargo. Con
+  /// 2,8:1 no alcanza para un icono que orienta ni para un texto.
   static final Color text50 = text.withValues(alpha: 0.5);
 
-  /// 60 % — texto secundario: el detalle de un menu o el rol en el perfil.
+  /// 60 % — iconos que orientan (la flecha de un menu, el candado, el ojito,
+  /// el icono de una fila de datos) y el borde de un campo en reposo: 3,5:1,
+  /// lo que pide un elemento grafico. **Nunca un texto.**
   static final Color text60 = text.withValues(alpha: 0.6);
 
-  /// 70 % — texto de apoyo que se lee entero: captions, notas, descripciones.
+  /// 70 % — texto secundario sobre blanco: el detalle de un menu, el rol en
+  /// el perfil, captions, notas y descripciones (4,6:1).
   static final Color text70 = text.withValues(alpha: 0.7);
+
+  /// 80 % — texto secundario sobre un fondo tenido: una pastilla neutra, el
+  /// resumen de la busqueda, la etiqueta del precio en resumen, una nota
+  /// dentro de un bloque destacado. 6,2:1 sobre blanco y 5,6:1 sobre Text 6 %.
+  static final Color text80 = text.withValues(alpha: 0.8);
 
   // ---------------------------------------------------------------------------
   // Tintes del color principal (Figma: Color/Primary N %).
@@ -96,6 +135,7 @@ class AppColors {
   static final Color primaryPresionado =
       Color.alphaBlend(Colors.black.withValues(alpha: 0.18), primary);
 
-  /// El principal un poco mas claro: "estoy trabajando, espera".
+  /// El principal un poco mas claro: "estoy trabajando, espera". Su texto
+  /// blanco queda en 3,7:1: es un estado inactivo, exento de contraste.
   static final Color primaryCargando = primary.withValues(alpha: 0.75);
 }

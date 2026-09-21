@@ -35,13 +35,31 @@ class PublicarProvider extends ChangeNotifier {
 
   bool get publicando => _publicando;
 
-  /// Lo que se dice cuando se intenta publicar sin ubicacion. La pantalla lo
-  /// muestra como advertencia, no como error: falta un paso, no fallo nada.
-  static const String faltaUbicacion = 'Falta marcar la ubicación del inmueble.';
+  /// Lo que se dice cuando falta la ubicacion (Figma "04 Falta la
+  /// ubicación"). La pantalla lo muestra como advertencia, no como error:
+  /// falta un paso, no fallo nada.
+  static const String faltaUbicacion =
+      'Falta marcar la ubicación del inmueble. Tocá Usar GPS.';
+
+  /// Lo que se dice cuando el envio no llego a buen puerto por la red o por
+  /// el servidor caido (Figma "05 No se pudo publicar"). Es un error: la
+  /// pantalla deja el boton prendido para reintentar. Lo que el backend
+  /// objeta de un campo no va aca: va en [erroresPorCampo], debajo del campo.
+  static const String noSePudoPublicar =
+      'No se pudo publicar. Revisá tu conexión e intentá de nuevo.';
 
   /// Una vez marcada la ubicacion, la advertencia de que faltaba ya no vale.
   void _olvidarFaltaUbicacion() {
     if (error == faltaUbicacion) error = null;
+  }
+
+  /// La persona corrigio el campo: lo que el backend le habia objetado ya no
+  /// describe lo que hay escrito. Sin esto el campo seguiria en rojo y el
+  /// boton apagado hasta el proximo envio, que justamente no se podria hacer.
+  void olvidarErrorDeCampo(String campo) {
+    if (!erroresPorCampo.containsKey(campo)) return;
+    erroresPorCampo = Map.of(erroresPorCampo)..remove(campo);
+    notifyListeners();
   }
 
   /// Toma la ubicacion del GPS. Se espera que el propietario este parado en el
@@ -106,7 +124,11 @@ class PublicarProvider extends ChangeNotifier {
       );
       if (archivo == null) return;
 
-      fotos.add(FotoParaSubir(ruta: archivo.path, fechaCaptura: DateTime.now()));
+      fotos.add(FotoParaSubir(
+        nombre: archivo.name,
+        bytes: await archivo.readAsBytes(),
+        fechaCaptura: DateTime.now(),
+      ));
       notifyListeners();
     } catch (e) {
       error = 'No se pudo abrir la cámara.';
@@ -159,11 +181,25 @@ class PublicarProvider extends ChangeNotifier {
         fotos: List.of(fotos),
       );
     } on ApiException catch (e) {
-      error = e.mensaje;
-      erroresPorCampo = e.porCampo;
+      // Cada fallo se cuenta en un solo lugar, nunca en dos. `error` y
+      // `erroresPorCampo` no se llenan a la vez.
+      if (e.porCampo.isNotEmpty) {
+        // El backend objeto campos concretos (400): eso se pinta en rojo
+        // debajo de cada campo y el pie cuenta cuantos son. No fallo la
+        // conexion, asi que decir "revisá tu conexión" seria mentir.
+        erroresPorCampo = e.porCampo;
+      } else if (e.codigo != null && e.codigo! < 500) {
+        // El backend rechazo el pedido entero y dijo por que (sin permiso,
+        // sesion vencida): se repite lo que dijo.
+        error = e.mensaje;
+      } else {
+        // Sin red o con el servidor caido: no se publico, y la persona puede
+        // reintentar (Figma "05 No se pudo publicar").
+        error = noSePudoPublicar;
+      }
       return null;
     } catch (e) {
-      error = 'Ocurrió un error inesperado al publicar.';
+      error = noSePudoPublicar;
       return null;
     } finally {
       _publicando = false;

@@ -1,66 +1,56 @@
-# Wireframes — Flujo v0.2 · Andrea, la inquilina
+# Pantallas — Flujo v0.2 · Andrea busca y pide la visita
 
 **Integrantes:** Gabriel Mamani Sandoval, Daniel Joaquin Mamani Peña
-**Flujo:** [`flujo/flujo-v0.2.md`](../../flujo/flujo-v0.2.md) · **Reglas de dibujo:** [`_lenguaje-visual.md`](../_lenguaje-visual.md)
+**Flujo:** [`flujo/flujo-v0.2.md`](../../flujo/flujo-v0.2.md) · **Figma:** página *Flujos*, sección *Flujo v0.3 — Inquilina*
 
-Siete pantallas, 360 × 800, escala de grises, exportadas desde Figma.
+Doce pantallas de 440 × 956, exportadas de la fila **Principal** del archivo de
+Figma. Los caminos completos (*Happy Path*) y los errores (*Validaciones*) están
+en las otras dos filas de la misma sección.
 
-Están en PNG: se ven directamente en GitHub, pero **no se pueden reimportar a
-Figma con capas editables**. Si hace falta volver a editarlas, la fuente es el
-archivo de Figma, no estos archivos.
-
-## El flujo completo de un vistazo
-
-![Las siete pantallas del flujo v0.2](flujo-completo.png)
-
-Las siete pantallas lado a lado, en el orden del flujo. Sirve para revisar el
-recorrido entero sin abrir Figma ni los SVG uno por uno.
-
-## Por qué casi no hay texto
-
-El contenido va como barras grises y **el único texto real es el título de cada
-pantalla**. Es deliberado, y responde a la pregunta que abre la Clase 5:
-
-> "La pregunta no es «¿qué color tendrá el botón?». La primera pregunta es
-> «¿María entiende qué puede hacer y qué ocurrirá después?»"
-
-Un wireframe que ya trae los textos definitivos invita a discutir la redacción
-antes de tiempo. Sin ellos, la revisión sólo puede ser sobre lo que importa en
-esta etapa: qué se reconoce primero, qué se agrupa con qué y cuál es la acción
-principal. El título se conserva porque orienta — es el paso 1 de la jerarquía.
-
-## Las pantallas
+![Las doce pantallas del flujo](flujo-completo.png)
 
 | # | Archivo | Momento de la tarea |
 |---|---|---|
 | 01 | [`01 Inicio.png`](01%20Inicio.png) | Entra y elige qué va a hacer |
 | 02 | [`02 Buscar.png`](02%20Buscar.png) | Pone sus filtros: precio, tipo, mascotas, minutos |
 | 03 | [`03 Resultados.png`](03%20Resultados.png) | Ve los resultados ordenados por cercanía |
-| 04 | [`04 Anuncio.png`](04%20Anuncio.png) | **Decide si le sirve o lo descarta** |
-| 05 | [`05 Solicitar visita.png`](05%20Solicitar%20visita.png) | Acepta las condiciones y pide la visita |
-| 06 | [`06 Solicitud enviada.png`](06%20Solicitud%20enviada.png) | Queda a la espera de la respuesta |
-| 07 | [`07 Contacto liberado.png`](07%20Contacto%20liberado.png) | El propietario aprobó: aparece el contacto |
+| 04 | [`04 Sin resultados.png`](04%20Sin%20resultados.png) | Ningún cuarto cumple: lo dice y sugiere ampliar |
+| 05 | [`05 Anuncio.png`](05%20Anuncio.png) | **Decide si le sirve o lo descarta** |
+| 06 | [`06 Solicitar visita.png`](06%20Solicitar%20visita.png) | Acepta las condiciones y pide la visita |
+| 07 | [`07 Solicitud enviada.png`](07%20Solicitud%20enviada.png) | Queda a la espera de la respuesta |
+| 08 | [`08 Estado de solicitudes.png`](08%20Estado%20de%20solicitudes.png) | Vuelve desde el Inicio a ver en qué quedó cada una |
+| 09 | [`09 Contacto liberado.png`](09%20Contacto%20liberado.png) | El propietario aprobó: aparece el contacto |
+| 10 | [`10 Solicitud rechazada.png`](10%20Solicitud%20rechazada.png) | El propietario dijo que no |
+| 11 | [`11 Solicitud cerrada.png`](11%20Solicitud%20cerrada.png) | El cuarto se alquiló mientras esperaba |
+| 12 | [`12 Sin solicitudes.png`](12%20Sin%20solicitudes.png) | Todavía no pidió ninguna visita |
 
-La 01 es la **misma pantalla que abre el flujo v0.1**: lo único que cambia son
-los módulos que se le ofrecen a cada rol. Se documenta en los dos flujos porque
-en cada uno arranca una tarea distinta.
+Cada pantalla que no tiene nada para mostrar va al lado de la que la origina:
+*Sin resultados* después de *Resultados*, y *Sin solicitudes* al final de lo que
+sale de *Estado de solicitudes*.
 
-## Cómo leer la 04
+## Cómo leer la 05
 
 Es la pantalla que decide el producto, y ya incluye la corrección que salió de
 la prueba con una usuaria (ver [`docs/decision-clase-05.md`](../../docs/decision-clase-05.md)):
+el **precio final** domina, los servicios incluidos van pegados a él —también el
+que *no* está incluido, que fue lo que obligó a la usuaria a preguntar *"¿cuánto
+es con luz?"*— y **no hay ningún contacto**: el teléfono recién aparece en la 09,
+después de la aprobación.
 
-- La barra del **precio final** es más alta y más oscura que las demás: es el
-  criterio de descarte n.º 1, así que domina por tamaño y peso.
-- Los **tres servicios** van pegados a esa barra, y el que **no** está incluido
-  aparece con el círculo vacío en vez de omitirse. Omitirlo fue lo que obligó a
-  la usuaria a preguntar *"¿cuánto es con luz?"*.
-- Los otros tres datos comparten peso entre sí, agrupados en el mismo
-  contenedor porque se leen como una sola decisión.
-- **No hay ningún contacto.** El teléfono del propietario no existe en esta
-  pantalla: recién aparece en la 06, después de la aprobación.
+## Cómo leer la 08
 
-## La fuente editable
+Es la puerta de *Estado de solicitudes*, el segundo módulo del Inicio. Cada
+tarjeta dice qué anuncio, cuándo la mandó y **en qué quedó**, con la misma
+etiqueta de color que ve Marta del otro lado. Las más nuevas van primero, y
+tocar una abre su estado: la 07 si sigue pendiente, la 09, la 10 o la 11 si ya
+se resolvió. Sin solicitudes, la 12 lo dice en vez de mostrar una lista vacía.
 
-Estas imágenes son una copia para revisar desde GitHub. Para editarlas hay que
-abrir el archivo de Figma, en la página *Flujo v0.2 — Inquilina ‑sin letters*.
+## La 11, nueva con el flujo v0.5
+
+Antes, si Marta marcaba el cuarto como alquilado, la solicitud de Andrea quedaba
+*pendiente* para siempre: la evidencia 5 (*"uno ya estaba alquilado"*) pasando
+adentro de la app. Ahora se cierra sola y la pantalla lo dice. La etiqueta es
+**neutra, no roja**: nadie la rechazó, el cuarto se alquiló.
+
+> **Numeración.** En el repositorio este es el flujo v0.2. En Figma está tercero,
+> porque ahí se ordenan como se viven.

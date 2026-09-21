@@ -28,6 +28,10 @@ enum EstadoTarjetaRol {
 /// con el fondo, no solo con el borde, para reconocer de un vistazo cual quedo
 /// elegida.
 ///
+/// El detalle sigue la regla de legibilidad: Text 70 % sobre el blanco del
+/// reposo y Text 80 % cuando el fondo pasa a ser un tinte (presionada,
+/// seleccionada), donde el 70 % se quedaba en 4,3:1.
+///
 /// Es la bifurcacion del producto: el rol decide toda la app. Por eso la
 /// opcion se muestra con lo que gana la persona, no con el nombre del rol.
 class TarjetaRol extends StatefulWidget {
@@ -75,27 +79,36 @@ class _TarjetaRolState extends State<TarjetaRol> {
   Widget build(BuildContext context) {
     final actual = estado;
 
-    // Lo unico que distingue los estados es el fondo y el borde. La forma y
-    // el tamano se conservan. Los colores son tintes de AppColors.
-    final (Color fondo, Color borde, double grosor, Color colorIcono) =
-        switch (actual) {
+    // Lo unico que distingue los estados es el fondo, el borde y el gris del
+    // detalle, que sube cuando el fondo deja de ser blanco. La forma y el
+    // tamano se conservan. Los colores son tintes de AppColors.
+    final (
+      Color fondo,
+      Color borde,
+      double grosor,
+      Color colorIcono,
+      Color colorDetalle,
+    ) = switch (actual) {
       EstadoTarjetaRol.reposo => (
           AppColors.surface,
           AppColors.text10,
           1.0,
           AppColors.text70,
+          AppColors.text70,
         ),
       EstadoTarjetaRol.presionada => (
           AppColors.text05,
-          AppColors.text38,
+          AppColors.text60,
           1.0,
           AppColors.text70,
+          AppColors.text80,
         ),
       EstadoTarjetaRol.seleccionada => (
           AppColors.primary05,
           AppColors.primary,
           2.0,
           AppColors.primary,
+          AppColors.text80,
         ),
     };
 
@@ -135,7 +148,7 @@ class _TarjetaRolState extends State<TarjetaRol> {
                     Text(
                       widget.descripcion,
                       style: AppText.caption(context)
-                          .copyWith(color: AppColors.text70),
+                          .copyWith(color: colorDetalle),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Para sacar las fotos de tu inmueble y tu foto de perfil.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Para elegir tu foto de perfil de la galería.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

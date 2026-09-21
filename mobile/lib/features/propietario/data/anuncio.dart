@@ -1,3 +1,5 @@
+import '../../../core/enlace_externo.dart';
+
 /// Tipos de espacio que se pueden publicar. Es una de las cuatro condiciones
 /// de descarte del Brief v0.2.0.
 enum TipoEspacio {
@@ -65,7 +67,10 @@ class Anuncio {
     this.serviciosIncluidos = const {},
     this.restricciones = '',
     this.direccionReferencia = '',
+    this.lat,
+    this.lng,
     this.fotos = const [],
+    this.solicitudesPendientes = 0,
   });
 
   final int id;
@@ -84,9 +89,57 @@ class Anuncio {
   final Map<String, bool> serviciosIncluidos;
   final String restricciones;
   final String direccionReferencia;
+
+  /// Donde queda. Solo viene en el detalle: las listas no lo necesitan y el
+  /// backend ya manda calculados los minutos caminando a la UAGRM.
+  final double? lat;
+  final double? lng;
+
   final List<FotoAnuncio> fotos;
 
+  /// Cuantas solicitudes esperan respuesta. Solo viene en Mis anuncios, que
+  /// es de la duena: marcar el cuarto como alquilado las cierra, y si hay
+  /// alguna eso se confirma antes (flujo v0.5).
+  final int solicitudesPendientes;
+
   bool get estaDisponible => estado == EstadoAnuncio.disponible;
+
+  /// El mapa de este anuncio, o `null` si la API no mando donde queda.
+  ///
+  /// Lo arma el anuncio y no la pantalla: quien muestre la ubicacion en otro
+  /// lado abre el mismo mapa, sin volver a escribir la direccion.
+  Uri? get mapa {
+    final (y, x) = (lat, lng);
+    return y == null || x == null ? null : mapaDeGoogle(y, x);
+  }
+
+  /// La foto que representa al anuncio en una tarjeta, o `null` si no tiene.
+  ///
+  /// Es siempre la primera, que es la que el backend manda en las listas.
+  /// Estaba escrito igual en cuatro pantallas; con el getter, quien dibuje
+  /// una tarjeta nueva no tiene que acordarse de la regla.
+  String? get fotoPrincipal => fotos.isEmpty ? null : fotos.first.imagen;
+
+  /// Las fotos vengan como vengan.
+  ///
+  /// El detalle del anuncio manda la lista completa en `fotos`. Las listas
+  /// —resultados de la busqueda, mis anuncios, el historial de solicitudes—
+  /// mandan solo la primera, en `foto_principal`, para no arrastrar diez
+  /// fotos por tarjeta. Leer una sola de las dos formas es lo que dejaba las
+  /// tarjetas con el icono gris aunque el anuncio tuviera fotos.
+  static List<FotoAnuncio> _fotos(Map<String, dynamic> j) {
+    final lista = j['fotos'] as List?;
+    if (lista != null) {
+      return lista
+          .map((f) => FotoAnuncio.desdeJson(f as Map<String, dynamic>))
+          .toList();
+    }
+    final principal = j['foto_principal'];
+    if (principal is Map<String, dynamic>) {
+      return [FotoAnuncio.desdeJson(principal)];
+    }
+    return const [];
+  }
 
   factory Anuncio.desdeJson(Map<String, dynamic> j) {
     final servicios = j['servicios_incluidos'];
@@ -105,10 +158,12 @@ class Anuncio {
           : const {},
       restricciones: j['restricciones'] as String? ?? '',
       direccionReferencia: j['direccion_referencia'] as String? ?? '',
-      fotos: (j['fotos'] as List?)
-              ?.map((f) => FotoAnuncio.desdeJson(f as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      // Vienen como numero: a veces con decimales y a veces redondo, que en
+      // JSON llega como int. `num` toma los dos.
+      lat: (j['lat'] as num?)?.toDouble(),
+      lng: (j['lng'] as num?)?.toDouble(),
+      fotos: _fotos(j),
+      solicitudesPendientes: j['solicitudes_pendientes'] as int? ?? 0,
     );
   }
 }

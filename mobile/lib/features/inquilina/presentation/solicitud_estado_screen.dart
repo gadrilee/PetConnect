@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/enlace_externo.dart';
 import '../../../core/theme.dart';
 import '../../../shared/layout/pagina.dart';
 import '../../../shared/widgets/aviso.dart';
@@ -15,16 +15,21 @@ import '../../../shared/widgets/tarjeta_anuncio.dart';
 import '../data/solicitud.dart';
 import '../providers/solicitud_provider.dart';
 
-/// Vista 06 / 07 — Estado de la solicitud enviada.
+/// El estado de una solicitud enviada (Figma, flujo de la inquilina).
 ///
-/// Vista 06 (Solicitud enviada): cuando está PENDIENTE, muestra ícono de
-/// espera y el resumen del anuncio. El botón refresca el estado.
+/// 06 Solicitud enviada: cuando está PENDIENTE, muestra ícono de espera y el
+/// resumen del anuncio. El botón refresca el estado.
 ///
-/// Vista 07 (Contacto liberado): cuando está APROBADA y [contacto] no es
-/// null, muestra el WhatsApp del propietario con un botón para abrirlo.
-/// La pantalla detecta el estado automáticamente.
+/// 08 Contacto liberado: cuando está APROBADA y [contacto] no es null,
+/// muestra el WhatsApp del propietario con un botón para abrirlo.
+///
+/// 09 Solicitud rechazada y 10 Solicitud cerrada: el motivo, sin nada que
+/// esperar. La pantalla detecta el estado automáticamente.
 class SolicitudEstadoScreen extends StatefulWidget {
   const SolicitudEstadoScreen({super.key});
+
+  /// Validaciones 11: el teléfono no pudo abrir el enlace de WhatsApp.
+  static const String noSeAbrioWhatsApp = 'No se pudo abrir WhatsApp.';
 
   @override
   State<SolicitudEstadoScreen> createState() => _SolicitudEstadoScreenState();
@@ -43,9 +48,9 @@ class _SolicitudEstadoScreenState extends State<SolicitudEstadoScreen> {
     final uri = Uri.parse('https://wa.me/591$numero');
 
     setState(() => _errorWhatsApp = null);
-    final abierto = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final abierto = await abrirEnlaceExterno(uri);
     if (!abierto && mounted) {
-      setState(() => _errorWhatsApp = 'No se pudo abrir WhatsApp.');
+      setState(() => _errorWhatsApp = SolicitudEstadoScreen.noSeAbrioWhatsApp);
     }
   }
 
@@ -104,7 +109,9 @@ class _SolicitudEstadoScreenState extends State<SolicitudEstadoScreen> {
         ? 'Contacto liberado'
         : solicitud.estaRechazada
             ? 'Solicitud rechazada'
-            : 'Solicitud enviada';
+            : solicitud.estaCerrada
+                ? 'Solicitud cerrada'
+                : 'Solicitud enviada';
 
     // CONSTRAINTS: es una confirmacion, asi que va en una sola columna del
     // ancho de un formulario, centrada.
@@ -244,29 +251,46 @@ class _VistaPendiente extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rechazada = solicitud.estaRechazada;
+    // Cerrada no es rechazada: nadie dijo que no. El cuarto se alquilo
+    // mientras esperaba, y eso es lo que tiene que leer (evidencia 5).
+    final cerrada = solicitud.estaCerrada;
+
+    final (icono, tono, titulo, detalle) = rechazada
+        ? (
+            Icons.cancel_outlined,
+            TonoIcono.error,
+            'Solicitud rechazada',
+            'El propietario rechazó la solicitud. Podés buscar otros anuncios.',
+          )
+        : cerrada
+            ? (
+                Icons.home_work_outlined,
+                TonoIcono.neutro,
+                'El cuarto ya se alquiló',
+                'Tu solicitud se cerró sola porque el propietario lo marcó como '
+                    'alquilado. Podés buscar otros anuncios.',
+              )
+            : (
+                Icons.hourglass_top_outlined,
+                TonoIcono.neutro,
+                'Solicitud enviada',
+                'El propietario tiene que aceptar tu solicitud antes de recibir su contacto.',
+              );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(
-          child: IconoCirculo(
-            rechazada ? Icons.cancel_outlined : Icons.hourglass_top_outlined,
-            diametro: 72,
-            tono: rechazada ? TonoIcono.error : TonoIcono.neutro,
-          ),
-        ),
+        Center(child: IconoCirculo(icono, diametro: 72, tono: tono)),
         const SizedBox(height: Espacio.lg),
         Text(
-          rechazada ? 'Solicitud rechazada' : 'Solicitud enviada',
+          titulo,
           textAlign: TextAlign.center,
           style: AppText.cifra(context).copyWith(color: AppColors.text),
         ),
         const SizedBox(height: Espacio.sm),
         Text(
-          rechazada
-              ? 'El propietario rechazó la solicitud. Podés buscar otros anuncios.'
-              : 'El propietario tiene que aceptar tu solicitud antes de recibir su contacto.',
+          detalle,
           textAlign: TextAlign.center,
           style: AppText.body(context).copyWith(color: AppColors.text70),
         ),

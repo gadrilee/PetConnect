@@ -33,6 +33,12 @@ class Medida {
   /// 48 — un campo de texto.
   static const double campo = 48;
 
+  /// 48 — el blanco minimo de cualquier cosa que se toca (WCAG 2.5.8 y
+  /// Material). Una pieza mas baja lo alcanza con aire o con su area de
+  /// toque, nunca achicando el blanco: la casilla, la opcion, el boton de
+  /// texto y los iconos que se tocan miden por lo menos esto.
+  static const double toque = 48;
+
   /// 12 — radio de borde estándar (Figma).
   static const double radio = 12;
 

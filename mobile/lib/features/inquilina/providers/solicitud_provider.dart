@@ -43,6 +43,11 @@ class SolicitudProvider extends ChangeNotifier {
     }
   }
 
+  /// Lo que se dice si actualizar el estado no llego al servidor (Figma,
+  /// Validaciones "10 Solicitud enviada · no se pudo actualizar").
+  static const String noSeActualizo =
+      'No se pudo actualizar el estado. Revisá tu conexión y probá de nuevo.';
+
   /// Refresca el estado de la solicitud desde el servidor.
   ///
   /// Sirve para que el inquilino vea cuando el propietario la aprobo. Si
@@ -56,9 +61,10 @@ class SolicitudProvider extends ChangeNotifier {
     try {
       _solicitud = await _repo.solicitud(_solicitud!.id);
     } on ApiException catch (e) {
-      error = e.mensaje;
+      // Sin respuesta, que hacer; con respuesta, lo que dijo el servidor.
+      error = e.codigo == null ? noSeActualizo : e.mensaje;
     } catch (_) {
-      error = 'No se pudo actualizar el estado.';
+      error = noSeActualizo;
     } finally {
       _cargando = false;
       notifyListeners();

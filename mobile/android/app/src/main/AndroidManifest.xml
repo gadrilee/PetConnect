@@ -2,6 +2,11 @@
     <!-- Ubicacion: el propietario marca el inmueble con el GPS estando parado
          ahi. De esa coordenada sale el calculo de minutos caminando a la UAGRM,
          que es lo que reemplaza al "cerca de la U" de los anuncios de hoy. -->
+    <!-- Sin esto la app sólo tiene red en debug: Flutter declara INTERNET en
+         los manifiestos de debug y profile, y el APK de release se queda sin
+         conexión. Publicar y buscar son llamadas al servidor: la app entera
+         depende de este permiso. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
@@ -34,6 +39,18 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <!-- El enlace del correo para poner una contrasena nueva:
+                 alquilamatch://app/recuperar?uid=...&token=... abre la app en
+                 "Nueva contraseña" (lib/core/enlaces.dart). -->
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="true" />
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="alquilamatch" android:host="app"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

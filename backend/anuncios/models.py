@@ -7,7 +7,7 @@ la app termina siendo otro tablon de anuncios como los grupos de Facebook.
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 from .utils import minutos_caminando_a_uagrm
@@ -109,11 +109,27 @@ class Anuncio(models.Model):
                     'que hoy hace perder viajes.',
             })
 
+    @transaction.atomic
     def marcar_alquilado(self):
-        """Apagar el anuncio en un toque. Si cuesta mas que eso, no va a pasar."""
+        """Apagar el anuncio en un toque. Si cuesta mas que eso, no va a pasar.
+
+        Tambien cierra las solicitudes que seguian pendientes: sin esto, la
+        persona que pidio la visita espera para siempre una respuesta por un
+        cuarto que ya no existe, que es la evidencia 5 pasando adentro de la
+        app. Las aprobadas y rechazadas no se tocan: ya tienen su respuesta.
+
+        Devuelve cuantas se cerraron, para que el propietario sepa que paso.
+        """
+        # Import local: solicitudes depende de anuncios, no al reves.
+        from solicitudes.models import SolicitudVisita
+
+        ahora = timezone.now()
         self.estado = self.Estado.ALQUILADO
-        self.alquilado_en = timezone.now()
+        self.alquilado_en = ahora
         self.save(update_fields=['estado', 'alquilado_en', 'actualizado_en'])
+        return self.solicitudes.filter(
+            estado=SolicitudVisita.Estado.PENDIENTE,
+        ).update(estado=SolicitudVisita.Estado.CERRADA, respondida_en=ahora)
 
     def marcar_disponible(self):
         self.estado = self.Estado.DISPONIBLE

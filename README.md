@@ -33,7 +33,7 @@ El proceso de búsqueda y oferta de alquileres genera una enorme pérdida de tie
 | [Persona — Marta](persona/persona-v0.1.md) | Propietaria de 4 habitaciones cerca de la UAGRM |
 | [App map](appmap/appmap-v0.1.md) | Módulos del lado propietario |
 | [Flujo](flujo/flujo-v0.1.md) | Publicar un inmueble + ciclo de vida del anuncio |
-| [**Wireframes**](wireframes/flujo-v0.1-propietario/flujo-completo.png) | Las 5 pantallas en una lámina — se ven sin abrir Figma |
+| [**Pantallas**](wireframes/flujo-v0.1-propietario/flujo-completo.png) | Las 3 pantallas en una lámina — se ven sin abrir Figma |
 
 ### Flujo v0.2 — La inquilina que busca 🟩
 
@@ -41,29 +41,53 @@ El proceso de búsqueda y oferta de alquileres genera una enorme pérdida de tie
 |---|---|
 | [Persona — Andrea](persona/persona-v0.2.md) | Estudiante de provincia, con un gato |
 | [App map](appmap/appmap-v0.2.md) | Mapa completo: los dos lados y dónde se enganchan |
-| [Flujo](flujo/flujo-v0.2.md) | Buscar, ver anuncio y solicitar visita |
-| [**Wireframes**](wireframes/flujo-v0.2-inquilina/flujo-completo.png) | Las 7 pantallas en una lámina — se ven sin abrir Figma |
+| [Flujo](flujo/flujo-v0.2.md) | Buscar, ver anuncio, solicitar visita y seguir en qué quedó |
+| [**Pantallas**](wireframes/flujo-v0.2-inquilina/flujo-completo.png) | Las 12 pantallas en una lámina — se ven sin abrir Figma |
 
 ### Flujo v0.3 — Entrar con el rol correcto 🟦
 
 | Documento | Contenido |
 |---|---|
-| [Flujo](flujo/flujo-v0.3.md) | Ingresar, crear cuenta y elegir de qué lado del alquiler está |
-| [**Wireframes**](wireframes/flujo-v0.3-acceso/flujo-completo.png) | Las 6 pantallas en una lámina — se ven sin abrir Figma |
+| [Flujo](flujo/flujo-v0.3.md) | Ingresar, recuperar la contraseña, crear cuenta eligiendo el rol y Mi perfil con su foto |
+| [**Pantallas**](wireframes/flujo-v0.3-acceso/flujo-completo.png) | Las 12 pantallas en una lámina — se ven sin abrir Figma |
 
 Es el único flujo que las dos personas recorren igual, y el que explica por qué
 la pantalla de Inicio les muestra cosas distintas.
+
+### Flujo v0.4 — Aprobar o rechazar una visita 🟦
+
+| Documento | Contenido |
+|---|---|
+| [Flujo](flujo/flujo-v0.4.md) | Responder las solicitudes: el WhatsApp se libera sólo a quien Marta aprueba |
+| [**Pantallas**](wireframes/flujo-v0.4-solicitudes/flujo-completo.png) | Las 6 pantallas en una lámina — se ven sin abrir Figma |
+
+### Flujo v0.5 — Cerrar el anuncio cuando se alquila 🟦
+
+| Documento | Contenido |
+|---|---|
+| [Flujo](flujo/flujo-v0.5.md) | Marcar *Ya alquilado* diciendo antes qué va a pasar, cerrar las solicitudes pendientes y volver a publicar |
+| [**Pantallas**](wireframes/flujo-v0.5-cerrar-anuncio/flujo-completo.png) | Las 4 pantallas en una lámina — se ven sin abrir Figma |
+
+Es el final del ciclo: sin él, el anuncio no muere y le siguen escribiendo a
+Marta por un cuarto que ya alquiló.
+
+> **Sobre la numeración.** El número de cada flujo es el orden en que se
+> diseñó, no el orden de la historia. En Figma están ordenados como se viven:
+> Acceso → Propietario → Inquilina → Gestión de solicitudes → Cerrar el anuncio.
 
 ### Diseño
 
 | Documento | Contenido |
 |---|---|
-| [Lenguaje visual](wireframes/_lenguaje-visual.md) | Reglas que siguen todos los wireframes |
-| [Wireframes del flujo v0.1](wireframes/flujo-v0.1-propietario/README.md) | Los 5 SVG del propietario |
-| [Wireframes del flujo v0.2](wireframes/flujo-v0.2-inquilina/README.md) | Las 7 pantallas de la inquilina |
-| [Wireframes del flujo v0.3](wireframes/flujo-v0.3-acceso/README.md) | Las 6 pantallas del acceso |
+| [Lenguaje visual](wireframes/_lenguaje-visual.md) | Las reglas de los primeros wireframes en escala de grises (etapa anterior al sistema visual) |
+| [Pantallas del flujo v0.1](wireframes/flujo-v0.1-propietario/README.md) | Las 3 pantallas de la propietaria que publica |
+| [Pantallas del flujo v0.2](wireframes/flujo-v0.2-inquilina/README.md) | Las 12 pantallas de la inquilina |
+| [Pantallas del flujo v0.3](wireframes/flujo-v0.3-acceso/README.md) | Las 12 pantallas del acceso y la cuenta |
+| [Pantallas del flujo v0.4](wireframes/flujo-v0.4-solicitudes/README.md) | Las 6 pantallas de la gestión de solicitudes |
+| [Pantallas del flujo v0.5](wireframes/flujo-v0.5-cerrar-anuncio/README.md) | Las 4 pantallas de cerrar el anuncio |
 | [**Decisión de diseño**](docs/decision-clase-05.md) | Jerarquía, layout y espaciado: antes, cambio, prueba con usuaria y siguiente paso |
 | [**Componente y estados**](docs/decision-clase-06.md) | El botón principal como pieza reutilizable, con sus cuatro estados |
+| [**Auditoría de accesibilidad**](docs/accesibilidad-clase-10.md) | Lighthouse, WAVE, contraste y teclado: qué se corrió, qué se cambió y qué pasó al repetir |
 
 ### Implementación
 

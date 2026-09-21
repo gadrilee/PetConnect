@@ -21,7 +21,12 @@ class BaseAPITest(APITestCase):
     }
 
     def registrar(self, username, rol, whatsapp=''):
-        datos = {'username': username, 'password': 'clave-larga-123', 'rol': rol}
+        datos = {
+            'username': username,
+            'email': f'{username}@uagrm.edu.bo',
+            'password': 'clave-larga-123',
+            'rol': rol,
+        }
         if whatsapp:
             datos['whatsapp'] = whatsapp
         r = self.client.post('/api/usuarios/registro/', datos, format='json')
@@ -103,7 +108,8 @@ class FlujoPublicarTest(BaseAPITest):
         self.salir()
         r = self.client.post(
             '/api/usuarios/registro/',
-            {'username': 'sinwpp', 'password': 'clave-larga-123', 'rol': 'PROPIETARIO'},
+            {'username': 'sinwpp', 'email': 'sinwpp@uagrm.edu.bo',
+             'password': 'clave-larga-123', 'rol': 'PROPIETARIO'},
             format='json',
         )
         self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)

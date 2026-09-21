@@ -9,6 +9,7 @@ import '../../../shared/widgets/pie_acciones.dart';
 import '../../../shared/widgets/tarjeta_menu.dart';
 import '../../../shared/widgets/tarjeta_perfil.dart';
 import '../../../shared/widgets/titulo_seccion.dart';
+import '../../acceso/presentation/perfil_screen.dart';
 import '../../acceso/providers/auth_provider.dart';
 import '../data/anuncio.dart';
 import '../providers/mis_anuncios_provider.dart';
@@ -113,10 +114,11 @@ class _InicioPropietarioScreenState extends State<InicioPropietarioScreen> {
           nombre: perfil.username,
           rol: perfil.rol.etiqueta,
           icono: Icons.home_work_outlined,
+          foto: perfil.foto,
           // El propietario es quien tiene un WhatsApp que proteger: la fila
           // le recuerda que no aparece en ningun anuncio.
           whatsappOculto: true,
-          alCerrarSesion: () => context.read<AuthProvider>().logout(),
+          alTocar: () => _abrir(const PerfilScreen()),
         ),
         // 24 entre bloques de la pantalla; 16 entre el titulo y su contenido.
         const SizedBox(height: Espacio.lg),
@@ -138,7 +140,7 @@ class _InicioPropietarioScreenState extends State<InicioPropietarioScreen> {
               columnas: columnas,
               child: TarjetaMenu(
                 titulo: 'Mis anuncios',
-                detalle: 'Marcar Ya alquilado en un toque.',
+                detalle: 'Marcar Ya alquilado o volver a publicar.',
                 icono: Icons.list_alt_outlined,
                 alTocar: () => _abrir(const MisAnunciosScreen()),
               ),
