@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/api_client.dart';
 import '../data/auth_repository.dart';
+import '../data/foto_del_telefono.dart';
 import '../data/perfil.dart';
 
 enum EstadoSesion { comprobando, sinSesion, autenticado }
@@ -122,9 +123,9 @@ class AuthProvider extends ChangeNotifier {
       'No se pudo subir la foto. Revisá tu conexión y probá de nuevo.';
 
   /// Pone o cambia la foto de perfil desde Mi perfil.
-  Future<bool> subirFoto(String rutaArchivo) {
+  Future<bool> subirFoto(FotoElegida foto) {
     return _sinSesion(
-      () async => _perfil = await _repo.subirFoto(rutaArchivo),
+      () async => _perfil = await _repo.subirFoto(foto),
       fallo: noSeSubioLaFoto,
     );
   }

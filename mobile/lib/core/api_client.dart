@@ -86,14 +86,19 @@ class ApiClient {
   Future<dynamic> postArchivo(
     String ruta, {
     required String campo,
-    required String rutaArchivo,
+    required List<int> bytes,
+    required String nombreArchivo,
     Map<String, String> campos = const {},
     bool esReintento = false,
   }) async {
     final uri = Uri.parse('${Config.baseUrl}$ruta');
+    // Bytes y no una ruta: `MultipartFile.fromPath` usa dart:io, que en la web
+    // no existe. Tiraba UnsupportedError, caia en el catch de mas abajo y la
+    // app culpaba a la conexion.
     final peticion = http.MultipartRequest('POST', uri)
       ..fields.addAll(campos)
-      ..files.add(await http.MultipartFile.fromPath(campo, rutaArchivo));
+      ..files.add(http.MultipartFile.fromBytes(campo, bytes,
+          filename: nombreArchivo));
 
     final token = await accessToken;
     if (token != null) peticion.headers['Authorization'] = 'Bearer $token';
@@ -121,7 +126,8 @@ class ApiClient {
       return postArchivo(
         ruta,
         campo: campo,
-        rutaArchivo: rutaArchivo,
+        bytes: bytes,
+        nombreArchivo: nombreArchivo,
         campos: campos,
         esReintento: true,
       );

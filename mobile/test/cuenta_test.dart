@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:alquilamatch/core/api_client.dart';
@@ -79,10 +80,10 @@ class _Auth extends Fake implements AuthRepository {
   }
 
   @override
-  Future<Perfil> subirFoto(String rutaArchivo) async {
+  Future<Perfil> subirFoto(FotoElegida foto) async {
     if (espera != null) await espera!.future;
     await _o(null);
-    subidas.add(rutaArchivo);
+    subidas.add(foto.nombre);
     return perfil = Perfil(
       username: perfil.username,
       rol: perfil.rol,
@@ -356,9 +357,10 @@ void main() {
     /// Una galeria de mentira: devuelve siempre la misma foto y anota de
     /// donde se la pidieron.
     final pedidas = <OrigenFoto>[];
-    Future<String?> galeria(OrigenFoto origen) async {
+    final bytesDePrueba = Uint8List.fromList(const [1, 2, 3, 4]);
+    Future<FotoElegida?> galeria(OrigenFoto origen) async {
       pedidas.add(origen);
-      return '/fotos/marta.jpg';
+      return FotoElegida(nombre: 'marta.jpg', bytes: bytesDePrueba);
     }
 
     setUp(pedidas.clear);
@@ -418,12 +420,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(pedidas, [OrigenFoto.galeria]);
-      expect(repo.subidas, ['/fotos/marta.jpg']);
+      expect(repo.subidas, ['marta.jpg']);
       expect(auth.perfil!.foto, _Auth.fotoNueva);
       expect(find.text(PerfilScreen.fotoCambiada), findsOneWidget);
       expect(find.text('Cambiar foto'), findsOneWidget);
       // La que se ve es la del telefono: no hace falta bajarla de nuevo.
-      expect(avatar(tester).archivoLocal, '/fotos/marta.jpg');
+      expect(avatar(tester).bytesLocales, bytesDePrueba);
     });
 
     testWidgets('sacar una foto pide la cámara', (tester) async {
@@ -449,7 +451,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(avatar(tester).subiendo, isTrue);
-      expect(avatar(tester).archivoLocal, '/fotos/marta.jpg');
+      expect(avatar(tester).bytesLocales, bytesDePrueba);
       expect(find.text('Subiendo foto…'), findsOneWidget);
       expect(enlace(tester).alTocar, isNull);
       expect(_estadoBoton(tester), EstadoBoton.deshabilitado);
@@ -493,7 +495,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(AuthProvider.noSeSubioLaFoto), findsOneWidget);
-      expect(avatar(tester).archivoLocal, isNull);
+      expect(avatar(tester).bytesLocales, isNull);
       expect(find.text('Agregar foto'), findsOneWidget);
     });
 

@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
@@ -25,7 +24,7 @@ class AvatarPerfil extends StatelessWidget {
     super.key,
     required this.icono,
     this.foto,
-    this.archivoLocal,
+    this.bytesLocales,
     this.subiendo = false,
     this.diametro = 48,
     this.alTocar,
@@ -39,7 +38,7 @@ class AvatarPerfil extends StatelessWidget {
 
   /// La foto recien elegida, todavia en el telefono. Se muestra en lugar de
   /// [foto] mientras sube y apenas termina, para no esperar a descargarla.
-  final String? archivoLocal;
+  final Uint8List? bytesLocales;
 
   /// Pone el velo y el indicador sobre la foto.
   final bool subiendo;
@@ -90,10 +89,12 @@ class AvatarPerfil extends StatelessWidget {
   }
 
   Widget? _imagen(Widget sinFoto) {
-    final local = archivoLocal;
+    final local = bytesLocales;
     if (local != null) {
-      return Image.file(
-        File(local),
+      // Los bytes de la foto recien elegida, que se ven mientras sube. Antes
+      // era Image.file, que necesita dart:io y en la web no existe.
+      return Image.memory(
+        local,
         fit: BoxFit.cover,
         excludeFromSemantics: true,
         errorBuilder: (_, _, _) => sinFoto,

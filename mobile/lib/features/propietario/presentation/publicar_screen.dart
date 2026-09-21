@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -443,7 +442,7 @@ class _PublicarScreenState extends State<PublicarScreen> {
               itemCount: publicar.fotos.length,
               separatorBuilder: (_, _) => const SizedBox(width: Espacio.sm),
               itemBuilder: (_, i) => _MiniaturaLocal(
-                ruta: publicar.fotos[i].ruta,
+                bytes: publicar.fotos[i].bytes,
                 alQuitar: () => publicar.quitarFoto(i),
               ),
             ),
@@ -511,9 +510,9 @@ class _BotonSeccion extends StatelessWidget {
 
 /// Una foto recien tomada, con la cruz para quitarla.
 class _MiniaturaLocal extends StatelessWidget {
-  const _MiniaturaLocal({required this.ruta, required this.alQuitar});
+  const _MiniaturaLocal({required this.bytes, required this.alQuitar});
 
-  final String ruta;
+  final Uint8List bytes;
   final VoidCallback alQuitar;
 
   static const double lado = 72;
@@ -524,8 +523,10 @@ class _MiniaturaLocal extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(Medida.radioSm),
-          child: Image.file(
-            File(ruta),
+          // Los bytes de la foto recien sacada. Antes era Image.file, que
+          // necesita dart:io y en la web no existe.
+          child: Image.memory(
+            bytes,
             width: lado,
             height: lado,
             fit: BoxFit.cover,

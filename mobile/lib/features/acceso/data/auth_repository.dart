@@ -1,5 +1,6 @@
 import '../../../core/api_client.dart';
 import 'perfil.dart';
+import 'foto_del_telefono.dart';
 
 /// Todo lo que la app hace contra los endpoints de autenticacion y perfil.
 class AuthRepository {
@@ -65,11 +66,12 @@ class AuthRepository {
 
   /// Pone o cambia la foto de perfil. El backend la guarda cuadrada, chica y
   /// sin los datos de ubicacion que trae una foto del telefono.
-  Future<Perfil> subirFoto(String rutaArchivo) async {
+  Future<Perfil> subirFoto(FotoElegida foto) async {
     final datos = await _api.postArchivo(
       '/api/usuarios/yo/foto/',
       campo: 'foto',
-      rutaArchivo: rutaArchivo,
+      bytes: foto.bytes,
+      nombreArchivo: foto.nombre,
     ) as Map<String, dynamic>;
     return Perfil.desdeJson(datos);
   }

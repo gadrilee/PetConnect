@@ -1,11 +1,23 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../core/api_client.dart';
 import 'anuncio.dart';
 
 /// Foto lista para subir: el archivo y el momento en que se tomo.
 class FotoParaSubir {
-  const FotoParaSubir({required this.ruta, required this.fechaCaptura});
+  const FotoParaSubir({
+    required this.nombre,
+    required this.bytes,
+    required this.fechaCaptura,
+  });
 
-  final String ruta;
+  /// Con su extension: el servidor valida que sea una imagen.
+  final String nombre;
+
+  /// Los bytes, no la ruta: en la web el selector devuelve un `blob:` que
+  /// dart:io no sabe abrir.
+  final Uint8List bytes;
+
   final DateTime fechaCaptura;
 }
 
@@ -54,7 +66,8 @@ class AnunciosRepository {
       await _api.postArchivo(
         '/api/anuncios/$id/fotos/',
         campo: 'imagen',
-        rutaArchivo: foto.ruta,
+        bytes: foto.bytes,
+        nombreArchivo: foto.nombre,
         campos: {'fecha_captura': foto.fechaCaptura.toUtc().toIso8601String()},
       );
     }

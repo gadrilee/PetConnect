@@ -62,7 +62,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
 
   /// La foto recien elegida. Se ve mientras sube y se queda despues, para no
   /// esperar a bajar del servidor la misma foto que ya esta en el telefono.
-  String? _fotoLocal;
+  FotoElegida? _fotoLocal;
 
   static final _ochoDigitos = RegExp(r'^\d{8}$');
 
@@ -153,9 +153,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
     if (!mounted || opcion == null) return;
     if (opcion == _OpcionFoto.quitar) return _quitarFoto();
 
-    final String? ruta;
+    final FotoElegida? elegida;
     try {
-      ruta = await widget.elegirFoto(
+      elegida = await widget.elegirFoto(
         opcion == _OpcionFoto.camara ? OrigenFoto.camara : OrigenFoto.galeria,
       );
     } catch (_) {
@@ -169,12 +169,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
       return;
     }
     // Se arrepintio en la camara o en la galeria: nada cambia.
-    if (ruta == null || !mounted) return;
+    if (elegida == null || !mounted) return;
 
     _empezar(_Tarea.subirFoto);
     final anterior = _fotoLocal;
-    setState(() => _fotoLocal = ruta);
-    final ok = await context.read<AuthProvider>().subirFoto(ruta);
+    setState(() => _fotoLocal = elegida);
+    final ok = await context.read<AuthProvider>().subirFoto(elegida);
     if (!mounted) return;
     setState(() {
       _tarea = null;
@@ -251,7 +251,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                 diametro: 96,
                 icono: perfil.esPropietario ? Icons.home_work_outlined : Icons.search,
                 foto: perfil.foto,
-                archivoLocal: _fotoLocal,
+                bytesLocales: _fotoLocal?.bytes,
                 subiendo: _tarea == _Tarea.subirFoto || _tarea == _Tarea.quitarFoto,
                 alTocar: libre ? _cambiarFoto : null,
               ),

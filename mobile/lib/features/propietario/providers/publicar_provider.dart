@@ -124,7 +124,11 @@ class PublicarProvider extends ChangeNotifier {
       );
       if (archivo == null) return;
 
-      fotos.add(FotoParaSubir(ruta: archivo.path, fechaCaptura: DateTime.now()));
+      fotos.add(FotoParaSubir(
+        nombre: archivo.name,
+        bytes: await archivo.readAsBytes(),
+        fechaCaptura: DateTime.now(),
+      ));
       notifyListeners();
     } catch (e) {
       error = 'No se pudo abrir la cámara.';

@@ -48,7 +48,8 @@ MockClient _servidor({
 Future<dynamic> _subir(ApiClient api) => api.postArchivo(
   '/api/anuncios/1/fotos/',
   campo: 'imagen',
-  rutaArchivo: _foto.path,
+  bytes: const [1, 2, 3, 4],
+  nombreArchivo: 'marta.jpg',
   campos: const {'fecha_captura': '2026-08-12'},
 );
 
