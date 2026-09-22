@@ -23,11 +23,11 @@ nada útil más allá de esta descripción.
 
 ## Enlaces
 
-- [AlquilaMatch](https://34-42-165-3.nip.io/): la aplicación. Pide usuario y
+- [AlquilaMatch](https://34-39-206-197.nip.io/): la aplicación. Pide usuario y
   contraseña; no hay nada visible sin cuenta.
 - [Código en GitHub](https://github.com/gadrilee/PetConnect): el repositorio
   público, con la app en Flutter y el backend en Django.
-- [Reglas para rastreadores](https://34-42-165-3.nip.io/robots.txt)
+- [Reglas para rastreadores](https://34-39-206-197.nip.io/robots.txt)
 
 ## Qué no hay acá
 
