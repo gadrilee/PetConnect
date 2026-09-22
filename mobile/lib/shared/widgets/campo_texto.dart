@@ -165,7 +165,8 @@ class _CampoTextoState extends State<CampoTexto> {
       EstadoCampo.reposo => AppColors.text60,
     };
 
-    final sufijo = widget.sufijo ??
+    final sufijo =
+        widget.sufijo ??
         (widget.unidad == null
             ? null
             : Text(
@@ -208,73 +209,87 @@ class _CampoTextoState extends State<CampoTexto> {
           ),
         ),
         const SizedBox(height: Espacio.sm),
-        Semantics(
-          textField: true,
-          label: widget.etiqueta,
-          // Sin esto un lector de pantalla anuncia el campo igual estando en
-          // error, y la persona no se entera de que hay algo que corregir.
-          hint: widget.mensajeError,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
-            curve: Curves.easeOut,
-            height: Medida.campo, // constante en los cuatro estados
-            // El fondo va debajo del contenido y el borde por encima: asi el
-            // borde no le resta alto a la fila, y el campo y el ojito miden
-            // los 48 enteros de la caja.
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(Medida.radio),
-            ),
-            foregroundDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(Medida.radio),
-              border: Border.all(color: borde, width: grosor),
-            ),
-            child: Row(
-              children: [
-                if (widget.icono != null) ...[
-                  const SizedBox(width: Espacio.md),
-                  Icon(widget.icono, size: 20, color: colorIcono),
-                  const SizedBox(width: Espacio.sm),
-                ] else ...[
-                  const SizedBox(width: Espacio.md),
-                ],
-                Expanded(
-                  child: TextField(
-                    controller: widget.controlador,
-                    focusNode: _foco,
-                    keyboardType: widget.tipoTeclado,
-                    inputFormatters: widget.formateadores,
-                    obscureText:
-                        widget.ocultarTexto || (widget.esClave && !_verClave),
-                    textInputAction: widget.accionTeclado,
-                    onSubmitted: widget.alEnviar,
-                    style: texto.bodyLarge?.copyWith(color: AppColors.text),
-                    decoration: InputDecoration(
-                      hintText: widget.pista,
-                      hintStyle:
-                          texto.bodyLarge?.copyWith(color: AppColors.text70),
-                      border: InputBorder.none,
-                      // La caja (fondo y borde) la dibuja el AnimatedContainer
-                      // de arriba. Sin esto el TextField pinta ademas su propio
-                      // relleno y queda un rectangulo gris dentro del campo.
-                      filled: false,
-                      // Sin `isDense`: Material le da al campo su alto minimo
-                      // de 48, el de la caja, y el blanco del toque es toda la
-                      // caja y no solo la linea de texto.
-                      contentPadding: EdgeInsets.zero,
+        // La etiqueta y el error van pegados al TextField, mas abajo. Estaban
+        // acá, envolviendo la caja entera, y eso los dejaba en un nodo
+        // ANCESTRO: en la web el <input> que crea Flutter sale del nodo del
+        // campo, que asi quedaba sin nombre. Lighthouse lo marcaba como "Form
+        // elements do not have associated labels" y el lector de pantalla no
+        // decia de que campo se trataba.
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          height: Medida.campo, // constante en los cuatro estados
+          // El fondo va debajo del contenido y el borde por encima: asi el
+          // borde no le resta alto a la fila, y el campo y el ojito miden
+          // los 48 enteros de la caja.
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(Medida.radio),
+          ),
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Medida.radio),
+            border: Border.all(color: borde, width: grosor),
+          ),
+          child: Row(
+            children: [
+              if (widget.icono != null) ...[
+                const SizedBox(width: Espacio.md),
+                Icon(widget.icono, size: 20, color: colorIcono),
+                const SizedBox(width: Espacio.sm),
+              ] else ...[
+                const SizedBox(width: Espacio.md),
+              ],
+              Expanded(
+                // MergeSemantics junta la etiqueta con el campo en UN solo
+                // nodo, que es el que la web convierte en <input aria-label>.
+                // Envuelve sólo el campo: el ojito de la contraseña queda
+                // afuera y sigue siendo su propio botón.
+                child: MergeSemantics(
+                  child: Semantics(
+                    textField: true,
+                    label: widget.etiqueta,
+                    // Sin esto un lector de pantalla anuncia el campo igual
+                    // estando en error, y la persona no se entera de que hay
+                    // algo que corregir.
+                    hint: widget.mensajeError,
+                    child: TextField(
+                      controller: widget.controlador,
+                      focusNode: _foco,
+                      keyboardType: widget.tipoTeclado,
+                      inputFormatters: widget.formateadores,
+                      obscureText:
+                          widget.ocultarTexto || (widget.esClave && !_verClave),
+                      textInputAction: widget.accionTeclado,
+                      onSubmitted: widget.alEnviar,
+                      style: texto.bodyLarge?.copyWith(color: AppColors.text),
+                      decoration: InputDecoration(
+                        hintText: widget.pista,
+                        hintStyle: texto.bodyLarge?.copyWith(
+                          color: AppColors.text70,
+                        ),
+                        border: InputBorder.none,
+                        // La caja (fondo y borde) la dibuja el AnimatedContainer
+                        // de arriba. Sin esto el TextField pinta ademas su propio
+                        // relleno y queda un rectangulo gris dentro del campo.
+                        filled: false,
+                        // Sin `isDense`: Material le da al campo su alto minimo
+                        // de 48, el de la caja, y el blanco del toque es toda la
+                        // caja y no solo la linea de texto.
+                        contentPadding: EdgeInsets.zero,
+                      ),
                     ),
                   ),
                 ),
-                if (sufijo != null) ...[
-                  sufijo,
-                  SizedBox(
-                    width: widget.unidad == null ? Espacio.sm : Espacio.md,
-                  ),
-                ] else ...[
-                  const SizedBox(width: Espacio.md),
-                ],
+              ),
+              if (sufijo != null) ...[
+                sufijo,
+                SizedBox(
+                  width: widget.unidad == null ? Espacio.sm : Espacio.md,
+                ),
+              ] else ...[
+                const SizedBox(width: Espacio.md),
               ],
-            ),
+            ],
           ),
         ),
 

@@ -170,4 +170,35 @@ void main() {
       expect(find.textContaining('monto válido'), findsNothing);
     });
   });
+
+  testWidgets('la etiqueta viaja en el nodo del campo, no en un ancestro', (
+    tester,
+  ) async {
+    // En la web el <input> lo crea Flutter a partir del nodo del campo. Con
+    // la etiqueta en un ancestro, ese <input> sale sin nombre: Lighthouse lo
+    // marca como "Form elements do not have associated labels" y el lector de
+    // pantalla no dice de qué campo se trata.
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      _envolver(CampoTexto(etiqueta: 'Usuario', controlador: ctrl)),
+    );
+
+    expect(tester.getSemantics(find.byType(EditableText)).label, 'Usuario');
+
+    // Y con error, el motivo va de pista en el mismo nodo.
+    await tester.pumpWidget(
+      _envolver(
+        CampoTexto(
+          etiqueta: 'Usuario',
+          controlador: ctrl,
+          mensajeError: 'Escribí tu usuario',
+        ),
+      ),
+    );
+    final conError = tester.getSemantics(find.byType(EditableText));
+    expect(conError.label, 'Usuario');
+    expect(conError.hint, 'Escribí tu usuario');
+
+    handle.dispose();
+  });
 }

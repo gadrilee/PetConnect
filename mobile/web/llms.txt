@@ -1,0 +1,36 @@
+# AlquilaMatch
+
+> Aplicación para alquilar cuartos, departamentos y casas cerca de la
+> Universidad Autónoma Gabriel René Moreno, en Santa Cruz de la Sierra. La
+> idea es que las condiciones estén por delante: el precio final con los
+> servicios incluidos, si acepta mascotas, el tipo de espacio y los minutos
+> caminando a la universidad se ven antes de contactar a nadie.
+
+Trabajo de la materia Interacción Hombre Computador (ELC106-SA) de la UAGRM,
+de Gabriel Mamani Sandoval y Daniel Joaquin Mamani Peña. El contenido está en
+español y hace falta una cuenta para ver los anuncios.
+
+La interfaz está hecha en Flutter y se dibuja sobre un canvas, así que el
+texto de las pantallas no está en el HTML: un rastreador no va a encontrar
+nada útil más allá de esta descripción.
+
+## Cómo funciona
+
+- Quien alquila publica su anuncio con las cuatro condiciones y fotos fechadas.
+- Quien busca filtra por precio final, mascotas, tipo y minutos caminando.
+- Para visitar hay que pedir una visita; el WhatsApp del propietario se libera
+  sólo cuando él la aprueba, y sólo para esa persona.
+
+## Enlaces
+
+- [AlquilaMatch](https://34-42-165-3.nip.io/): la aplicación. Pide usuario y
+  contraseña; no hay nada visible sin cuenta.
+- [Código en GitHub](https://github.com/gadrilee/PetConnect): el repositorio
+  público, con la app en Flutter y el backend en Django.
+- [Reglas para rastreadores](https://34-42-165-3.nip.io/robots.txt)
+
+## Qué no hay acá
+
+- No se cobran ni se procesan pagos.
+- No hay contenido público: `/api/` y `/admin/` piden autenticación y están
+  excluidos en `/robots.txt`.

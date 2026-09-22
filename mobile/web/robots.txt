@@ -1,0 +1,13 @@
+# AlquilaMatch — https://34-42-165-3.nip.io/
+#
+# Sin esto, nginx devolvía el index.html de la app para /robots.txt (es el
+# comodín del SPA) y los rastreadores recibían HTML donde esperaban reglas.
+# Lighthouse lo marcaba como "robots.txt is not valid".
+
+User-agent: *
+Allow: /
+
+# La API y el panel de Django no son contenido para buscadores, y además
+# piden autenticación.
+Disallow: /api/
+Disallow: /admin/
