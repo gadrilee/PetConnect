@@ -70,6 +70,20 @@
   </div>
 
   <script>
+    // El motor de Flutter usa `Intl.v8BreakIterator` para partir palabras y
+    // renglones, y esa API está deprecada: es lo único que le quedaba en rojo
+    // a Lighthouse en "buenas prácticas", y no se arregla desde el código de
+    // la app ni actualizando Flutter (se probó con 3.47.5).
+    //
+    // Pero el engine la elige por detección de capacidades: si no está, usa su
+    // propio partidor en Dart. Y ese camino no es experimental — es el que
+    // usan Firefox y Safari, que nunca tuvieron `v8BreakIterator` porque es
+    // exclusiva de V8. Sacándola, Chrome queda en la misma vía que ellos.
+    //
+    // Cuando Flutter pase a `Intl.Segmenter` aguas arriba, esto se puede
+    // borrar sin más.
+    try { delete Intl.v8BreakIterator; } catch (e) {}
+
     // Flutter avisa cuando pinto su primer cuadro: ahi recien se saca el
     // cartel, para que no haya un parpadeo en blanco entre los dos.
     window.addEventListener('flutter-first-frame', function () {
