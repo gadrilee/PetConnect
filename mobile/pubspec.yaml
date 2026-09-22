@@ -59,9 +59,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/app_icon.png"
+  image_path: "herramientas/icono/app_icon.png"
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  adaptive_icon_foreground: "herramientas/icono/app_icon_foreground.png"
   # El logo ocupa el 80 % del lienzo, y de un icono adaptativo Android sólo
   # muestra el 66 % del centro: sin este margen el logo sale tocando el borde
   # del círculo y se ve más grande que los iconos de al lado.
