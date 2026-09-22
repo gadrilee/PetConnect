@@ -33,6 +33,18 @@
   <meta name="theme-color" content="#1B7A3E">
   <link rel="manifest" href="manifest.json">
 
+  <!-- CanvasKit y la tipografía vienen de dos servidores de Google, y el
+       navegador recién se entera de que existen cuando ejecuta el bootstrap.
+       Avisándole acá, va abriendo la conexión (DNS, TCP y TLS) mientras
+       todavía está bajando lo nuestro, en vez de después. -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Lo mismo con el bulto de la app: main.dart.js son 930 KB y hasta ahora
+       se pedía recién cuando flutter_bootstrap.js terminaba de ejecutarse.
+       Así arranca en paralelo. -->
+  <link rel="preload" href="main.dart.js" as="script">
+
   <style>
     html, body { margin: 0; padding: 0; height: 100%; background: #FFFFFF; }
 
@@ -64,7 +76,9 @@
   <h1 class="solo-lectores">AlquilaMatch</h1>
 
   <div id="cargando">
-    <img src="assets/assets/icon/logo.png" alt="">
+    <!-- Es el elemento que Lighthouse mide como LCP: con prioridad alta el
+         navegador no lo deja para el final de la cola. -->
+    <img src="assets/assets/icon/logo.png" alt="" fetchpriority="high" width="96" height="79">
     <strong>AlquilaMatch</strong>
     <p>Alquiler con las condiciones por delante.</p>
   </div>
