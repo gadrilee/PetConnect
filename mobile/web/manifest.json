@@ -1,11 +1,12 @@
 {
-    "name": "alquilamatch",
-    "short_name": "alquilamatch",
+    "name": "AlquilaMatch",
+    "short_name": "AlquilaMatch",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#1B7A3E",
+    "description": "Alquiler con las condiciones por delante: precio final, mascotas, tipo de espacio y minutos caminando a la UAGRM.",
+    "lang": "es",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
